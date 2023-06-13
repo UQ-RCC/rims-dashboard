@@ -9,7 +9,7 @@ import os
 import errno
 
 config = configparser.ConfigParser()
-config.read(["conf/pitschixapi.conf", os.environ.get("PITSCHI_XAPI_CONFIG", ""), "/etc/pitschi/conf/pitschixapi.conf"])
+config.read(["conf/rimsdash.conf", os.environ.get("RIMSDASH_CONFIG", "")])
 
 def get(section, option, default = None, required=False):
     """

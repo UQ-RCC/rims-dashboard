@@ -13,6 +13,37 @@ import rimsdash.config as config
 
 logger = logging.getLogger('pitschixapi')
 
+
+def get_usage_per_project(start_date="2023-01-01", end_date="2023-03-31"):
+    """
+    requests instrument usage per project between start and end dates from RIMS API
+    returns as json
+    """    
+    report_no=1064
+    url=f"{config.get('ppms','ppms_url')}API2/"
+    key=f"{config.get('ppms', 'api2_key')}"
+    return_format=f"json"
+    payload=f"apikey={key}&action=Report{report_no}&startDate={start_date}&endDate={end_date}&dateformat=print&outformat={return_format}&coreid=2"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            #logger.debug(f"Response: {response}")  #WARNING: logs the huge json block
+            return response.json(strict=False)
+    else:
+        raise Exception('Not found')
+
+
+
+
+
+
 def get_ppms_user(login):
     url = f"{config.get('ppms', 'ppms_url')}pumapi/"
     payload=f"apikey={config.get('ppms', 'ppms_key')}&action=getuser&login={login}&format=json"
