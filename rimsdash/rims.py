@@ -14,16 +14,17 @@ import rimsdash.config as config
 logger = logging.getLogger('pitschixapi')
 
 
-def get_usage_per_project(start_date="2023-01-01", end_date="2023-03-31"):
+def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetime.date(2022, 7, 31)):
     """
     requests instrument usage per project between start and end dates from RIMS API
     returns as json
     """    
+    date_format='%Y-%m-%d'
     report_no=1064
     url=f"{config.get('ppms','ppms_url')}API2/"
     key=f"{config.get('ppms', 'api2_key')}"
     return_format=f"json"
-    payload=f"apikey={key}&action=Report{report_no}&startDate={start_date}&endDate={end_date}&dateformat=print&outformat={return_format}&coreid=2"
+    payload=f"apikey={key}&action=Report{report_no}&startDate={start_date.strftime(date_format)}&endDate={end_date.strftime(date_format)}&dateformat=print&outformat={return_format}&coreid=2"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
