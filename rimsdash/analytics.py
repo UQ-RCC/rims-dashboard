@@ -1,30 +1,52 @@
+import datetime
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+
 import rimsdash.rims as rims
-import datetime
 
-RIMS_CUTOFF=datetime.date(2022,6,1)     #date where internal groupid changed
-CMM_GROUP_ID=2              #known group ID for ppms internal usage
-UQRI_GROUP_ID=731           #known group ID for rims internal usage
 
-def count_hours(df, instrument_name, date):
-    date_mask = df['date'] == pd.Timestamp(date)
-    instrument_mask = df['Instrument Name'] == instrument_name
 
-    if date < RIMS_CUTOFF:
-        internal_group_id = CMM_GROUP_ID
-    else:
-        internal_group_id = UQRI_GROUP_ID
+UQ_COLOURS={'purple':(81,36,122), 'lpurple':(150,42,139),'red':(230,38,69), 'blue':(64,133,198), \
+            'aqua':(0,162,199), 'grey':(215,209,204), "dgrey":(153,148,144), \
+            'gold':(217,172,109), 'green':(46,168,54), 'orange':(235,96,43),\
+            'yellow':(251,184,0), 'black':(0,0,0), 'white':(255,255,255) }
 
-    group_mask = df['Group ID'] == internal_group_id
 
-    mask_internal = instrument_mask & date_mask & group_mask 
-    mask_user = instrument_mask & date_mask & ~group_mask 
+def usage_bar(usage):
+    """
+    simple bar chart in UQ branded colours, stacked by source
+    """
 
-    user = df[mask_user]
-    internal = df[mask_internal]
+    layout = go.Layout(
+        paper_bgcolor='rgba(255,255,255,125)',
+        plot_bgcolor='rgba(255,255,255,125)'
+    )
 
-    user_hours = user['Total hours booked'].sum()
-    internal_hours = internal['Total hours booked'].sum()
+    fig = go.Figure(data=[
+        go.Bar(name='User', x=usage['date'], y=usage['user_hours'], marker=dict(color = f"rgb{UQ_COLOURS['purple']}")),
+        go.Bar(name='Internal', x=usage['date'], y=usage['internal_hours'], marker=dict(color = f"rgb{UQ_COLOURS['gold']}"))
+    ], layout=layout)
+    # Change the bar mode
+    fig.update_layout(barmode='stack')
+    fig.show()
 
-    return(user_hours, internal_hours, user, internal)
+
+def annual_bar(usage):
+    """
+    simple bar chart in UQ branded colours, stacked by source
+    """
+
+    layout = go.Layout(
+        paper_bgcolor='rgba(255,255,255,125)',
+        plot_bgcolor='rgba(255,255,255,125)'
+    )
+
+    fig = go.Figure(data=[
+        go.Bar(name='User', x=usage['date'], y=usage['user_hours'], marker=dict(color = f"rgb{UQ_COLOURS['purple']}")),
+        go.Bar(name='Internal', x=usage['date'], y=usage['internal_hours'], marker=dict(color = f"rgb{UQ_COLOURS['gold']}"))
+    ], layout=layout)
+    # Change the bar mode
+    fig.update_layout(barmode='stack')
+    fig.show()
+
