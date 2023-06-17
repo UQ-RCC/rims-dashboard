@@ -29,7 +29,9 @@ def usage_bar(usage):
     ], layout=layout)
     # Change the bar mode
     fig.update_layout(barmode='stack')
-    fig.show()
+    #fig.show()
+
+    return fig
 
 
 def annual_bar(usage):
@@ -48,5 +50,5 @@ def annual_bar(usage):
     ], layout=layout)
     # Change the bar mode
     fig.update_layout(barmode='stack')
-    fig.show()
+    #ig.show()
 
