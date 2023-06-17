@@ -23,10 +23,9 @@ instr_dropdown = dcc.Dropdown(options=sorted(iname_list),
 app.layout = html.Div(children=[
     html.H1(children='Instrument usage dashboard'),
     instr_dropdown,
-    dcc.Graph(id='usage-graph'),
-    dcc.Graph(id='annual-graph')
+    dcc.Graph(id='usage-graph')
 ])
-
+#    dcc.Graph(id='annual-graph')
 
 @app.callback(
     Output(component_id='usage-graph', component_property='figure'),
