@@ -23,7 +23,8 @@ instr_dropdown = dcc.Dropdown(options=sorted(iname_list),
 app.layout = html.Div(children=[
     html.H1(children='Instrument usage dashboard'),
     instr_dropdown,
-    dcc.Graph(id='usage-graph')
+    dcc.Graph(id='usage-graph'),
+    dcc.Graph(id='annual-graph')
 ])
 
 
@@ -31,18 +32,31 @@ app.layout = html.Div(children=[
     Output(component_id='usage-graph', component_property='figure'),
     Input(component_id=instr_dropdown, component_property='value')
 )
-def update_graph(instrument_name):
+def update_usage_graph(instrument_name):
 
     instrument_id = iindex_list[iname_list.index(instrument_name)]
 
     monthly_usage, annual_usage, full_data = gather.get_usage(instrument_id)
 
-    #print(f"DEBUG: {instrument_id}")
-    #print(monthly_usage)
-
     fig = analytics.usage_bar(monthly_usage)
 
     return fig
+
+
+@app.callback(
+    Output(component_id='annual-graph', component_property='figure'),
+    Input(component_id=instr_dropdown, component_property='value')
+)
+def update_annual_graph(instrument_name):
+
+    instrument_id = iindex_list[iname_list.index(instrument_name)]
+
+    monthly_usage, annual_usage, full_data = gather.get_usage(instrument_id)
+
+    fig = analytics.usage_bar(annual_usage)
+
+    return fig
+
 
 
 if __name__ == '__main__':
