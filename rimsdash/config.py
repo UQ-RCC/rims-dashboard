@@ -7,13 +7,15 @@ Apache 2.0
 import configparser
 import os
 import errno
+BASE_DIR=os.path.dirname(os.path.realpath(os.path.dirname(__file__)))
+
 
 config = configparser.ConfigParser()
-config.read(["conf/rimsdash.conf", os.environ.get("RIMSDASH_CONFIG", "")])
+config.read([os.path.join(BASE_DIR,"conf/rimsdash.conf"), os.environ.get("RIMSDASH_CONFIG", "")])
 
 def get(section, option, default = None, required=False):
     """
-    Reads config optoin from the given section, returning default if not found
+    Reads config option from the given section, returning default if not found
     """
     try:
         return config.get(section, option).strip()

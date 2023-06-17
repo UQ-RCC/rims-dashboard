@@ -41,7 +41,7 @@ def update_usage_graph(instrument_name):
 
     return fig
 
-
+"""
 @app.callback(
     Output(component_id='annual-graph', component_property='figure'),
     Input(component_id=instr_dropdown, component_property='value')
@@ -55,6 +55,7 @@ def update_annual_graph(instrument_name):
     fig = analytics.usage_bar(annual_usage)
 
     return fig
+"""
 
 
 

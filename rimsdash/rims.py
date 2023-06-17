@@ -10,7 +10,6 @@ import datetime
 import logging
 import rimsdash.config as config
 
-
 logger = logging.getLogger('pitschixapi')
 
 

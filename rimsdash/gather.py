@@ -1,16 +1,18 @@
-
-import rimsdash.rims as rims
-import pandas as pd
-import numpy as np
-
+import sys
+import os
 import datetime
 import calendar
+import pandas as pd
+import numpy as np
 import dateutil.relativedelta as relativedelta
-import os
+
+import rimsdash.rims as rims
 import rimsdash.analytics as analytics
 
+BASE_DIR=os.path.dirname(os.path.realpath(os.path.dirname(__file__)))
+DATA_BASE='data/'
+DATA_DIR=os.path.join(BASE_DIR, DATA_BASE)
 
-DATA_DIR='data/'
 START_YEAR = 2019
 RIMS_CUTOFF=datetime.date(2022,6,1)     #date where internal groupid changed
 CMM_GROUP_ID=2              #known group ID for ppms internal usage
