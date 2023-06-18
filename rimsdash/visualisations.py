@@ -26,7 +26,7 @@ def usage_bar(usage):
 
     fig = go.Figure(data=[
         go.Bar(name='User', x=usage['date'], y=usage['user_hours'], marker=dict(color = f"rgb{UQ_COLOURS['purple']}")),
-        go.Bar(name='Internal', x=usage['date'], y=usage['internal_hours'], marker=dict(color = f"rgb{UQ_COLOURS['gold']}"))
+        go.Bar(name='Internal', x=usage['date'], y=usage['internal_hours'], marker=dict(color = f"rgb{UQ_COLOURS['lpurple']}"))
     ], layout=layout)
 
     if max(usage['user_hours']+usage['internal_hours']) < Y_CUTOFF:
@@ -37,23 +37,3 @@ def usage_bar(usage):
     #fig.show()
 
     return fig
-
-
-def annual_bar(usage):
-    """
-    simple bar chart in UQ branded colours, stacked by source
-    """
-
-    layout = go.Layout(
-        paper_bgcolor='rgba(255,255,255,125)',
-        plot_bgcolor='rgba(255,255,255,125)'
-    )
-
-    fig = go.Figure(data=[
-        go.Bar(name='User', x=usage['date'], y=usage['user_hours'], marker=dict(color = f"rgb{UQ_COLOURS['purple']}")),
-        go.Bar(name='Internal', x=usage['date'], y=usage['internal_hours'], marker=dict(color = f"rgb{UQ_COLOURS['gold']}"))
-    ], layout=layout)
-    # Change the bar mode
-    fig.update_layout(barmode='stack')
-    #ig.show()
-
