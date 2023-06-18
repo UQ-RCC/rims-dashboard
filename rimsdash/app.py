@@ -12,6 +12,7 @@ import rimsdash.analytics as analytics
 temp_id=126
 
 app = Dash()
+server = app.server
 
 ___, ___, full_data = gather.get_usage(temp_id)
 iname_list = full_data['Instrument Name'].unique()
