@@ -14,6 +14,7 @@ UQ_COLOURS={'purple':(81,36,122), 'lpurple':(150,42,139),'red':(230,38,69), 'blu
 
 Y_CUTOFF = int(config.get('visualisation','min_hours'))
 
+
 def usage_bar(usage):
     """
     simple bar chart in UQ branded colours, stacked by source

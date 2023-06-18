@@ -7,7 +7,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import rimsdash.gather as gather
-import rimsdash.analytics as analytics
+import rimsdash.visualisations as vis
 
 temp_id=126
 
@@ -41,7 +41,7 @@ def update_usage_graph(instrument_name):
 
     monthly_usage, annual_usage, full_data = gather.get_usage(instrument_id)
 
-    fig = analytics.usage_bar(monthly_usage)
+    fig = vis.usage_bar(monthly_usage)
 
     return fig
 
@@ -56,7 +56,7 @@ def update_annual_graph(instrument_name):
 
     monthly_usage, annual_usage, full_data = gather.get_usage(instrument_id)
 
-    fig = analytics.usage_bar(annual_usage)
+    fig = vis.usage_bar(annual_usage)
 
     return fig
 """
