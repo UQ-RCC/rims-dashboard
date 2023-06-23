@@ -7,7 +7,7 @@ import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import rimsdash.gather as gather
+import rimsdash.statsgather as gather
 import rimsdash.visualisations as vis
 
 temp_id=126
