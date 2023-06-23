@@ -5,3 +5,6 @@ log_file=/var/log/rimsdash/rimsdash.log
 ppms_url=https://rims.uq.edu.au/
 api2_key=xxxxxx
 timezone=Australia/Brisbane
+
+[visualisation]
+min_hours=250
