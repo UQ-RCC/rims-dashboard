@@ -1,5 +1,6 @@
 import sys, os
 from dash import Dash, html, dcc, Input, Output
+import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 import numpy as np
@@ -11,8 +12,12 @@ import rimsdash.visualisations as vis
 
 temp_id=126
 
-app = Dash()
+css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
+theme = dbc.themes.PULSE
+app = Dash(name="rimsdash",
+            external_stylesheets=[theme, css])
 server = app.server
+
 
 iname_list, iindex_list = gather.get_instrument_lists()
 
