@@ -31,30 +31,6 @@ def get_userdata_df():
 
     return df
 
-def report_data():
-    return user_data, project_data
-
-def gather_userlists():
-    """
-    get lists of instruments and ids
-
-    needs full_data local var
-    """
-    uid_list = user_data['id']
-    username_list = user_data['name']
-
-    if not np.all(uid_list.unique() == uid_list):
-        raise ValueError("non-unique UID in list")
-
-    username_list = username_list.tolist()
-    uid_list = uid_list.tolist()
-
-    return uid_list, username_list
-
-def query_user(uid: int):
-    result = rims.get_user_by_id(uid)
-    return result
-
 def get_projects_df():
     """
     get usage data within dates
@@ -72,23 +48,6 @@ def get_projects_df():
         df.to_hdf(file,key='df',mode='w')
 
     return df
-
-def gather_projectlists():
-    """
-    get lists of instruments and ids
-
-    needs full_data local var
-    """
-    pid_list = project_data['ProjectRef']
-    pname_list = project_data['ProjectName']
-
-    if not np.all(pid_list.unique() == pid_list):
-        raise ValueError("non-unique UID in list")
-
-    pid_list = pid_list.tolist()
-    pname_list = pname_list.tolist()
-
-    return pid_list, pname_list
 
 def get_systems_df():
     """
@@ -109,6 +68,58 @@ def get_systems_df():
 
     return df
 
+def query_user(uid: int):
+    result = rims.get_user_by_id(uid)
+    return result
+
+def get_user_rights_df(ulogin: str):
+
+    raw = rims.get_user_rights(ulogin)
+
+    df = pd.DataFrame(raw.items(), columns=['systemid', 'access_level'])
+
+    return df
+
+def report_data():
+    """
+    reads out local vars
+    """    
+    return user_data, project_data
+
+def gather_userlists():
+    """
+    get paired lists of instruments and instrument ids
+
+    uses full_data local var
+    """
+    uid_list = user_data['id']
+    username_list = user_data['name']
+
+    if not np.all(uid_list.unique() == uid_list):
+        raise ValueError("non-unique UID in list")
+
+    username_list = username_list.tolist()
+    uid_list = uid_list.tolist()
+
+    return uid_list, username_list
+
+def gather_projectlists():
+    """
+    get paired lists of projects and project ids
+
+    uses full_data local var
+    """
+    pid_list = project_data['ProjectRef']
+    pname_list = project_data['ProjectName']
+
+    if not np.all(pid_list.unique() == pid_list):
+        raise ValueError("non-unique UID in list")
+
+    pid_list = pid_list.tolist()
+    pname_list = pname_list.tolist()
+
+    return pid_list, pname_list
+
 def pumapi_wrapper(raw_data):
     """
     converts dict-of-dicts returned by pitschi PUMAPI functions into simple dict
@@ -119,10 +130,6 @@ def pumapi_wrapper(raw_data):
             data.append(value)
 
     return data
-
-
-
-
 
 def backend_load():
     """

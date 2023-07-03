@@ -12,6 +12,11 @@ import rimsdash.config as config
 
 logger = logging.getLogger('pitschixapi')
 
+KEY=f"{config.get('ppms', 'api2_key')}"
+CORE_ID=f"{config.get('ppms', 'core_id')}"
+BASE_URL=f"{config.get('ppms','ppms_url')}"
+DATE_FORMAT='%Y-%m-%d'
+
 
 def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetime.date(2022, 7, 31)):
     """
@@ -20,11 +25,9 @@ def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetim
     """    
     REPORT_NO=1064
     date_format='%Y-%m-%d'
-    url=f"{config.get('ppms','ppms_url')}API2/"
-    key=f"{config.get('ppms', 'api2_key')}"
-    coreid=f"{config.get('ppms', 'core_id')}"
+    url=f"{BASE_URL}API2/"
     return_format=f"json"
-    payload=f"apikey={key}&action=Report{REPORT_NO}&startDate={start_date.strftime(date_format)}&endDate={end_date.strftime(date_format)}&dateformat=print&outformat={return_format}&coreid={coreid}"
+    payload=f"apikey={KEY}&action=Report{REPORT_NO}&startDate={start_date.strftime(date_format)}&endDate={end_date.strftime(date_format)}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -41,8 +44,12 @@ def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetim
 
 
 def get_systems():
+    """
+    requests system ids from RIMS API
+    returns as nested dicts
+    """        
     logger.debug("Querying systems")
-    url = f"{config.get('ppms', 'ppms_url')}pumapi/"
+    url = f"{BASE_URL}pumapi/"
     coreid=f"{config.get('ppms', 'core_id')}"
     key=f"{config.get('ppms', 'api2_key')}"
     payload=f"apikey={key}&action=getsystems"
@@ -71,16 +78,13 @@ def get_systems():
 
 def get_userlist():
     """
-    requests instrument usage per project between start and end dates from RIMS API
+    requests user report from RIMS API
     returns as json
     """    
     REPORT_NO=1335  #user list
-    date_format='%Y-%m-%d'
-    url=f"{config.get('ppms','ppms_url')}API2/"
-    key=f"{config.get('ppms', 'api2_key')}"
-    coreid=f"{config.get('ppms', 'core_id')}"
+    url=f"{BASE_URL}API2/"
     return_format=f"json"
-    payload=f"apikey={key}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={coreid}"
+    payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -98,15 +102,13 @@ def get_userlist():
 
 def get_user_by_id(uid):
     """
-    requests user by id
+    requests user data by id
     returns as json
     """    
-    url=f"{config.get('ppms','ppms_url')}API2/"
-    key=f"{config.get('ppms', 'api2_key')}"
-    coreid=f"{config.get('ppms', 'core_id')}"
+    url=f"{BASE_URL}API2/"
     return_format=f"json"
 
-    payload=f"apikey={key}&action=GetUserDetailsById&checkUserId={uid}&outformat={return_format}&coreid={coreid}"
+    payload=f"apikey={KEY}&action=GetUserDetailsById&checkUserId={uid}&outformat={return_format}&coreid={CORE_ID}"
 
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -126,15 +128,12 @@ def get_user_by_id(uid):
 def get_projects(active_only = False):
     logger.debug("Querying projects")
 
-    url = f"{config.get('ppms', 'ppms_url')}pumapi/"
-    key=f"{config.get('ppms', 'api2_key')}"
+    url = f"{BASE_URL}pumapi/"
 
     if active_only:
-        payload=f"apikey={key}&action=getprojects&active=True&format=json"
+        payload=f"apikey={KEY}&action=getprojects&active=True&format=json"
     else:
-        payload=f"apikey={key}&action=getprojects&format=json"
-    
-    print(payload)
+        payload=f"apikey={KEY}&action=getprojects&format=json"
 
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -156,14 +155,12 @@ def get_user_rights(ulogin: str):
     """
 
     logger.debug("Querying systems")
-    url = f"{config.get('ppms', 'ppms_url')}pumapi/"
-    key=f"{config.get('ppms', 'api2_key')}"
+    url = f"{BASE_URL}pumapi/"
 
-    payload=f"apikey={key}&action=getuserrights&login={ulogin}&format=json"
+    payload=f"apikey={KEY}&action=getuserrights&login={ulogin}&format=json"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
-    print(payload)
     response = requests.request("POST", url, headers=headers, data=payload)
     if response.ok:
         if response.status_code == 204:
@@ -179,14 +176,12 @@ def get_user_rights(ulogin: str):
 
 def get_user_projects(ulogin: str):
     logger.debug("Querying systems")
-    url = f"{config.get('ppms', 'ppms_url')}pumapi/"
-    key=f"{config.get('ppms', 'api2_key')}"
+    url = f"{BASE_URL}pumapi/"
 
-    payload=f"apikey={key}&action=getuserprojects&login={ulogin}&format=json"
+    payload=f"apikey={KEY}&action=getuserprojects&login={ulogin}&format=json"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
-    print(payload)
     response = requests.request("POST", url, headers=headers, data=payload)
     print(response)
     if response.ok:
@@ -211,7 +206,6 @@ def get_ppms_user(login):
     key=f"{config.get('ppms', 'api2_key')}"
     payload=f"apikey={key}&action=getuser&login={login}&format=json"
     
-    print(payload)
     
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
