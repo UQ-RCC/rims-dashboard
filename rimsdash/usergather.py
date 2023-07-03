@@ -93,28 +93,32 @@ def gather_projectlists():
 def get_systems_df():
     """
     get  data 
-        use database if present
+        use cache if present
         request from RIMS API if not
     """    
-    #NB NOT WORKING
-    #pitschi code extracts as a set, pd expects json
-
     filename=f"systems.h5"
     file = os.path.join(DATA_DIR, filename)
 
     if os.path.isfile(file):
         df = pd.read_hdf(file, 'df')
     else:
-        data=rims.get_systems()
+        data=pumapi_wrapper(rims.get_systems())
+
         df = pd.DataFrame.from_dict(data)
         df.to_hdf(file,key='df',mode='w')
 
     return df
 
+def pumapi_wrapper(raw_data):
+    """
+    converts dict-of-dicts returned by pitschi PUMAPI functions into simple dict
+    """
+    data=[]
 
+    for key, value in raw_data.items():
+            data.append(value)
 
-
-
+    return data
 
 
 
