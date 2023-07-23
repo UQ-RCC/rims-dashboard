@@ -9,6 +9,8 @@ import requests
 import datetime
 import logging
 import rimsdash.config as config
+import rimsdash.utils as utils
+
 
 logger = logging.getLogger('pitschixapi')
 
@@ -21,7 +23,7 @@ DATE_FORMAT='%Y-%m-%d'
 def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetime.date(2022, 7, 31)):
     """
     requests instrument usage per project between start and end dates from RIMS API
-    returns as json
+    returns json
     """    
     REPORT_NO=1064
     date_format='%Y-%m-%d'
@@ -46,7 +48,7 @@ def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetim
 def get_systems():
     """
     requests system ids from RIMS API
-    returns as nested dicts
+    returns dict-of-dicts
     """        
     logger.debug("Querying systems")
     url = f"{BASE_URL}pumapi/"
@@ -79,7 +81,7 @@ def get_systems():
 def get_userlist():
     """
     requests user report from RIMS API
-    returns as json
+    returns json
     """    
     REPORT_NO=1335  #user list
     url=f"{BASE_URL}API2/"
@@ -100,10 +102,10 @@ def get_userlist():
         raise Exception('Not found')
 
 
-def get_user_by_id(uid):
+def get_userdata_by_id(uid):
     """
     requests user data by id
-    returns as json
+    returns json
     """    
     url=f"{BASE_URL}API2/"
     return_format=f"json"
@@ -126,6 +128,11 @@ def get_user_by_id(uid):
 
 
 def get_projects(active_only = False):
+    """
+    request full project list incl basic details
+
+    returns list of dicts
+    """    
     logger.debug("Querying projects")
 
     url = f"{BASE_URL}pumapi/"
@@ -151,7 +158,9 @@ def get_projects(active_only = False):
 
 def get_user_rights(ulogin: str):
     """
-    failing? 
+    get user rights by system
+
+    returns dict
     """
 
     logger.debug("Querying systems")
@@ -171,10 +180,15 @@ def get_user_rights(ulogin: str):
             _lines = _system_rights_text.split('\n')
             _permissions = { int(_line.split(":")[1]):_line.split(":")[0] for _line in _lines } #int() strips remaining carriage return
             return _permissions
-    return {}
+    else:
+        return {}
 
 
 def get_user_projects(ulogin: str):
+    """
+    returns list of all projects associated with user ulogin
+    """
+
     logger.debug("Querying systems")
     url = f"{BASE_URL}pumapi/"
 
@@ -183,17 +197,18 @@ def get_user_projects(ulogin: str):
       'Content-Type': 'application/x-www-form-urlencoded'
     }
     response = requests.request("POST", url, headers=headers, data=payload)
-    print(response)
     if response.ok:
         if response.status_code == 204:
-            return {}
+            return []
         else:
                 # format is pid\n
                 _system_rights_text = response.text.strip()
-                _lines = _system_rights_text.split('\n')
-                _pids = { int(_line) for _line in _lines }  #int() strips remaining carriage return
-                return _pids
-    return {}
+                _lines = _system_rights_text.split('\r\n')
+                _pids = { _line for _line in _lines }  #int() strips remaining carriage return
+                #create as set then cast to list to retain received sorting                
+                result = [ utils.safecast_int(x) for x in list(_pids)]
+                return result  
+    return []
 
 
 
@@ -201,7 +216,7 @@ def get_user_projects(ulogin: str):
 #pitschi originals
 #------------------------------------------
 
-def get_ppms_user(login):
+def pts_get_ppms_user(login):
     url = f"{config.get('ppms', 'ppms_url')}pumapi/"
     key=f"{config.get('ppms', 'api2_key')}"
     payload=f"apikey={key}&action=getuser&login={login}&format=json"
@@ -221,7 +236,7 @@ def get_ppms_user(login):
         raise Exception('Not found')
 
 
-def get_ppms_user_by_id(uid:int, coreid:int):
+def pts_get_ppms_user_by_id(uid:int, coreid:int):
     logger.debug("@get_ppms_user_by_id: Querying user by id")
     url = f"{config.get('ppms', 'ppms_url')}API2/"
     key=f"{config.get('ppms', 'api2_key')}"    
@@ -239,8 +254,7 @@ def get_ppms_user_by_id(uid:int, coreid:int):
     return []
 
 
-
-def get_system_rights(systemid: int):
+def pts_get_system_rights(systemid: int):
     logger.debug("Querying systems")
     url = f"{config.get('ppms', 'ppms_url')}pumapi/"
     key=f"{config.get('ppms', 'api2_key')}"
@@ -263,11 +277,10 @@ def get_system_rights(systemid: int):
     return {}
 
 
-
-def get_project_user(projectid: int):
+def pts_get_project_users(projectid: int):
     logger.debug("Querying project user")
     url = f"{config.get('ppms', 'ppms_url')}pumapi/"
-    payload=f"apikey={config.get('ppms', 'ppms_key')}&action=getprojectusers&withdeactivated=false&projectid={projectid}"
+    payload=f"apikey={config.get('ppms', 'api2_key')}&action=getprojectusers&withdeactivated=false&projectid={projectid}"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -277,17 +290,17 @@ def get_project_user(projectid: int):
             return []
         else:
             response_txt = response.text
-            return response_txt.strip().split("\n")
+            return response_txt.strip().split("\r\n")
     else:
         return []
 
-def get_project_members(projectid: int):
+def pts_get_project_members(projectid: int):
     """
     Similar to project_user but with user id as well
     """
     logger.debug("Querying project user")
     url = f"{config.get('ppms', 'ppms_url')}pumapi/"
-    payload=f"apikey={config.get('ppms', 'ppms_key')}&action=getprojectmember&projectid={projectid}"
+    payload=f"apikey={config.get('ppms', 'api2_key')}&action=getprojectmember&projectid={projectid}"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -309,7 +322,7 @@ def get_project_members(projectid: int):
     else:
         return []
     
-def get_rdm_collection(coreid: int, projectid: int):
+def pts_get_rdm_collection(coreid: int, projectid: int):
     url = f"{config.get('ppms', 'ppms_url')}API2/"
     payload=f"apikey={config.get('ppms', 'api2_key')}&action={config.get('ppms', 'qcollection_action')}&projectId={projectid}&coreid={coreid}&outformat=json"
     headers = {

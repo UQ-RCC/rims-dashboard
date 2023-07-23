@@ -92,16 +92,16 @@ def gather_userlists():
 
     uses full_data local var
     """
-    uid_list = user_data['id']
-    username_list = user_data['name']
+    login_list = user_data['login']
+    name_list = user_data['name']
 
-    if not np.all(uid_list.unique() == uid_list):
+    if not np.all(login_list.unique() == login_list):
         raise ValueError("non-unique UID in list")
 
-    username_list = username_list.tolist()
-    uid_list = uid_list.tolist()
+    login_list = login_list.tolist()
+    name_list = name_list.tolist()
 
-    return uid_list, username_list
+    return login_list, name_list
 
 def gather_projectlists():
     """
@@ -119,6 +119,15 @@ def gather_projectlists():
     pname_list = pname_list.tolist()
 
     return pid_list, pname_list
+
+def gather_projectdetails(pid: int):
+    
+    selected = project_data[project_data['ProjectRef'] == pid]
+
+    return selected
+
+
+
 
 def pumapi_wrapper(raw_data):
     """

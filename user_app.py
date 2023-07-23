@@ -1,5 +1,5 @@
 import sys, os
-from dash import Dash, html, dcc, Input, Output
+from dash import Dash, html, dcc, Input, Output, dash_table
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import rimsdash.usergather as gather
 import rimsdash.visualisations as vis
+import rimsdash.rims as rims
 
 temp_login=126
 
@@ -18,22 +19,45 @@ app = Dash(name="rimsdash",
             external_stylesheets=[theme, css])
 server = app.server
 
-uid_list, username_list = gather.gather_userlists()
+uid_list, login_list = gather.gather_userlists()
 
-user_dropdown = dcc.Dropdown(options=sorted(username_list),
-                            value='myusername')
+user_dropdown = dcc.Dropdown(options=sorted(uid_list),
+                            value='s4595555')
+
+user_table = dash_table.DataTable()
 
 app.layout = html.Div(children=[
     html.H1(children='User dashboard'),
     user_dropdown,
-    dcc.Graph(id='usage-graph'),
+    dash_table.DataTable(id='project-table', style_as_list_view=True,),
     dcc.Graph(id='annual-graph',style={'width': '90vh', 'height': '40vh'})
 ])
 
 
+@app.callback(
+    Output(component_id='project-table', component_property='data'),
+    Output(component_id='project-table', component_property='columns'),
+    Input(component_id=user_dropdown, component_property='value')
+)
+def update_project_table(user_login):
+    """
+    update the monthly usage graph
+    """
+    print(f"{user_login}")
+    user_projects = rims.get_user_projects(user_login)
+
+    print(user_projects[0])
+
+    project_info_df = gather.gather_projectdetails(user_projects[0])
+
+    data = project_info_df.to_dict('records')
+    columns = [{"name": i, "id": i} for i in project_info_df.columns]
+    return data, columns
 
 
 
+if __name__ == '__main__':
+    app.run_server(debug=True)
 
 
 
