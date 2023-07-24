@@ -1,6 +1,7 @@
 import sys, os
 from dash import Dash, html, dcc, Input, Output, dash_table
 import dash_bootstrap_components as dbc
+#from dash_bootstrap_templates import load_figure_template
 import pandas as pd
 import plotly.express as px
 import numpy as np
@@ -11,10 +12,8 @@ import rimsdash.usergather as gather
 import rimsdash.visualisations as vis
 import rimsdash.rims as rims
 
-temp_login=126
-
 css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
-theme = dbc.themes.PULSE
+theme = dbc.themes.DARKLY
 app = Dash(name="rimsdash",
             external_stylesheets=[theme, css])
 server = app.server
@@ -29,9 +28,9 @@ user_table = dash_table.DataTable()
 app.layout = html.Div(children=[
     html.H1(children='User dashboard'),
     user_dropdown,
-    dash_table.DataTable(id='project-table', style_as_list_view=True,),
-    dcc.Graph(id='annual-graph',style={'width': '90vh', 'height': '40vh'})
-])
+    dbc.Badge("Project", id='badge-proj', color="Success",className="ms-1"),
+    dash_table.DataTable(id='project-table', style_as_list_view=True,),    
+    ])
 
 
 @app.callback(

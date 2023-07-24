@@ -15,7 +15,7 @@ DATA_DIR=os.path.join(BASE_DIR, DATA_BASE)
 
 def get_userdata_df():
     """
-    get usage data within dates
+    get user data
         use database if present
         request from RIMS API if not
     """    
@@ -27,8 +27,9 @@ def get_userdata_df():
     else:
         data=rims.get_userlist()
         df = pd.DataFrame.from_dict(data)
+        print("--------dropping------")
+        df = df.drop(columns=['phone'])
         df.to_hdf(file,key='df',mode='w')
-
     return df
 
 def get_projects_df():
