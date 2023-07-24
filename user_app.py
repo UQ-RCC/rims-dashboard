@@ -13,7 +13,7 @@ import rimsdash.visualisations as vis
 import rimsdash.rims as rims
 
 css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
-theme = dbc.themes.DARKLY
+theme = dbc.themes.PULSE
 app = Dash(name="rimsdash",
             external_stylesheets=[theme, css])
 server = app.server
