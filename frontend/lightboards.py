@@ -17,17 +17,19 @@ colorlist = ColorList()
 
 
 def create_lightcell(title, name, size=30):
-    html.Div(
-        [
-            html.H6(f"title"),
-            daq.Indicator(
-                id='name',
+    return html.Div([
+            html.H6(f"{title}", style={'align': 'center'}),
+            html.Div([daq.Indicator(
+                id=f"{name}",
                 label="",
                 size=size,
                 color=colorlist.neutral,
-            ),            
-        ], align="center"
+                ),
+            ], style={'align': 'right'}) 
+        ]
     )
+    
+    
 
 
 primary_dash=html.Div(
@@ -35,25 +37,14 @@ primary_dash=html.Div(
         dbc.Row(
             [
                 dbc.Col([
-                    html.H6("User"),
-                    daq.Indicator(
-                        id='ind-prim-user',
-                        label="",
-                        size=30,
-                        color=colorlist.neutral,
-                    )],
+                        create_lightcell("User", 'ind-prim-user'),
+                    ],
                     width={ 'size': 1, 'offset': 1},
                     align="center",
                 ),
                 dbc.Col([
-                    html.H6("Project"),
-                    daq.Indicator(
-                        id='ind-prim-proj',
-                        label="",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )],
+                        create_lightcell("Project", 'ind-prim-proj'),
+                    ],
                     width={ 'size': 1, 'offset': 0},
                     align="center",
                 ),
@@ -68,50 +59,26 @@ rights_dash=html.Div(
         dbc.Row(
             [
                 dbc.Col([
-                    html.H6("Hawken"),
-                    daq.Indicator(
-                        id='ind-acc-hawk',
-                        label="",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )], 
+                    create_lightcell("Hawken", 'ind-acc-hawk', 30),
+                    ], 
                     width={ 'size': 1, 'offset': 1},
                     align="center",
                 ),
                 dbc.Col([
-                    html.H6("AIBN"),
-                    daq.Indicator(
-                        id='ind-acc-aibn',
-                        label="",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )], 
+                    create_lightcell("AIBN", 'ind-acc-aibn', 30),
+                    ], 
                     width={ 'size': 1, 'offset': 0},
                     align="center",
                 ),
                 dbc.Col([
-                    html.H6("Chemistry"),
-                    daq.Indicator(
-                        id='ind-acc-chem',
-                        label="",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )], 
+                    create_lightcell("Chemistry", 'ind-acc-chem', 30),
+                    ], 
                     width={ 'size': 1, 'offset': 0},
                     align="center",
                 ),        
                 dbc.Col([
-                    html.H6("QBP"),
-                    daq.Indicator(
-                        id='ind-acc-qbp',
-                        label="",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )], 
+                    create_lightcell("QBP", 'ind-acc-qbp', 30),
+                    ], 
                     width={ 'size': 1, 'offset': 0},
                     align="center",
                 ),        

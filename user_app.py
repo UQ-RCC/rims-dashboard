@@ -47,21 +47,25 @@ user_dropdown = dcc.Dropdown(options=options,
 project_table = dash_table.DataTable(id='project-table', style_as_list_view=True,)
 
 
-
 app.layout = html.Div(
     [
-        html.H1('RIMS dashboard'),
-        html.P('Select your account:'),
-        user_dropdown,
-        html.P('Project data:'),
-        project_table,    
+        html.H1('RIMS dashboard'),        
         html.Div([
+            html.H5('Select your account:'),
+            user_dropdown,
+        ]),
+        html.Div([
+            html.H5('Master'),
             lightboards.primary_dash,
-            html.P('Access rights:'),
+            html.H5('Access rights:'),
             lightboards.rights_dash,
-            html.P('Projects:'),
+            html.H5('Projects:'),
             lightboards.project_dash
-        ], style={'width': '50%'})
+        ], style={'offset': '10%', 'width': '50%'}),
+        html.Div([        
+            html.H5('Project data:'),
+            project_table,            
+        ]),
     ]
 )
 
