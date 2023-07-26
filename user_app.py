@@ -12,15 +12,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import rimsdash.usergather as gather
 import rimsdash.visualisations as vis
 import rimsdash.rims as rims
+import frontend.lightboards as lightboards
 
-class ColorList():
-    def __init__(self):
-        self.success = "#33f975"
-        self.warn = "#ffb34d"
-        self.fail = "#fc5959"
-        self.neutral = "#BBBBBB"
 
-colorlist = ColorList()
+colorlist = lightboards.colorlist
 
 css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
 theme = dbc.themes.PULSE
@@ -49,57 +44,30 @@ for i, uid in enumerate(uid_list):
 user_dropdown = dcc.Dropdown(options=options,
                             value='s4595555')
 
-user_table = dash_table.DataTable()
+project_table = dash_table.DataTable(id='project-table', style_as_list_view=True,)
 
-app.layout = html.Div([
-    html.H1('RIMS dashboard'),
-    html.P('Select your account:'),
-    user_dropdown,
-    html.P('Project data:'),
-    dash_table.DataTable(id='project-table', style_as_list_view=True,),    
-    html.P('Project status:'),
-    html.Div([
-        daq.Indicator(
-            id='indic-user',
-            label="Account",
-            size=30,
-            color=colorlist.success,
-            style={'width': '10%', 'display': 'inline-block'}
-        ),
-        daq.Indicator(
-            id='indic-proj',
-            label="Project",
-            size=30,
-            color=colorlist.warn,
-            style={'width': '10%', 'display': 'inline-block'}
-        ),
-        daq.Indicator(
-            id='indic-rights',
-            label="Training",
-            size=30,
-            color=colorlist.fail,
-            style={'width': '10%', 'display': 'inline-block'}
-        ),        
-        daq.Indicator(
-            id='indic-ohs',
-            label="Lab access",
-            size=30,
-            color=colorlist.neutral,
-            style={'width': '10%', 'display': 'inline-block'}
-        ),
-        ],
-        style={'width': '50%', 'display': 'inline-block'}
-    ),
-    html.Button(
-        'On/Off',
-        id='my-indicator-button-1',
-        n_clicks=0
-    )]
+
+
+app.layout = html.Div(
+    [
+        html.H1('RIMS dashboard'),
+        html.P('Select your account:'),
+        user_dropdown,
+        html.P('Project data:'),
+        project_table,    
+        html.Div([
+            lightboards.primary_dash,
+            html.P('Access rights:'),
+            lightboards.rights_dash,
+            html.P('Projects:'),
+            lightboards.project_dash
+        ], style={'width': '50%'})
+    ]
 )
 
 #TO-DO "Akefe Isaac" fails with callback error, list index out of range
 @app.callback(
-    Output('indic-proj', 'value'),
+    Output('ind-prim-proj', 'value'),
     Input(component_id=user_dropdown, component_property='value')
 )
 def update_output(user_login):
@@ -112,7 +80,7 @@ def update_output(user_login):
 
 
 @app.callback(
-    Output('indic-proj', 'color'),
+    Output('ind-prim-proj', 'color'),
     Input(component_id=user_dropdown, component_property='value')
 )
 def project_color(user_login):
@@ -154,7 +122,7 @@ def update_project_table(user_login):
 
 
 def entry_main():
-    app.run_server(debug=False)
+    app.run_server(debug=False, dev_tools_hot_reload=False)
 
 if __name__ == '__main__':
     app.run_server(debug=True, dev_tools_hot_reload=False)
