@@ -56,7 +56,7 @@ app.layout = html.Div(
             ], id="title-container" )
         ], id="mainheader"),
         html.Div([
-            html.H5('Select your account:'),
+            html.H5('Select your username:'),
             user_dropdown,
         ], id="uselect-container"),
         html.Div([
@@ -68,28 +68,102 @@ app.layout = html.Div(
             html.H5('Project data:'),        
             project_table,            
         ], id='table-container'),
+        
+        #variable to hold dash-state
+        dcc.Store(id='dash_state'),
     ], id='container'
 )
 
-#TO-DO "Akefe Isaac" fails with callback error, list index out of range
+"""
 @app.callback(
-    Output('ind-prim-proj', 'value'),
+    Output(dcc.Store, 'dataset'),
     Input(component_id=user_dropdown, component_property='value')
 )
-def update_output(user_login):
-    user_projects = rims.get_user_projects(user_login)
-    print(user_projects)
-    if user_projects == [] or user_projects == [-1]:
-        return False
-    else:
-        return True
+def get_dash_state(user_login):
 
+    return c1, c2
+"""
+
+
+@app.callback(
+    Output('ind-proj-active', 'color'),
+    Output('ind-proj-acc', 'color'),    
+    Output('ind-proj-ohs', 'color'),    
+    Output('ind-proj-rdm', 'color'),        
+    Output('ind-proj-phase-0', 'color'),      
+    Output('ind-proj-phase-1', 'color'),   
+    Output('ind-proj-phase-2', 'color'),   
+    Output('ind-proj-phase-3', 'color'),   
+    Input(component_id=user_dropdown, component_property='value')
+)
+def assign_project_lights(user_login):
+    c1=colorlist.neutral
+    c2=colorlist.neutral
+    c3=colorlist.neutral
+    c4=colorlist.neutral
+    c5=colorlist.neutral
+    c6=colorlist.neutral
+    c7=colorlist.neutral
+    c8=colorlist.neutral
+
+    user_projects = rims.get_user_projects(user_login)
+
+    df = gather.gather_projectdetails(user_projects[0])
+    details = df.to_dict('records')[0]
+
+    #bunch of if statements
+
+    return c1, c2, c3, c4, c5, c6, c7, c8
+
+
+@app.callback(
+    Output('ind-acc-hawk', 'color'),
+    Output('ind-acc-aibn', 'color'),    
+    Output('ind-acc-chem', 'color'),    
+    Output('ind-acc-qbp', 'color'),        
+    Input(component_id=user_dropdown, component_property='value')
+)
+def assign_userrights_lights(user_login):
+    LABID_LIST = [ 65, 68, 69, 70 ]
+    c1=colorlist.neutral
+    c2=colorlist.neutral
+    c3=colorlist.neutral
+    c4=colorlist.neutral
+
+    for lab in LABID_LIST:
+        #access as key=lab
+        #if value in A, N, S
+        #color = success
+        #else: color=neutral
+        pass
+
+    user_projects = rims.get_user_projects(user_login)
+    
+    return c1, c2, c3, c4
+
+@app.callback(
+    Output('ind-prim-proj', 'color'),
+    Output('ind-prim-user', 'color'),    
+    Input(component_id=user_dropdown, component_property='value')
+)
+def assign_core_lights(user_login):
+    c1=colorlist.neutral
+    c2=colorlist.neutral
+    pass
+
+    return c1, c2
+
+
+
+
+
+#TO-DO "Akefe Isaac" fails with callback error, list index out of range
 
 @app.callback(
     Output('ind-prim-proj', 'color'),
     Input(component_id=user_dropdown, component_property='value')
 )
-def project_color(user_login):
+def assign_core_proj(user_login):
     user_projects = rims.get_user_projects(user_login)
 
     if user_projects == [] or user_projects == [-1]:
@@ -125,6 +199,23 @@ def update_project_table(user_login):
     data = project_info_df.to_dict('records')
     columns = [{"name": i, "id": i} for i in project_info_df.columns]
     return data, columns
+
+
+
+@app.callback(
+    Output('ind-prim-proj', 'value'),
+    Input(component_id=user_dropdown, component_property='value')
+)
+def update_output(user_login):
+    user_projects = rims.get_user_projects(user_login)
+    print(user_projects)
+    if user_projects == [] or user_projects == [-1]:
+        return False
+    else:
+        return True
+
+
+
 
 
 def entry_main():
