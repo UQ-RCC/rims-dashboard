@@ -12,7 +12,7 @@ class ColourList():
         #good
         self.work = "#77ffaa"
         self.on = "#33f975"
-        self.full = "#3375f9"
+        self.full = "#33f9f9"
         #bad
         self.warn = "#ffb34d"
         self.fail = "#fc5959"

@@ -50,6 +50,10 @@ def dash_state(user_login):
 
     core_array = extract_core_array(user_login, project_array)
 
+    print(f"core: {core_array}")
+    print(f"access: {labright_array}")
+    print(f"proj: {project_array}")    
+
     return core_array, labright_array, project_array
 
 
@@ -68,10 +72,10 @@ def extract_core_array(user_login, project_array):
 
     #set in-progress if
     #   any of the above are ok
-    elif not project_array[0:8] == [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]:
-        result[1] = ISTATES.work
-    else:
+    elif project_array[0:8] == [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]:
         result[1] = ISTATES.off
+    else:
+        result[1] = ISTATES.work
 
     return result
 
@@ -80,6 +84,9 @@ def extract_project_array(df):
     
                 #active, account, ohs, rdm, p0, p1, p2, p3
     result = [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]
+
+    if len(df) == 0:
+        return result
 
     phase = df['Phase'].iloc[0]
     OFFSET=4
@@ -115,6 +122,9 @@ def extract_labrights_array(df):
     LAB_CODES_AH = [ 83, 88, 86, 84]
 
     result = [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]
+
+    if len(df) == 0:
+        return result
 
     for i, code in enumerate(LAB_CODES_PRIME):
         row = df.loc[df['systemid'] == code]['access_level']

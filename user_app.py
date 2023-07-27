@@ -38,6 +38,9 @@ options=collate.populate_userdropdown()
 user_dropdown = dcc.Dropdown(options=options,
                             value='s4595555')
 
+#s4595555   experienced user
+#t.blach    fee-for-service user
+
 project_table = dash_table.DataTable(id='project-table', style_as_list_view=True,)
 
 
@@ -130,11 +133,11 @@ def assign_accessrights_lights(state_raw: str):
     return tuple(colours)
 
 @app.callback(
-    Output('ind-prim-proj', 'color'),
-    Output('ind-prim-user', 'color'),    
+    Output('ind-prim-user', 'color'),
+    Output('ind-prim-proj', 'color'),    
     Input('dash_state_core', 'data')
 )
-def assign_core_lights(state_raw):
+def assign_core_lights(state_raw: str):
 
     state = json.loads(state_raw)
 
@@ -148,10 +151,6 @@ def assign_core_lights(state_raw):
 
     return tuple(colours)
 
-
-#TO-DO "Akefe Isaac" fails with callback error, list index out of range
-
-#TO-DO "Tomasz Blach" failing due to no project
 
 @app.callback(
     Output(component_id='project-table', component_property='data'),
