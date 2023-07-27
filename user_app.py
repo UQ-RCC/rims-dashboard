@@ -20,8 +20,6 @@ import frontend.lightboards as lightboards
 #SETUP
 #--------------
 
-colorlist = lightboards.colorlist
-
 css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
 
 theme = dbc.themes.PULSE
@@ -73,18 +71,16 @@ app.layout = html.Div(
 
 
 @app.callback(
-    Output(dcc.Store, 'dash_state_core'),
-    Output(dcc.Store, 'dash_state_access'),    
-    Output(dcc.Store, 'dash_state_project'),
+    Output('dash_state_core', 'data'),
+    Output('dash_state_access', 'data'),    
+    Output('dash_state_project', 'data'),
     Input(component_id=user_dropdown, component_property='value')
 )
 def get_dash_state(user_login):
 
     state_core, state_access, state_project = collate.dash_state(user_login)
 
-    return json.dumps(state_core), state_access, state_project
-
-    
+    return json.dumps(state_core), json.dumps(state_access), json.dumps(state_project)
 
 
 @app.callback(
@@ -98,88 +94,64 @@ def get_dash_state(user_login):
     Output('ind-proj-phase-3', 'color'),   
     Input('dash_state_project', 'data')
 )
-def assign_project_lights(user_login):
-    c1=colorlist.neutral
-    c2=colorlist.neutral
-    c3=colorlist.neutral
-    c4=colorlist.neutral
-    c5=colorlist.neutral
-    c6=colorlist.neutral
-    c7=colorlist.neutral
-    c8=colorlist.neutral
+def assign_project_lights(state_raw: str):
 
-    user_projects = rims.get_user_projects(user_login)
+    state = json.loads(state_raw)
 
-    df = gather.gather_projectdetails(user_projects[0])
-    details = df.to_dict('records')[0]
+    if len(state) != 8:
+        raise ValueError("unexpected number of states")    
 
-    #bunch of if statements
+    colours = []
 
-    return c1, c2, c3, c4, c5, c6, c7, c8
+    for value in state:
+        colours.append(lightboards.colour_from_istate(value))
 
+    return tuple(colours)
 
 @app.callback(
     Output('ind-acc-hawk', 'color'),
     Output('ind-acc-aibn', 'color'),    
     Output('ind-acc-chem', 'color'),    
     Output('ind-acc-qbp', 'color'),        
-    Input('dash_state', 'data')
+    Input('dash_state_access', 'data')
 )
-def assign_userrights_lights(user_login):
-    LABID_LIST = [ 65, 68, 69, 70 ]
-    c1=colorlist.neutral
-    c2=colorlist.neutral
-    c3=colorlist.neutral
-    c4=colorlist.neutral
+def assign_accessrights_lights(state_raw: str):
 
-    for lab in LABID_LIST:
-        #access as key=lab
-        #if value in A, N, S
-        #color = success
-        #else: color=neutral
-        pass
+    state = json.loads(state_raw)
 
-    user_projects = rims.get_user_projects(user_login)
-    
-    return c1, c2, c3, c4
+    if len(state) != 4:
+        raise ValueError("unexpected number of states")    
+
+    colours = []
+
+    for value in state:
+        colours.append(lightboards.colour_from_istate(value))
+
+    return tuple(colours)
 
 @app.callback(
     Output('ind-prim-proj', 'color'),
     Output('ind-prim-user', 'color'),    
-    Input('dash_state', 'data')
+    Input('dash_state_core', 'data')
 )
-def assign_core_lights(user_login):
-    c1=colorlist.neutral
-    c2=colorlist.neutral
-    pass
+def assign_core_lights(state_raw):
 
-    return c1, c2
+    state = json.loads(state_raw)
 
+    if len(state) != 2:
+        raise ValueError("unexpected number of states")    
 
+    colours = []
+
+    for value in state:
+        colours.append(lightboards.colour_from_istate(value))
+
+    return tuple(colours)
 
 
 #TO-DO "Akefe Isaac" fails with callback error, list index out of range
 
-@app.callback(
-    Output('ind-prim-proj', 'color'),
-    Input(component_id=user_dropdown, component_property='value')
-)
-def assign_core_proj(user_login):
-    user_projects = rims.get_user_projects(user_login)
-
-    if user_projects == [] or user_projects == [-1]:
-        return colorlist.neutral
-    else:   
-        df = gather.gather_projectdetails(user_projects[0])
-        details = df.to_dict('records')[0]
-        #note: this does not work perfectly, some fields become strings
-
-        if bool(details['Active']) == True:
-            return colorlist.success
-        else:
-            return colorlist.warn
-
-
+#TO-DO "Tomasz Blach" failing due to no project
 
 @app.callback(
     Output(component_id='project-table', component_property='data'),
@@ -202,7 +174,6 @@ def update_project_table(user_login):
     return data, columns
 
 
-
 @app.callback(
     Output('ind-prim-proj', 'value'),
     Input(component_id=user_dropdown, component_property='value')
@@ -214,8 +185,6 @@ def update_output(user_login):
         return False
     else:
         return True
-
-
 
 
 

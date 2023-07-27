@@ -5,7 +5,7 @@ import dash_daq as daq
 
 import rimsdash.collate as collate
 
-class ColorList():
+class ColourList():
     def __init__(self):
         #base
         self.off = "#BBBBBB"
@@ -18,23 +18,23 @@ class ColorList():
         self.fail = "#fc5959"
         self.na = "#ffffff"
 
-COLORLIST = ColorList()
+COLOURLIST = ColourList()
 
-def color_from_istate(state: int):
-    if state == collate.istate.off:
-        return COLORLIST.off
-    elif state == collate.istate.work:
-        return COLORLIST.work
-    elif state == collate.istate.on:
-        return COLORLIST.on
-    elif state == collate.istate.full:
-        return COLORLIST.full
-    elif state == collate.istate.warn:
-        return COLORLIST.warn
-    elif state == collate.istate.fail:
-        return COLORLIST.fail
-    elif state == collate.istate.na:
-        return COLORLIST.na
+def colour_from_istate(state: int):
+    if state == collate.ISTATES.off:
+        return COLOURLIST.off
+    elif state == collate.ISTATES.work:
+        return COLOURLIST.work
+    elif state == collate.ISTATES.on:
+        return COLOURLIST.on
+    elif state == collate.ISTATES.full:
+        return COLOURLIST.full
+    elif state == collate.ISTATES.warn:
+        return COLOURLIST.warn
+    elif state == collate.ISTATES.fail:
+        return COLOURLIST.fail
+    elif state == collate.ISTATES.na:
+        return COLOURLIST.na
     else:
         raise ValueError("unknown value for state: {state}")
 
@@ -46,7 +46,7 @@ def create_lightcell(title, name, size=30):
                 id=f"{name}",
                 label="",
                 size=size,
-                color=COLORLIST.off,
+                color=COLOURLIST.off,
                 className='indicator',
                 ),
             ], className='lightcell',
@@ -55,10 +55,10 @@ def create_lightcell(title, name, size=30):
 def create_lightcell_small(name, number, size=22):
     return html.Div([
             daq.Indicator(
-                id=f"{name}_p{number}",
+                id=f"{name}-{number}",
                 label="",
                 size=size,
-                color=COLORLIST.off,
+                color=COLOURLIST.off,
                 className='indicator-small',
                 ),
             html.P(f"{number}", className='text-indicator-small')                
@@ -160,7 +160,7 @@ project_dash=html.Div(
         dbc.Row(
             [
                 dbc.Col([
-                    html.H6(f"P#1125", className="rowlabel"),
+                    html.H6(f"Project", className="rowlabel"),      #TO-DO project # here
                     ], 
                     width={'size': 1, 'offset': 0},
                     className="lightcol",
