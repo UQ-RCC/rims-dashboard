@@ -15,160 +15,167 @@ class ColorList():
 colorlist = ColorList()
 
 
-
 def create_lightcell(title, name, size=30):
     return html.Div([
-            html.H6(f"{title}", style={'align': 'center'}),
-            html.Div([daq.Indicator(
+            html.H6(f"{title}", style={'text-align': 'center', 'align': 'center'}),
+            daq.Indicator(
                 id=f"{name}",
                 label="",
                 size=size,
                 color=colorlist.neutral,
+                className='indicator',
                 ),
-            ], style={'align': 'right'}) 
-        ]
+            ], className='lightcell',
     )
-    
-    
+
+def create_lightcell_small(name, number, size=22):
+    return html.Div([
+            daq.Indicator(
+                id=f"{name}_p{number}",
+                label="",
+                size=size,
+                color=colorlist.neutral,
+                className='indicator-small',
+                ),
+            html.P(f"{number}", className='text-indicator-small')                
+            ], className='lightcell-small',
+    )    
+
+def create_phasecell(name):
+    return html.Div(
+        [
+            html.H6(f"Phase", style={'text-align': 'center',}),
+            html.Div(
+            [
+                create_lightcell_small(name, 0),            
+                create_lightcell_small(name, 1),
+                create_lightcell_small(name, 2),
+                create_lightcell_small(name, 3),
+            ], style={'padding-left': '0px'}),
+        ], className='phasecell'
+    )    
 
 
 primary_dash=html.Div(
     [
+        dbc.Row(),
         dbc.Row(
             [
                 dbc.Col([
+                    html.H6('Core:', className="grouplabel"),
+                    ], 
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
+                ),                 
+                dbc.Col([
                         create_lightcell("User", 'ind-prim-user'),
                     ],
-                    width={ 'size': 1, 'offset': 1},
-                    align="center",
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),
                 dbc.Col([
                         create_lightcell("Project", 'ind-prim-proj'),
                     ],
-                    width={ 'size': 1, 'offset': 0},
-                    align="center",
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),
             ],
-            align="center",
+            className="lightrow",
         ) 
-    ])
+    ],
+    className="lightgroup", 
+)
 
 
 rights_dash=html.Div(
     [
+        dbc.Row(),
         dbc.Row(
             [
                 dbc.Col([
+                    html.H6('Access:', className="grouplabel"),
+                    ], 
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
+                ),                  
+                dbc.Col([
                     create_lightcell("Hawken", 'ind-acc-hawk', 30),
                     ], 
-                    width={ 'size': 1, 'offset': 1},
-                    align="center",
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),
                 dbc.Col([
                     create_lightcell("AIBN", 'ind-acc-aibn', 30),
                     ], 
-                    width={ 'size': 1, 'offset': 0},
-                    align="center",
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),
                 dbc.Col([
                     create_lightcell("Chemistry", 'ind-acc-chem', 30),
                     ], 
-                    width={ 'size': 1, 'offset': 0},
-                    align="center",
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),        
                 dbc.Col([
                     create_lightcell("QBP", 'ind-acc-qbp', 30),
                     ], 
-                    width={ 'size': 1, 'offset': 0},
-                    align="center",
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),        
             ],
-            align="center",
+            className="lightrow",
         )
-    ]
+    ],
+    className="lightgroup"
 )
 
 
 project_dash=html.Div(
     [
+        dbc.Row(),
         dbc.Row(
             [
-                dbc.Col(
-                    daq.Indicator(
-                        id='ind-proj-active',
-                        label="Active",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )
-                ),
-                dbc.Col(
-                    daq.Indicator(
-                        id='ind-proj-p0',
-                        label="0",
-                        size=15,
-                        color=colorlist.neutral,
-                        style={}
-                    )
-                ),
-                dbc.Col(
-                    daq.Indicator(
-                        id='ind-proj-p1',
-                        label="1",
-                        size=15,
-                        color=colorlist.neutral,
-                        style={}
-                    )
-                ),
-                dbc.Col(
-                    daq.Indicator(
-                        id='ind-proj-p2',
-                        label="1",
-                        size=15,
-                        color=colorlist.neutral,
-                        style={}
-                    )
-                ),
-                dbc.Col(
-                    daq.Indicator(
-                        id='ind-proj-p3',
-                        label="3",
-                        size=15,
-                        color=colorlist.neutral,
-                        style={}
-                    )
+                dbc.Col([
+                    html.H6(f"P#1125", className="rowlabel"),
+                    ], 
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),                
-                dbc.Col(
-                    daq.Indicator(
-                        id='ind-proj-acc',
-                        label="Billing",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )
+                dbc.Col([
+                    create_lightcell("Active", 'ind-proj-active', 30),
+                    ], 
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
+                ),
+                dbc.Col([
+                    create_lightcell("Billing", 'ind-proj-acc', 30),
+                    ], 
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),        
-                dbc.Col(
-                    daq.Indicator(
-                        id='ind-proj-ohs',
-                        label="Risk assessment",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )
-                ),      
-                dbc.Col(
-                    daq.Indicator(
-                        id='ind-proj-rdm',
-                        label="Data storage",
-                        size=30,
-                        color=colorlist.neutral,
-                        style={}
-                    )
+                dbc.Col([
+                    create_lightcell("RA", 'ind-proj-ohs', 30),
+                    ], 
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
                 ),   
-            ],
-            align="center",        
+                dbc.Col([
+                    create_lightcell("RDM", 'ind-proj-rdm', 30),
+                    ], 
+                    width={'size': 1, 'offset': 0},
+                    className="lightcol",
+                ),                  
+                dbc.Col([
+                    create_phasecell('ind-proj-phase'),
+                    ], 
+                    width={'size': 3, 'offset': 0},
+                    className="phasecol",
+                ),      
+           ],
+            className="lightrow",       
         )
-    ]
+    ],
+    className="lightgroup",
 )
 
 

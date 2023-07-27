@@ -19,7 +19,8 @@ colorlist = lightboards.colorlist
 
 css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
 theme = dbc.themes.PULSE
-app = Dash(name="rimsdash",
+#app = Dash(name="rimsdash",
+app = Dash(__name__,
             external_stylesheets=[theme, css])
 server = app.server
 
@@ -49,24 +50,25 @@ project_table = dash_table.DataTable(id='project-table', style_as_list_view=True
 
 app.layout = html.Div(
     [
-        html.H1('RIMS dashboard'),        
+        html.Header([
+            html.Div([
+                    html.H1('RIMS dashboard'),    
+            ], id="title-container" )
+        ], id="mainheader"),
         html.Div([
             html.H5('Select your account:'),
             user_dropdown,
-        ]),
+        ], id="uselect-container"),
         html.Div([
-            html.H5('Master'),
             lightboards.primary_dash,
-            html.H5('Access rights:'),
             lightboards.rights_dash,
-            html.H5('Projects:'),
             lightboards.project_dash
-        ], style={'offset': '10%', 'width': '50%'}),
-        html.Div([        
-            html.H5('Project data:'),
+        ], id="light-container"),
+        html.Div([
+            html.H5('Project data:'),        
             project_table,            
-        ]),
-    ]
+        ], id='table-container'),
+    ], id='container'
 )
 
 #TO-DO "Akefe Isaac" fails with callback error, list index out of range
