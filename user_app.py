@@ -6,41 +6,36 @@ import dash_daq as daq
 import pandas as pd
 import plotly.express as px
 import numpy as np
+import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import rimsdash.usergather as gather
 import rimsdash.visualisations as vis
 import rimsdash.rims as rims
+import rimsdash.collate as collate
 import frontend.lightboards as lightboards
 
+#--------------
+#SETUP
+#--------------
 
 colorlist = lightboards.colorlist
 
 css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
+
 theme = dbc.themes.PULSE
-#app = Dash(name="rimsdash",
+
 app = Dash(__name__,
             external_stylesheets=[theme, css])
+
 server = app.server
 
+#--------------
+#DATA
+#--------------
 
-uid_list, name_list = gather.gather_userlists()
-
-def sort_paired(list1, list2):
-    zipped = zip(list1, list2)           
-    result1, result2 = zip(*sorted(zipped))
-    return result1, result2
-
-name_list, uid_list = sort_paired(name_list, uid_list)
-
-options=[]
-
-for i, uid in enumerate(uid_list):
-    options.append({'label': f"{name_list[i]} ({uid_list[i]})", 'value': uid_list[i], 'search': name_list[i]})
-
-#user_dropdown = dcc.Dropdown(options=sorted(uid_list),
-#                            value='s4595555')
+options=collate.populate_userdropdown()
 
 user_dropdown = dcc.Dropdown(options=options,
                             value='s4595555')
@@ -70,19 +65,26 @@ app.layout = html.Div(
         ], id='table-container'),
         
         #variable to hold dash-state
-        dcc.Store(id='dash_state'),
+        dcc.Store(id='dash_state_core'),
+        dcc.Store(id='dash_state_access'),
+        dcc.Store(id='dash_state_project'),
     ], id='container'
 )
 
-"""
+
 @app.callback(
-    Output(dcc.Store, 'dataset'),
+    Output(dcc.Store, 'dash_state_core'),
+    Output(dcc.Store, 'dash_state_access'),    
+    Output(dcc.Store, 'dash_state_project'),
     Input(component_id=user_dropdown, component_property='value')
 )
 def get_dash_state(user_login):
 
-    return c1, c2
-"""
+    state_core, state_access, state_project = collate.dash_state(user_login)
+
+    return json.dumps(state_core), state_access, state_project
+
+    
 
 
 @app.callback(
@@ -94,7 +96,7 @@ def get_dash_state(user_login):
     Output('ind-proj-phase-1', 'color'),   
     Output('ind-proj-phase-2', 'color'),   
     Output('ind-proj-phase-3', 'color'),   
-    Input(component_id=user_dropdown, component_property='value')
+    Input('dash_state_project', 'data')
 )
 def assign_project_lights(user_login):
     c1=colorlist.neutral
@@ -121,7 +123,7 @@ def assign_project_lights(user_login):
     Output('ind-acc-aibn', 'color'),    
     Output('ind-acc-chem', 'color'),    
     Output('ind-acc-qbp', 'color'),        
-    Input(component_id=user_dropdown, component_property='value')
+    Input('dash_state', 'data')
 )
 def assign_userrights_lights(user_login):
     LABID_LIST = [ 65, 68, 69, 70 ]
@@ -144,7 +146,7 @@ def assign_userrights_lights(user_login):
 @app.callback(
     Output('ind-prim-proj', 'color'),
     Output('ind-prim-user', 'color'),    
-    Input(component_id=user_dropdown, component_property='value')
+    Input('dash_state', 'data')
 )
 def assign_core_lights(user_login):
     c1=colorlist.neutral
@@ -152,7 +154,6 @@ def assign_core_lights(user_login):
     pass
 
     return c1, c2
-
 
 
 

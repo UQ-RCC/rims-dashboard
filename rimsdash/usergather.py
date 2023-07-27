@@ -81,15 +81,9 @@ def get_user_rights_df(ulogin: str):
 
     return df
 
-def report_data():
-    """
-    reads out local vars
-    """    
-    return user_data, project_data
-
 def gather_userlists():
     """
-    get paired lists of instruments and instrument ids
+    get paired lists of user logins and user full names
 
     uses full_data local var
     """
@@ -128,8 +122,6 @@ def gather_projectdetails(pid: int):
     return selected
 
 
-
-
 def pumapi_wrapper(raw_data):
     """
     converts dict-of-dicts returned by pitschi PUMAPI functions into simple dict
@@ -140,6 +132,14 @@ def pumapi_wrapper(raw_data):
             data.append(value)
 
     return data
+
+
+def report_data():
+    """
+    reads out local vars
+    """    
+    return user_data, project_data
+
 
 def backend_load():
     """

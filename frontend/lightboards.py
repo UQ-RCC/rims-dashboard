@@ -3,16 +3,40 @@ from dash import Dash, html, dcc, Input, Output, dash_table
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 
+import rimsdash.collate as collate
+
 class ColorList():
     def __init__(self):
-        self.success = "#33f975"
+        #base
+        self.off = "#BBBBBB"
+        #good
+        self.work = "#77ffaa"
+        self.on = "#33f975"
+        self.full = "#3375f9"
+        #bad
         self.warn = "#ffb34d"
         self.fail = "#fc5959"
-        self.wait = "#77ffaa"
-        self.neutral = "#BBBBBB"
-        self.white = "#ffffff"
+        self.na = "#ffffff"
 
-colorlist = ColorList()
+COLORLIST = ColorList()
+
+def color_from_istate(state: int):
+    if state == collate.istate.off:
+        return COLORLIST.off
+    elif state == collate.istate.work:
+        return COLORLIST.work
+    elif state == collate.istate.on:
+        return COLORLIST.on
+    elif state == collate.istate.full:
+        return COLORLIST.full
+    elif state == collate.istate.warn:
+        return COLORLIST.warn
+    elif state == collate.istate.fail:
+        return COLORLIST.fail
+    elif state == collate.istate.na:
+        return COLORLIST.na
+    else:
+        raise ValueError("unknown value for state: {state}")
 
 
 def create_lightcell(title, name, size=30):
@@ -22,7 +46,7 @@ def create_lightcell(title, name, size=30):
                 id=f"{name}",
                 label="",
                 size=size,
-                color=colorlist.neutral,
+                color=COLORLIST.off,
                 className='indicator',
                 ),
             ], className='lightcell',
@@ -34,7 +58,7 @@ def create_lightcell_small(name, number, size=22):
                 id=f"{name}_p{number}",
                 label="",
                 size=size,
-                color=colorlist.neutral,
+                color=COLORLIST.off,
                 className='indicator-small',
                 ),
             html.P(f"{number}", className='text-indicator-small')                
