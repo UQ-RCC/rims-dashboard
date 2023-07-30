@@ -1,0 +1,13 @@
+version: '3.10'
+
+services:
+  web: 
+    build:  ./rimsdash
+    command: gunicorn --bind 0.0.0.0:8050 frontend.wsgi:server
+    ports:
+    - 8050:8050
+
+
+
+
+    #command: gunicorn --bind 0.0.0.0:8050 frontend.wsgi:server    
