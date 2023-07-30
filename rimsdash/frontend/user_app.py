@@ -10,10 +10,10 @@ import json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import rimsdash.usergather as gather
-import rimsdash.visualisations as vis
-import rimsdash.rims as rims
-import rimsdash.collate as collate
+import backend.usergather as gather
+import backend.visualisations as vis
+import backend.rims as rims
+import backend.collate as collate
 import frontend.lightboards as lightboards
 
 #--------------

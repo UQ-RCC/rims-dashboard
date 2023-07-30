@@ -1,9 +1,9 @@
 from enum import Enum
 
 
-import rimsdash.rims as rims
-import rimsdash.utils as utils
-import rimsdash.usergather as gather
+import backend.rims as rims
+import backend.utils as utils
+import backend.usergather as gather
 
 class IState():
     def __init__(self):

@@ -2,7 +2,7 @@
 
 IMAGENAME='rimsdash:0.1'
 
-docker run -p 8050:8050 "$IMAGENAME"
+docker run --rm -p 8050:8050 "$IMAGENAME"
 
 
 #gunicorn --bind 0.0.0.0:8050 app:server
