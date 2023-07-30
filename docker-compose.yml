@@ -4,10 +4,12 @@ services:
   web: 
     build:  ./rimsdash
     command: gunicorn --bind 0.0.0.0:8050 frontend.wsgi:server
+    expose:
+    - 8050
+  
+  nginx:
+    build: ./nginx
     ports:
-    - 8050:8050
-
-
-
-
-    #command: gunicorn --bind 0.0.0.0:8050 frontend.wsgi:server    
+    - 1337:80
+    depends_on:
+    - web
