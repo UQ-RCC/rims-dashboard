@@ -1,0 +1,18 @@
+RIMS OHS DASHBOARD NOTES
+
+get full list of users incl RIMS IDs
+
+populate dropdown
+
+per user:
+	- request instrument rights (OHS)	SHOW
+
+	- request projects	SHOW
+	
+	for each project:
+		- has account? SHOW
+		- group SHOW
+		- status field
+		- show attached files (Risk Assessment)
+
+	

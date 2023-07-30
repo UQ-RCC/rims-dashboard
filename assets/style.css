@@ -1,0 +1,134 @@
+
+body {
+    background-color:#FFFFFF;
+    margin: 0;
+    padding: 0;
+   }
+
+#container {
+    width: 100%; 
+    overflow: hidden;  
+    margin: 100;
+    padding: 100;
+}
+
+#title-container {
+    width: 100%; 
+    overflow: hidden;
+}
+
+#uselect-container {
+    overflow: hidden;
+    margin-left: 25px;    
+    padding: 25px;    
+    /*border: 2px solid red;    */
+}
+
+#light-container {
+    display: inline-block;
+    overflow: hidden;    
+    margin-left: 25px;
+    padding-left: 25px;    
+    width: 50%;
+    /*border: 2px solid red;*/
+}
+
+#table-container {
+    overflow: auto;
+    width: 50%;
+    margin-left: 25px;    
+    padding: 25px;    
+    /*border: 2px solid red;    */
+}
+
+.lightgroup {
+    display: inline;
+    overflow: hidden;
+    offset: 20%;
+    margin-top: 50px;
+    padding: 5px;
+    /*border: 1px solid purple;*/
+}
+
+.lightrow {
+    display: inline;
+    width: 100%;
+    overflow: hidden;
+    /*border: 1px solid green;*/
+}
+
+.lightcol {
+    display: inline-block;
+    overflow: hidden;
+    height: 80px ;
+    padding: 0px;
+    /*border: 1px solid yellow;*/
+}
+
+.phasecol {
+    display: inline-block;
+    overflow: hidden;
+    height: 80px;
+    padding: 0px;
+    /*border: 1px solid orange;*/
+}
+
+.phasecell {
+    display: inline-block;    
+    overflow: hidden; 
+    /*width: 100%;*/
+    height: 80px;
+    padding-left: 0px;
+    /*border: 1px solid black;*/
+}
+
+
+.lightcell {
+    display: inline-block;    
+    overflow: hidden;
+    height: 100% ;
+    width: 80px;
+    margin: 0px;
+    padding: 0px;
+    /*border: 1px solid black;*/
+}
+
+.lightcell-small {
+    display: inline-block;    
+    overflow: hidden;
+    height: 65px;
+    width: 45px;  
+    margin: 0px;
+    padding: 0px;
+    padding-top: 3px;
+    /*border: 1px solid purple;*/
+}
+
+
+
+.indicator {
+    padding-left: 25px;
+}
+
+.indicator-small {
+    padding-left: 15px;
+}
+
+
+.grouplabel {
+    text-align: right;
+    line-height: 85px;    
+    padding-right: 10px;
+}
+.rowlabel {
+    text-align: right;
+    line-height: 85px;
+    padding-right: 10px
+}
+.text-indicator-small
+{
+    font-size: '6px';
+    text-align: center;
+    padding-left: 5px;
+    align: center;
+}

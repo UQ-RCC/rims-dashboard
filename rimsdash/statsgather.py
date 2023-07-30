@@ -3,6 +3,7 @@ import os
 import datetime
 import calendar
 import pandas as pd
+import numpy as np
 
 import rimsdash.rims as rims
 import rimsdash.analytics as analytics
@@ -12,6 +13,7 @@ DATA_BASE='data/'
 DATA_DIR=os.path.join(BASE_DIR, DATA_BASE)
 
 START_YEAR = 2019
+
 
 def get_dataframe(start, end):
     """
@@ -105,7 +107,6 @@ def backend_load():
     full_data = get_sessionlist()
 
     return full_data
-
 
 #load the full dataset once and hold in local memory
 #   prevents concurrent reads from hd5 on simultaneous get_usage calls
