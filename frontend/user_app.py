@@ -185,10 +185,12 @@ def update_output(user_login):
     else:
         return True
 
-
+def entry_dev():
+    app.run_server(debug=True, dev_tools_hot_reload=False)
 
 def entry_main():
-    app.run_server(debug=False, dev_tools_hot_reload=False)
+    app.run_server(debug=False, dev_tools_hot_reload=False, host='0.0.0.0', port=8050)
 
 if __name__ == '__main__':
-    app.run_server(debug=True, dev_tools_hot_reload=False)
+    print("STARTING DIRECTLY")
+    entry_main()

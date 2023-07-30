@@ -12,8 +12,8 @@ COPY . /app
 
 RUN pip install -e /app
 
-COPY data/ app/data
+COPY data /app/data
 COPY conf/ app/conf
-COPY . app/
+#COPY . app/
 
-CMD rimsdash-app
+CMD gunicorn --bind 0.0.0.0:8050 frontend.wsgi:server
