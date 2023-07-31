@@ -193,4 +193,4 @@ def entry_main():
 
 if __name__ == '__main__':
     print("STARTING DIRECTLY")
-    entry_main()
+    entry_dev()
