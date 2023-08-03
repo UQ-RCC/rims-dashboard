@@ -48,28 +48,31 @@ app.layout = html.Div(
     [
         html.Header([
             html.Div([
-                    html.H1('RIMS dashboard'),    
+                    html.H1('Centre for Microscopy and Microanalysis', id="main-title"),      #style={'text-align': 'center', 'align': 'center'}
             ], id="title-container" )
-        ], id="mainheader"),
+        ], id="main-header"),
         html.Div([
-            html.H5('Select your username:'),
-            user_dropdown,
-        ], id="uselect-container"),
-        html.Div([
-            lightboards.primary_dash,
-            lightboards.rights_dash,
-            lightboards.project_dash
-        ], id="light-container"),
-        html.Div([
-            html.H5('Project data:'),        
-            project_table,            
-        ], id='table-container'),
-        
+            html.Div([
+                html.Div([
+                    html.H5('Username:'),
+                    user_dropdown,
+                ], id="uselect-container"),
+                html.Div([
+                    lightboards.primary_dash,
+                    lightboards.rights_dash,
+                    lightboards.project_dash
+                ], id="panel-container"),
+                html.Div([
+                    html.H5('Project data:'),        
+                    project_table,            
+                ], id='table-container'),
+            ], id='content-container'),
+        ], id='page-container'),
         #variable to hold dash-state
         dcc.Store(id='dash_state_core'),
         dcc.Store(id='dash_state_access'),
         dcc.Store(id='dash_state_project'),
-    ], id='container'
+    ], id='body-container',
 )
 
 
@@ -172,7 +175,7 @@ def update_project_table(user_login):
     columns = [{"name": i, "id": i} for i in project_info_df.columns]
     return data, columns
 
-
+"""
 @app.callback(
     Output('ind-prim-proj', 'value'),
     Input(component_id=user_dropdown, component_property='value')
@@ -183,8 +186,10 @@ def update_output(user_login):
     if user_projects == [] or user_projects == [-1]:
         return False
     else:
-        return True
+        return False
+"""
 
+        
 def entry_dev():
     app.run_server(debug=True, dev_tools_hot_reload=False)
 

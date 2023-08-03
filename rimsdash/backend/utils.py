@@ -1,5 +1,11 @@
 import plotly
 
+
+def rgb_to_hex(rgb: tuple):
+    result = f'#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}'
+
+    return result
+
 def df_display(df):
     import plotly.graph_objs as go
     fig = go.Figure(data=[go.Table(

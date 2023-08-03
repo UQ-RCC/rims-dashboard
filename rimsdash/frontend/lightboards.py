@@ -11,24 +11,34 @@ class ColourList():
         self.off = "#BBBBBB"
         #good
         self.work = "#77ffaa"
-        self.on = "#33f975"
-        self.full = "#33f9f9"
+        self.ok = "#33f975"
+        self.active = "#33f9f9"
         #bad
         self.warn = "#ffb34d"
         self.fail = "#fc5959"
         self.na = "#ffffff"
 
+
+
 COLOURLIST = ColourList()
+
+
+BRAND_COLOURS={'purple':(81,36,122), 'lpurple':(150,42,139),'red':(230,38,69), 'blue':(64,133,198), \
+            'aqua':(0,162,199), 'grey':(215,209,204), "dgrey":(153,148,144), \
+            'gold':(217,172,109), 'green':(46,168,54), 'orange':(235,96,43),\
+            'yellow':(251,184,0), 'black':(0,0,0), 'white':(255,255,255) }
+
+
 
 def colour_from_istate(state: int):
     if state == collate.ISTATES.off:
         return COLOURLIST.off
     elif state == collate.ISTATES.work:
         return COLOURLIST.work
-    elif state == collate.ISTATES.on:
-        return COLOURLIST.on
-    elif state == collate.ISTATES.full:
-        return COLOURLIST.full
+    elif state == collate.ISTATES.ok:
+        return COLOURLIST.ok
+    elif state == collate.ISTATES.active:
+        return COLOURLIST.active
     elif state == collate.ISTATES.warn:
         return COLOURLIST.warn
     elif state == collate.ISTATES.fail:
@@ -48,6 +58,7 @@ def create_lightcell(title, name, size=30):
                 size=size,
                 color=COLOURLIST.off,
                 className='indicator',
+                value='False',
                 ),
             ], className='lightcell',
     )
@@ -60,6 +71,7 @@ def create_lightcell_small(name, number, size=22):
                 size=size,
                 color=COLOURLIST.off,
                 className='indicator-small',
+                value='False',                
                 ),
             html.P(f"{number}", className='text-indicator-small')                
             ], className='lightcell-small',

@@ -1,43 +1,62 @@
-
-body {
-    background-color:#FFFFFF;
-    margin: 0;
-    padding: 0;
-   }
-
-#container {
+#body-container {
     width: 100%; 
     overflow: hidden;  
-    margin: 100;
-    padding: 100;
 }
+
+#main-header {
+    background-color:#51247a;
+    height: 150px;  
+   }
 
 #title-container {
-    width: 100%; 
     overflow: hidden;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);    
 }
+
+#main-title {
+    font-size: '24px';
+    color: #FFFFFF;
+    padding: 50;     
+    text-align: center;       
+}
+
+#page-container {
+    background-color:#FFFFFF;
+    width: 100%; 
+    overflow: hidden;  
+}
+
+#content-container {
+    width: 1200px; 
+    position: relative;
+    left: 50%;   
+    -ms-transform: translate(-50%, 0%);
+    transform: translate(-50%, 0%);        
+   }
+
 
 #uselect-container {
-    overflow: hidden;
-    margin-left: 25px;    
-    padding: 25px;    
-    /*border: 2px solid red;    */
+    overflow: visible;
+    width: 100%;          
+    padding: 40px;    
 }
 
-#light-container {
+#panel-container {
     display: inline-block;
     overflow: hidden;    
-    margin-left: 25px;
-    padding-left: 25px;    
-    width: 50%;
+    width: 100%;
+    padding: 25px;    
     /*border: 2px solid red;*/
 }
 
 #table-container {
     overflow: auto;
-    width: 50%;
-    margin-left: 25px;    
-    padding: 25px;    
+    width: 95%;  
+    padding: 50px;    
     /*border: 2px solid red;    */
 }
 

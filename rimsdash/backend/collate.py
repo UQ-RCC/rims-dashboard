@@ -11,8 +11,8 @@ class IState():
         self.off = 0
         #good
         self.work = 1
-        self.on = 2
-        self.full = 3
+        self.ok = 2
+        self.active = 3
         #bad
         self.warn = 11
         self.fail = 12
@@ -62,49 +62,20 @@ def extract_core_array(user_login, project_array):
     result = [ ISTATES.off, ISTATES.off ]
 
     if not user_login is None:
-        result[0] = ISTATES.on
+        result[0] = ISTATES.ok
 
     #set ok if
     #   project is active, has account, has ohs, has rdm, and is phase 2
-    if project_array[0:3] == [ ISTATES.on, ISTATES.on, ISTATES.on, ISTATES.on ] \
-        and project_array[6] == ISTATES.on:
-        result[1] = ISTATES.on
+    if project_array[0:4] == [ ISTATES.ok, ISTATES.ok, ISTATES.ok, ISTATES.ok ] \
+        and project_array[6] == ISTATES.ok:
+        result[1] = ISTATES.ok
 
     #set in-progress if
     #   any of the above are ok
     elif project_array[0:8] == [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]:
-        result[1] = ISTATES.off
+        result[1] = ISTATES.fail
     else:
-        result[1] = ISTATES.work
-
-    return result
-
-
-def extract_project_array(df):
-    
-                #active, account, ohs, rdm, p0, p1, p2, p3
-    result = [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]
-
-    if len(df) == 0:
-        return result
-
-    phase = df['Phase'].iloc[0]
-    OFFSET=4
-    for i in range(0,4):
-        if phase == i:
-            result[i+OFFSET] = ISTATES.on
-        else:
-            result[i+OFFSET] = ISTATES.off
-    
-    if bool(df['Active'].iloc[0]) == True:
-        result[0] = ISTATES.on
-    
-    if not df['Bcode'].iloc[0] is None:
-        result[1] = ISTATES.on    
-
-    result[2] = ISTATES.on    #TO-DO
-
-    result[3] = ISTATES.on    #TO-DO
+        result[1] = ISTATES.warn
 
     return result
 
@@ -113,9 +84,6 @@ def extract_labrights_array(df):
     """
     produce a list of rights by lab
     """
-
-    #TO-DO check business logic here
-    #not certain if we are using N in A/H or A in Prime to denote after-hours
 
                     #Ha, AIBN, Chem, QBP
     LAB_CODES_PRIME = [ 82, 89, 87, -1]
@@ -132,12 +100,10 @@ def extract_labrights_array(df):
         try:
             access_level = row.iloc[0]
 
-            if access_level == 'N':
-                result[i] = ISTATES.on
-            elif access_level in ['A', 'S']:
-                result[i] = ISTATES.full
+            if access_level in ['N', 'A', 'S']:
+                result[i] = ISTATES.ok
             elif access_level == 'D':
-                result[i] = ISTATES.fail
+                result[i] = ISTATES.fail           
             else:
                 result[i] = ISTATES.off
         
@@ -151,7 +117,7 @@ def extract_labrights_array(df):
             access_level = row.iloc[0]
 
             if access_level in ['N', 'A', 'S']:
-                result[i] = ISTATES.full
+                result[i] = ISTATES.ok
 
         except:
             pass
@@ -159,4 +125,34 @@ def extract_labrights_array(df):
     return result
 
 
+def extract_project_array(df):
+    
+                #active, account, ohs, rdm, p0, p1, p2, p3
+    result = [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]
 
+    if len(df) == 0:
+        return result
+
+    phase = df['Phase'].iloc[0]
+    OFFSET=4
+
+    if phase == 0:
+        result[OFFSET+0] = ISTATES.fail
+    elif phase == 1:
+        result[OFFSET+1] = ISTATES.warn
+    elif phase == 2:
+        result[OFFSET+2] = ISTATES.ok
+    elif phase == 3:
+        result[OFFSET+3] = ISTATES.fail   
+
+    if bool(df['Active'].iloc[0]) == True:
+        result[0] = ISTATES.ok
+    
+    if not df['Bcode'].iloc[0] is None:
+        result[1] = ISTATES.ok    
+
+    result[2] = ISTATES.ok    #TO-DO
+
+    result[3] = ISTATES.ok    #TO-DO
+
+    return result
