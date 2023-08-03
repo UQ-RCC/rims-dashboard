@@ -2,6 +2,7 @@ import sys, os
 from dash import Dash, html, dcc, Input, Output, dash_table
 import dash_bootstrap_components as dbc
 import dash_daq as daq
+import dash_auth
 #from dash_bootstrap_templates import load_figure_template
 import pandas as pd
 import plotly.express as px
@@ -12,6 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import backend.usergather as gather
 import backend.visualisations as vis
+import backend.config as config
 import backend.rims as rims
 import backend.collate as collate
 import frontend.lightboards as lightboards
@@ -20,12 +22,22 @@ import frontend.lightboards as lightboards
 #SETUP
 #--------------
 
+VALID_USERNAME_PASSWORD_PAIRS = {
+    config.get('authentication', 'username'): config.get('authentication', 'password')
+}
+
 css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
 
 theme = dbc.themes.PULSE
 
 app = Dash(__name__,
             external_stylesheets=[theme, css])
+
+
+auth = dash_auth.BasicAuth(
+    app,
+    VALID_USERNAME_PASSWORD_PAIRS
+)
 
 server = app.server
 

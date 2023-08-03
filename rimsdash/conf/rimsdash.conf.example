@@ -9,3 +9,7 @@ timezone=Australia/Brisbane
 
 [visualisation]
 min_hours=250
+
+[authentication]
+username = xxxxxx
+password = xxxxxx
