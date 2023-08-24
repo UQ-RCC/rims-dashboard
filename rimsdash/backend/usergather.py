@@ -13,7 +13,7 @@ DATA_BASE='data/'
 DATA_DIR=os.path.join(BASE_DIR, DATA_BASE)
 
 
-def get_userdata_df():
+def get_userdata_df(force=False):
     """
     get user data
         use database if present
@@ -22,7 +22,7 @@ def get_userdata_df():
     filename=f"users.h5"
     file = os.path.join(DATA_DIR, filename)
 
-    if os.path.isfile(file):
+    if os.path.isfile(file) and not force:
         df = pd.read_hdf(file, 'df')
     else:
         data=rims.get_userlist()

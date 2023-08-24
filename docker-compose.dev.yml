@@ -3,11 +3,28 @@ version: '3.10'
 services:
   web: 
     build:  ./rimsdash
-    command: rimsdash-debug
+    command: python manage.py run -h 0.0.0.0
+          #rimsdash-debug
+    volumes:
+      - ./rimsdash/:/app/         
     ports:
-    - 8050:8050
+      - 8050:8050
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
 
+  db:
+    image: postgres:13
+    volumes:
+      - .postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=hello_flask
+      - POSTGRES_PASSWORD=hello_flask
+      - POSTGRES_DB=hello_flask_dev
 
+volumes:
+  .postgres_data:
 
 
     #command: gunicorn --bind 0.0.0.0:8050 frontend.wsgi:server    

@@ -77,6 +77,37 @@ def get_systems():
             return systems
     return {}
 
+def get_pending_users():
+    """
+    requests list of account creation requests
+        does not contain logins, emails etc
+
+    returns list of dicts
+    """    
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    #NB: ignores codeid and returns all users from all cores
+    #   api still wants coreid even though it proceeds to ignore it
+    payload=f"apikey={KEY}&action=GetAccountCreationRequests&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            result = []
+            #strip out users from other cores before returning
+            for userdict in response.json(strict=False):
+                if userdict['coreid'] == int(CORE_ID):
+                    result.append(userdict)
+            return result
+    else:
+        raise Exception('Not found')
+
 
 def get_userlist():
     """
@@ -100,6 +131,7 @@ def get_userlist():
             return response.json(strict=False)
     else:
         raise Exception('Not found')
+
 
 
 def get_userdata_by_id(uid):
@@ -340,3 +372,60 @@ def pts_get_rdm_collection(coreid: int, projectid: int):
             qcollection = response.json(strict=False)[0].get(config.get('ppms', 'q_collection_field'))
         return qcollection
     return ""
+
+"""
+ALTERNATIVES
+"""
+def get_userlist_api2():
+    """
+    requests user report from RIMS API
+    returns json
+    returns login, names, coreid, id
+    """    
+    REPORT_NO=1335  #user list
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    payload=f"apikey={KEY}&action=GetUsersListJsonDB&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            return response.json(strict=False)
+    else:
+        raise Exception('Not found')
+
+def get_userlist_pumapi(active_only=False):
+    """
+    requests user report from RIMS API
+    returns json
+    returns only user ids
+    """    
+    url = f"{BASE_URL}pumapi/"
+    return_format=f"json"
+
+    if active_only:
+        payload=f"apikey={KEY}&action=getusers&active=True&format={return_format}"
+    else:
+        payload=f"apikey={KEY}&action=getusers&format={return_format}"
+
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            logger.debug(f"Response: {response}")
+            response_txt = response.text
+            return response_txt.strip().split("\r\n")            
+            #return response.json(strict=False)
+    else:
+        raise Exception('Not found')
