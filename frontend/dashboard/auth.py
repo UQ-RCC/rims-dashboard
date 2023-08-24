@@ -1,4 +1,4 @@
-import rimsdash.config as config
+import dashboard.config as config
 
 DEFAULT_VALUE = 'xxxxxx'
 

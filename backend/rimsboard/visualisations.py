@@ -3,8 +3,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-import rimsdash.rims as rims
-import rimsdash.config as config
+import rimsboard.rims as rims
+import rimsboard.config as config
 
 
 UQ_COLOURS={'purple':(81,36,122), 'lpurple':(150,42,139),'red':(230,38,69), 'blue':(64,133,198), \

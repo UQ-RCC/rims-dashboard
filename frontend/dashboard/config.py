@@ -11,7 +11,7 @@ BASE_DIR=os.path.dirname(os.path.realpath(os.path.dirname(__file__)))
 
 
 config = configparser.ConfigParser()
-config.read([os.path.join(BASE_DIR,"conf/rimsdash.conf"), os.environ.get("RIMSDASH_CONFIG", "")])
+config.read([os.path.join(BASE_DIR,"conf/dashboard.conf"), os.environ.get("DASHBOARD_CONFIG", "")])
 
 def get(section, option, default = None, required=False):
     """

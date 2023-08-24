@@ -8,8 +8,8 @@ import json, csv
 import requests
 import datetime
 import logging
-import rimsdash.config as config
-import rimsdash.utils as utils
+import rimsboard.config as config
+import rimsboard.utils as utils
 
 
 logger = logging.getLogger('pitschixapi')

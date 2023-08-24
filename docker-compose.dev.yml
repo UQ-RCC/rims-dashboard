@@ -1,12 +1,25 @@
 version: '3.10'
 
 services:
-  web: 
-    build:  ./web
+  frontend: 
+    build:  ./frontend
     command: python manage.py run -h 0.0.0.0
           #rimsdash-debug
     volumes:
-      - ./web/:/app/         
+      - ./frontend/:/app/         
+    ports:
+      - 8050:8050
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - backend
+
+  backend: 
+    build:  ./backend
+    command: python manage.py run -h 0.0.0.0
+          #rimsdash-debug
+    volumes:
+      - ./backend/:/app/         
     ports:
       - 8050:8050
     env_file:
