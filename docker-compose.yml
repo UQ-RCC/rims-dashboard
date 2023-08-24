@@ -7,6 +7,12 @@ services:
     expose:
     - 8050
   
+  db:
+    image: postgres:13
+    volumes:
+      - .postgres_data:/var/lib/postgresql/data/
+
+
   nginx:
     build: ./nginx
     ports:
