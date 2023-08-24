@@ -23,4 +23,4 @@ COPY data /app/data
 COPY conf/ app/conf
 
 #entrypoint
-CMD gunicorn --bind 0.0.0.0:8050 frontend.wsgi:server
+CMD gunicorn --bind 0.0.0.0:8050 rimsdash.dashboard.wsgi:server

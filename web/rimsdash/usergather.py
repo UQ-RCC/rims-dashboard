@@ -5,8 +5,8 @@ import calendar
 import pandas as pd
 import numpy as np
 
-import backend.rims as rims
-import backend.analytics as analytics
+import rimsdash.rims as rims
+import rimsdash.analytics as analytics
 
 BASE_DIR=os.path.dirname(os.path.realpath(os.path.dirname(__file__)))
 DATA_BASE='data/'

@@ -1,4 +1,4 @@
-import backend.config as config
+import rimsdash.config as config
 
 DEFAULT_VALUE = 'xxxxxx'
 

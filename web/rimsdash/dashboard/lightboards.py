@@ -3,7 +3,7 @@ from dash import Dash, html, dcc, Input, Output, dash_table
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 
-import backend.collate as collate
+import rimsdash.collate as collate
 
 class ColourList():
     def __init__(self):

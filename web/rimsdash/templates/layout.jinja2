@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0297f6">
+
+  <meta property="og:site_name" content="{{ title }}"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="{{ title }} - RIMSDASH"/>
+  <meta property="og:description" content="{{ description }}"/>
+  <meta property="og:url" content="www.uq.edu.au"/>
+  <meta property="og:locale" content="en_US">
+
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.typekit.net/uqq2lcv.css">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='dist/img/favicon.png') }}" type="image/x-icon" />
+  <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+      integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+      crossorigin="anonymous"
+  />
+</head>
+
+<body class="{{template}}">
+  <main class="container">
+	  {% block content %}{% endblock %}
+  </main>
+
+</body>
+
+</html>
