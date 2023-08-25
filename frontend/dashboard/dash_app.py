@@ -11,16 +11,16 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import dashboard.lightboards as lightboards
 import dashboard.auth as auth
 
-import rimsdash.usergather as gather
-import rimsdash.rims as rims
-import rimsdash.collate as collate
+#import rimsdash.usergather as gather
+#import rimsdash.rims as rims
+#import rimsdash.collate as collate
 
 
 #--------------
 #SETUP
 #--------------
 
-VALID_USERNAME_PASSWORD_PAIRS = dashboard.auth.get_auth_details()
+VALID_USERNAME_PASSWORD_PAIRS = auth.get_auth_details()
 css = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
 theme = dbc.themes.PULSE
 

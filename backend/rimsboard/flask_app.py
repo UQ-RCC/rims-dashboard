@@ -1,11 +1,6 @@
 """Initialize Flask app."""
 from flask import Flask, jsonify, request
 
-"""
-Base app as vanilla flask
-with dash app nested inside
-"""
-
 import rimsboard.usergather as gather
 import rimsboard.rims as rims
 import rimsboard.collate as collate
@@ -66,6 +61,11 @@ def api_getprojectdetails():
     #TODO: modified -> does not return df anymore, match to dash_app
     return jsonify(project_info)
 
+userlist=collate.populate_userdropdown()
+user_login='myusername'
+user_projects = rims.get_user_projects(user_login)
+state_core, state_access, state_project = collate.dash_state(user_login)
+project_info_df = gather.gather_projectdetails(project_num)
 
 def entry_dev():
     app.run(host="0.0.0.0", port=5000)
