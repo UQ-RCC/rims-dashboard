@@ -1,6 +1,4 @@
-data
 outs
-conf
 
 #environment files
 .env.*
