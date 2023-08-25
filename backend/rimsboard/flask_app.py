@@ -54,6 +54,8 @@ def api_getprojectdetails():
     else:
         return "Error: No login field provided. Please specify a login id."
     
+    #here we create a df from a json then convert back to dict-list after
+    #should just drop the df intermediary
     project_info_df = gather.gather_projectdetails(project_num)
     
     project_info = project_info_df.to_dict('records')
@@ -61,14 +63,19 @@ def api_getprojectdetails():
     #TODO: modified -> does not return df anymore, match to dash_app
     return jsonify(project_info)
 
-userlist=collate.populate_userdropdown()
-user_login='myusername'
-user_projects = rims.get_user_projects(user_login)
-state_core, state_access, state_project = collate.dash_state(user_login)
-project_info_df = gather.gather_projectdetails(project_num)
+def check_inputs():
+    userlist=collate.populate_userdropdown()
+    user_login='myusername'
+    user_projects = rims.get_user_projects(user_login)
+    #state_core, state_access, state_project = collate.dash_state(user_login)
+    states = collate.dash_state(user_login)
+    project_num=2273
+    project_info_df = gather.gather_projectdetails(project_num)
+    project_info = project_info_df.to_dict('records')
 
 def entry_dev():
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True, port=5000)
 
 if __name__ == "__main__":
-    app.run()
+    entry_dev()
+    #app.run()

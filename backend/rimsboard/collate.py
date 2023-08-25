@@ -50,11 +50,14 @@ def dash_state(user_login):
 
     core_array = extract_core_array(user_login, project_array)
 
-    print(f"core: {core_array}")
+    print(f"MOD core: {core_array}")
     print(f"access: {labright_array}")
     print(f"proj: {project_array}")    
 
-    return core_array, labright_array, project_array
+    result = [core_array, labright_array, project_array]
+
+    return result
+    #return core_array, labright_array, project_array
 
 
 def extract_core_array(user_login, project_array):
