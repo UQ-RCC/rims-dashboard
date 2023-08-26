@@ -21,7 +21,7 @@ def api_getuserlist():
     return jsonify(userlist)
 
 @app.route('/api/v1/getstate', methods=['GET'])
-def api_getstate():
+def api_getstate(): #expects user_login
 
     if 'login' in request.args:
         user_login = str(request.args['login'])
@@ -34,7 +34,9 @@ def api_getstate():
     return jsonify(state_core, state_access, state_project)
 
 @app.route('/api/v1/getuserprojects', methods=['GET'])
-def api_getuserprojects():
+def api_getuserprojects():  #expects user_login
+
+    print(f"received: {request.args}")    
 
     if 'login' in request.args:
         user_login = str(request.args['login'])
@@ -45,18 +47,20 @@ def api_getuserprojects():
     
     return jsonify(user_projects)
 
-
 @app.route('/api/v1/getprojectdetails', methods=['GET'])
-def api_getprojectdetails():
+def api_getprojectdetails():    #expects project_number
 
-    if 'project_num' in request.args:
-        project_num = str(request.args['project_num'])
+    print(f"received: {request.args}")    
+
+    if 'project_number' in request.args:
+        project_number = int(request.args['project_number'])
+        print(f"received: {project_number}")            
     else:
         return "Error: No login field provided. Please specify a login id."
     
     #here we create a df from a json then convert back to dict-list after
     #should just drop the df intermediary
-    project_info_df = gather.gather_projectdetails(project_num)
+    project_info_df = gather.gather_projectdetails(project_number)
     
     project_info = project_info_df.to_dict('records')
 
@@ -69,8 +73,8 @@ def check_inputs():
     user_projects = rims.get_user_projects(user_login)
     #state_core, state_access, state_project = collate.dash_state(user_login)
     states = collate.dash_state(user_login)
-    project_num=2273
-    project_info_df = gather.gather_projectdetails(project_num)
+    project_number=user_projects[0]
+    project_info_df = gather.gather_projectdetails(project_number)
     project_info = project_info_df.to_dict('records')
 
 def entry_dev():

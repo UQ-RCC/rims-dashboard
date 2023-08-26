@@ -3,8 +3,6 @@ from dash import Dash, html, dcc, Input, Output, dash_table
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 
-import rimsdash.collate as collate
-
 class ColourList():
     def __init__(self):
         #base
@@ -28,22 +26,37 @@ BRAND_COLOURS={'purple':(81,36,122), 'lpurple':(150,42,139),'red':(230,38,69), '
             'gold':(217,172,109), 'green':(46,168,54), 'orange':(235,96,43),\
             'yellow':(251,184,0), 'black':(0,0,0), 'white':(255,255,255) }
 
+#TODO: request this from backend as dict to avoid disconnecting in future
+class IState():
+    def __init__(self):
+        #base
+        self.off = 0
+        #good
+        self.work = 1
+        self.ok = 2
+        self.active = 3
+        #bad
+        self.warn = 11
+        self.fail = 12
+        self.na = -1
+
+ISTATES = IState()
 
 
 def colour_from_istate(state: int):
-    if state == collate.ISTATES.off:
+    if state == ISTATES.off:
         return COLOURLIST.off
-    elif state == collate.ISTATES.work:
+    elif state == ISTATES.work:
         return COLOURLIST.work
-    elif state == collate.ISTATES.ok:
+    elif state == ISTATES.ok:
         return COLOURLIST.ok
-    elif state == collate.ISTATES.active:
+    elif state == ISTATES.active:
         return COLOURLIST.active
-    elif state == collate.ISTATES.warn:
+    elif state == ISTATES.warn:
         return COLOURLIST.warn
-    elif state == collate.ISTATES.fail:
+    elif state == ISTATES.fail:
         return COLOURLIST.fail
-    elif state == collate.ISTATES.na:
+    elif state == ISTATES.na:
         return COLOURLIST.na
     else:
         raise ValueError("unknown value for state: {state}")

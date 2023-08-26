@@ -5,74 +5,60 @@ import dashboard.config as config
 BACKEND_URL=f"{config.get('backend','url')}"
 BACKEND_PORT=f"{config.get('backend','port')}"
 
-def getuserlist():
+
+def get_response(url:str, port:str, route:str, payload:str=''):
+    if payload == '':
+        response = requests.request("GET", f"{url}:{port}{route}")
+    else:
+        response = requests.request("GET", f"{url}:{port}{route}", params=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            return response.json(strict=False)
+    else:
+        raise Exception('Not found')    
+
+def get_user_list():
     """
     """    
     url=f"{BACKEND_URL}"
     port=f"{BACKEND_PORT}"
     route=f"/api/v1/userlist"
 
-    response = requests.request("GET", f"{url}:{port}{route}")
-
-    if response.ok:
-        if response.status_code == 204:
-            raise Exception('Not found')
-        else:
-            return response.json(strict=False)
-    else:
-        raise Exception('Not found')
+    return get_response(url, port, route)
 
 
-def getstate():
+def get_state(user_login):
     """
     """    
+    route=f"/api/v1/getstate"
     url=f"{BACKEND_URL}"
     port=f"{BACKEND_PORT}"
-    route=f"/api/v1/getstate"
+    payload=f"login={user_login}"
 
-    response = requests.request("GET", f"{url}:{port}{route}")
-
-    if response.ok:
-        if response.status_code == 204:
-            raise Exception('Not found')
-        else:
-            return response.json(strict=False)
-    else:
-        raise Exception('Not found')
+    return get_response(url, port, route, payload=payload)
 
 
 #TODO pass arg in request 
-def getuserprojects(user_login):
+def get_user_projects(user_login):
     """
     """    
+    route=f"/api/v1/getuserprojects"
     url=f"{BACKEND_URL}"
     port=f"{BACKEND_PORT}"
-    route=f"/api/v1/getstate"
+    payload=f"login={user_login}"
 
-    response = requests.request("GET", f"{url}:{port}{route}")
-
-    if response.ok:
-        if response.status_code == 204:
-            raise Exception('Not found')
-        else:
-            return response.json(strict=False)
-    else:
-        raise Exception('Not found')
+    return get_response(url, port, route, payload=payload)
     
 
-def getprojectdetails(project_num):
+def get_project_details(project_number):
     """
     """    
     url=f"{BACKEND_URL}"
     port=f"{BACKEND_PORT}"
-    route=f"/api/v1/getstate"
+    route=f"/api/v1/getprojectdetails"
+    payload=f"project_number={project_number}"
 
-    response = requests.request("GET", f"{url}:{port}{route}")
-
-    if response.ok:
-        if response.status_code == 204:
-            raise Exception('Not found')
-        else:
-            return response.json(strict=False)
-    else:
-        raise Exception('Not found')
+    return get_response(url, port, route, payload=payload)

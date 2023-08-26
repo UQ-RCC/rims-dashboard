@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import dashboard.lightboards as lightboards
 import dashboard.auth as auth
+import dashboard.requester as requester
 
 #import rimsdash.usergather as gather
 #import rimsdash.rims as rims
@@ -40,14 +41,10 @@ server=dash_app.server
 #DATA
 #--------------
 
-#API RETURN HERE
-userlist=collate.populate_userdropdown()
+userlist=requester.get_user_list()
 
 user_dropdown = dcc.Dropdown(options=userlist,
                             value='s4595555')
-
-#s4595555   experienced user
-#t.blach    fee-for-service user
 
 project_table = dash_table.DataTable(id='project-table', style_as_list_view=True,)
 
@@ -90,10 +87,42 @@ dash_app.layout = html.Div(
 )
 def get_dash_state(user_login):
 
-    #API RETURN HERE
-    state_core, state_access, state_project = collate.dash_state(user_login)
+    print("getting dash state")
+
+    state = requester.get_state(user_login)
+    state_core = state[0] 
+    state_access = state[1]
+    state_project = state[2]
 
     return json.dumps(state_core), json.dumps(state_access), json.dumps(state_project)
+
+@dash_app.callback(
+    Output(component_id='project-table', component_property='data'),
+    Output(component_id='project-table', component_property='columns'),
+    Input(component_id=user_dropdown, component_property='value')
+)
+def update_project_table(user_login):
+    """
+    update the monthly usage graph
+    """
+    print("ptable")
+    print(f"{user_login}")
+    user_projects = requester.get_user_projects(user_login)
+    if user_projects is None or user_projects == -1:
+        print(f"NO PROJECTS for user {user_login}")
+        return '', ''
+    else:
+        print(user_projects[0])
+
+        #API RETURN HERE
+        #TODO: modified -> does not return df anymore, match to rimsboard
+        project_info = requester.get_project_details(user_projects[0])
+        columns = [{'name': col, 'id':col} for col in list(project_info[0].keys())]
+        data = project_info[0]
+        print(columns)
+        print(data)
+        #TODO: project_table broken, something to do with switching from pd.df to dict
+        return data, columns
 
 
 @dash_app.callback(
@@ -108,7 +137,7 @@ def get_dash_state(user_login):
     Input('dash_state_project', 'data')
 )
 def assign_project_lights(state_raw: str):
-
+    print("projlights")
     state = json.loads(state_raw)
 
     if len(state) != 8:
@@ -129,7 +158,7 @@ def assign_project_lights(state_raw: str):
     Input('dash_state_access', 'data')
 )
 def assign_accessrights_lights(state_raw: str):
-
+    print("rightlights")
     state = json.loads(state_raw)
 
     if len(state) != 4:
@@ -148,7 +177,7 @@ def assign_accessrights_lights(state_raw: str):
     Input('dash_state_core', 'data')
 )
 def assign_core_lights(state_raw: str):
-
+    print("corelights")
     state = json.loads(state_raw)
 
     if len(state) != 2:
@@ -162,29 +191,9 @@ def assign_core_lights(state_raw: str):
     return tuple(colours)
 
 
-@dash_app.callback(
-    Output(component_id='project-table', component_property='data'),
-    Output(component_id='project-table', component_property='columns'),
-    Input(component_id=user_dropdown, component_property='value')
-)
-def update_project_table(user_login):
-    """
-    update the monthly usage graph
-    """
 
-    #API RETURN HERE
-    print(f"{user_login}")
-    user_projects = rims.get_user_projects(user_login)
 
-    print(user_projects[0])
-
-    #API RETURN HERE
-    #TODO: modified -> does not return df anymore, match to rimsboard
-    project_info_df = gather.gather_projectdetails(user_projects[0])
-
-    data = project_info_df.to_dict('records')
-    columns = [{"name": i, "id": i} for i in project_info_df.columns]
-    return data, columns
+a=1
 
 """
 @app.callback(
