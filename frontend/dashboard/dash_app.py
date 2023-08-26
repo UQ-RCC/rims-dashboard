@@ -105,23 +105,21 @@ def update_project_table(user_login):
     """
     update the monthly usage graph
     """
-    print("ptable")
-    print(f"{user_login}")
     user_projects = requester.get_user_projects(user_login)
     if user_projects is None or user_projects == -1:
         print(f"NO PROJECTS for user {user_login}")
         return '', ''
     else:
-        print(user_projects[0])
-
-        #API RETURN HERE
-        #TODO: modified -> does not return df anymore, match to rimsboard
         project_info = requester.get_project_details(user_projects[0])
-        columns = [{'name': col, 'id':col} for col in list(project_info[0].keys())]
-        data = project_info[0]
-        print(columns)
-        print(data)
-        #TODO: project_table broken, something to do with switching from pd.df to dict
+
+        #DataTable needs both as json
+        #try - project_info may be empty
+        try:
+            data = [(project_info[0])]
+
+            columns = [{'name': col, 'id':col} for col in list(project_info[0].keys())]
+        except:
+            data=[], columns=[]
         return data, columns
 
 

@@ -8,6 +8,10 @@ import rimsboard.collate as collate
 """Construct core Flask application with embedded Dash app."""
 app = Flask(__name__, instance_relative_config=False)
 
+#prevent flask.jsonify reordering dicts
+# we are passing into python where dicts retain order
+app.json.sort_keys = False
+
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>rimsboard home - backend for rims dashboard</h1>
@@ -64,6 +68,7 @@ def api_getprojectdetails():    #expects project_number
     
     project_info = project_info_df.to_dict('records')
 
+    print(project_info)
     #TODO: modified -> does not return df anymore, match to dash_app
     return jsonify(project_info)
 
