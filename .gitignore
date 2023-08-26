@@ -1,4 +1,5 @@
 outs
+/rimsdash
 
 #environment files
 .env.*
