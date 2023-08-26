@@ -106,20 +106,28 @@ def update_project_table(user_login):
     update the monthly usage graph
     """
     user_projects = requester.get_user_projects(user_login)
+
     if user_projects is None or user_projects == -1:
+        #user_proj == -1 means no project found
         print(f"NO PROJECTS for user {user_login}")
         return '', ''
     else:
-        project_info = requester.get_project_details(user_projects[0])
+        data=[]
+        columns=[]
+        for proj in user_projects:
+            project_info = requester.get_project_details(proj)
 
-        #DataTable needs both as json
-        #try - project_info may be empty
-        try:
-            data = [(project_info[0])]
+            #DataTable needs both as json
+            #try - project_info may be empty
+            if not project_info == []:
+                __data = (project_info[0])
 
-            columns = [{'name': col, 'id':col} for col in list(project_info[0].keys())]
-        except:
-            data=[], columns=[]
+                if columns == []:
+                    columns = [{'name': col, 'id':col} for col in list(project_info[0].keys())]
+
+                if not __data == []:
+                    data.append(__data)
+
         return data, columns
 
 

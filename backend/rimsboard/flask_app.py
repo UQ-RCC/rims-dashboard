@@ -9,7 +9,7 @@ import rimsboard.collate as collate
 app = Flask(__name__, instance_relative_config=False)
 
 #prevent flask.jsonify reordering dicts
-# we are passing into python where dicts retain order
+# we are passing into python atm, dicts should retain order
 app.json.sort_keys = False
 
 @app.route('/', methods=['GET'])
