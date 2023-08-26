@@ -1,5 +1,23 @@
 import plotly
+import re
 
+
+def cleanup_user_name(user_name: str):
+    """
+    removes brackets from user full name
+    """
+    regex = re.compile("(.*?)\s*\(")
+    m1=regex.match(user_name)
+    result=m1.group(1)
+    return result
+
+def reorder_user_name(user_name: str):
+    split = user_name.split()
+    first=split[-1]
+    others=split[:-1]
+    others.insert(0,first)
+    result = ' '.join(others)    
+    return result
 
 def rgb_to_hex(rgb: tuple):
     result = f'#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}'

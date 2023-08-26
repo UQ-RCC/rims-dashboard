@@ -38,13 +38,26 @@ def populate_userdropdown():
 
 def dash_state(user_login):
 
+    user_dict = gather.get_user_details(user_login)
+
     user_projects = rims.get_user_projects(user_login)
     
     rights_df = gather.get_user_rights_df(user_login)
 
-    project_df = gather.gather_projectdetails(user_projects[0])
-
     labright_array = extract_labrights_array(rights_df)
+
+    #try to find user name in project titles
+    #   if found use first match
+    #   if not found, use last in list (ie. most recent)
+    for proj in user_projects:
+        project_df = gather.gather_projectdetails(proj)
+        project_dict = project_df.to_dict('records')[0]
+
+        user_name = utils.cleanup_user_name(user_name)
+        user_name = utils.reorder_user_name(user_name)
+
+        if user_name.lower() in project_dict['ProjectName'].lower() and bool(project_dict['Active'])==True:
+            break
 
     project_array = extract_project_array(project_df)
 

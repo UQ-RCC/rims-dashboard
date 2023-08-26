@@ -81,6 +81,16 @@ def get_user_rights_df(ulogin: str):
 
     return df
 
+def get_user_details(ulogin: str):
+    """
+    retrieve user details as dict
+    """    
+    result = user_data.loc[user_data['login'] == ulogin]
+    if not len(result) == 1:
+        raise ValueError(f"FATAL: multiple matches to login {ulogin}")
+    else:
+        return result.to_dict('records')[0]
+
 def gather_userlists():
     """
     get paired lists of user logins and user full names
