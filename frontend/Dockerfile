@@ -5,6 +5,7 @@ WORKDIR /app
 RUN apt-get update && apt-get -y install \
     git \
     vim \    
+    netcat \
     gcc
 
 RUN pip install --upgrade pip
@@ -19,8 +20,7 @@ COPY . /app
 RUN pip install /app
 
 #copy any extra data, configs etc
-COPY data /app/data
 COPY conf/ app/conf
 
 #entrypoint
-CMD gunicorn --bind 0.0.0.0:8050 rimsdash.dashboard.wsgi:server
+CMD gunicorn --bind 0.0.0.0:8050 dashboard.wsgi:server

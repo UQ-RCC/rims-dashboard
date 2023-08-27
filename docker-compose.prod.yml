@@ -3,7 +3,8 @@ version: '3.10'
 services:
   frontend: 
     build:  ./frontend
-    command: gunicorn --bind 0.0.0.0:8050 frontend.dashboard.wsgi:server
+    command: gunicorn --bind 0.0.0.0:8050 dashboard.wsgi:server
+    #command: tail -f /dev/null
     volumes:
       - ./frontend/:/app/         
     expose:
@@ -11,31 +12,43 @@ services:
     env_file:
       - ./.env.prod
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    #healthcheck: TODO: fails due to auth, need custom script
+    #  test: curl --fail http://localhost:8050/ || exit 1
+    #  interval: 5s
+    #  timeout: 5s
+    #  retries: 3
+    #  start_period: 5s    
 
   backend: 
     build:  ./backend
-    command: gunicorn --bind 0.0.0.0:5000 backend.rimsdash.wsgi:server
-          #rimsdash-debug
+    command: gunicorn --bind 0.0.0.0:5000 rimsboard.manager:app
     volumes:
       - ./backend/:/app/         
     expose:
     - 5000
     env_file:
-      - ./.env.dev
-    depends_on:
-      - db
+      - ./.env.prod
+    healthcheck:
+      test: curl --fail http://localhost:5000/ || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s      
+ #   depends_on:
+ #     - db
 
-  db:
-    image: postgres:13
-    volumes:
-      - .postgres_data_prod:/var/lib/postgresql/data/
-    env_file:
-      - ./.env.prod.db
-    environment:
-      - POSTGRES_USER_FILE=/run/secrets/db_user
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db_root_password
-      - POSTGRES_DB=rimsdash_db_prod
+  #db:
+  #  image: postgres:13
+  #  volumes:
+  #    - .postgres_data_prod:/var/lib/postgresql/data/
+  #  env_file:
+  #    - ./.env.prod.db
+  #  environment:
+  #    - POSTGRES_USER_FILE=/run/secrets/db_user
+  #    - POSTGRES_PASSWORD_FILE=/run/secrets/db_root_password
+  #    - POSTGRES_DB=rimsdash_db_prod
   
   nginx:
     build: ./nginx
@@ -43,6 +56,13 @@ services:
     - 80:80
     depends_on:
     - frontend
+        #condition: service_healthy
+    #healthcheck: TODO: fails due to auth, need custom script
+    #  test: curl --fail http://localhost:80/ || exit 1
+    #  interval: 5s
+    #  timeout: 5s
+    #  retries: 3
+    #  start_period: 5s    
 
 secrets:
   db_user: 

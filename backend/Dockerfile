@@ -23,4 +23,4 @@ COPY data /app/data
 COPY conf/ app/conf
 
 #entrypoint
-CMD gunicorn --bind 0.0.0.0:8050 rimsboard.dashboard.wsgi:server
+CMD gunicorn --bind 0.0.0.0:5000 rimsboard.manager:app
