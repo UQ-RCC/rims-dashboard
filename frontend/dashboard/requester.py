@@ -18,7 +18,7 @@ def get_response(url:str, port:str, route:str, payload:str=''):
         else:
             return response.json(strict=False)
     else:
-        raise Exception('Not found')    
+        raise Exception(f'API response not ok, status code: {response.status_code}')    
 
 def get_user_list():
     """

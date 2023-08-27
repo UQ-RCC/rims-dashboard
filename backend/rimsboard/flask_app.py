@@ -68,8 +68,6 @@ def api_getprojectdetails():    #expects project_number
     
     project_info = project_info_df.to_dict('records')
 
-    print(project_info)
-    #TODO: modified -> does not return df anymore, match to dash_app
     return jsonify(project_info)
 
 def check_inputs():

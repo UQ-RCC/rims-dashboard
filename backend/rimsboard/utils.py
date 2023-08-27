@@ -1,14 +1,18 @@
 import plotly
 import re
 
-
+#antony airin
 def cleanup_user_name(user_name: str):
     """
     removes brackets from user full name
     """
     regex = re.compile("(.*?)\s*\(")
     m1=regex.match(user_name)
-    result=m1.group(1)
+    if m1 is not None:
+        result=m1.group(1)
+    else:
+        result = user_name
+    
     return result
 
 def reorder_user_name(user_name: str):
