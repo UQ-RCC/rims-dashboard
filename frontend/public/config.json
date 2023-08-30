@@ -1,0 +1,11 @@
+{
+  "keycloak": {
+    "url": "https://auth.rcc.uq.edu.au/auth/",
+    "realm": "nimrod",
+    "clientId": "dashboardjsclient",
+    "onLoad": "login-required",
+    "minValidity": 10
+  },
+  "backend": "http://localhost:5000",
+  "signoutUrl": "https://cmm.centre.uq.edu.au/"
+}

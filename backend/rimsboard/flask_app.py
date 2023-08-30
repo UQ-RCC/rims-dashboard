@@ -24,7 +24,7 @@ def api_getuserlist():
 
     return jsonify(userlist)
 
-@app.route('/api/v1/getstate', methods=['GET'])
+@app.route('/api/v1/state', methods=['GET'])
 def api_getstate(): #expects user_login
 
     if 'login' in request.args:
@@ -37,7 +37,7 @@ def api_getstate(): #expects user_login
     #TODO not sure i can jsonify a tuple like this
     return jsonify(state_core, state_access, state_project)
 
-@app.route('/api/v1/getuserprojects', methods=['GET'])
+@app.route('/api/v1/userprojects', methods=['GET'])
 def api_getuserprojects():  #expects user_login
 
     print(f"received: {request.args}")    
@@ -51,7 +51,7 @@ def api_getuserprojects():  #expects user_login
     
     return jsonify(user_projects)
 
-@app.route('/api/v1/getprojectdetails', methods=['GET'])
+@app.route('/api/v1/projectdetails', methods=['GET'])
 def api_getprojectdetails():    #expects project_number
 
     print(f"received: {request.args}")    

@@ -1,0 +1,18 @@
+[logging]
+log_file=/var/log/rimsdash/rimsdash.log
+
+[ppms]
+core_id=2
+timezone=Australia/Brisbane
+
+[visualisation]
+min_hours=250
+
+[authentication]
+username = xxxxxx
+password = xxxxxx
+
+[backend]
+url=http://localhost
+#url=http://rimsdash-backend-1  #for prod
+port=5000
