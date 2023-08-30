@@ -1,1 +1,4 @@
-module.exports = {publicPath: '/dashboard/'};
+module.exports = {
+    publicPath: '/dashboard/',
+    runtimeCompiler: true
+};
