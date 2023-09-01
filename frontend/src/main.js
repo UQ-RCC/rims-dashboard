@@ -7,7 +7,7 @@ import vuetify from './plugins/vuetify'
 import 'roboto-fontface/css/roboto/roboto-fontface.css'
 import '@mdi/font/css/materialdesignicons.css'
 import * as Keycloak from 'keycloak-js'
-//import VueLogger from 'vuejs-logger'
+import VueLogger from 'vuejs-logger'
 import Notifications from 'vue-notification'
 import VueCookies from 'vue-cookies'
 
@@ -15,9 +15,10 @@ import VueCookies from 'vue-cookies'
 Vue.config.productionTip = false
 import axios from 'axios'
 
-//Vue.use(VueLogger)
+Vue.use(VueLogger)
 Vue.use(VueCookies)
 Vue.use(Notifications)
+Vue.$log.info("Initialising")
 
 let config = null
 

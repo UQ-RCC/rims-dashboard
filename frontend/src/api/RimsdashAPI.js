@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import Vue from 'vue'
 
 export default {
-    async getUserlist() {
+    async getUserList() {
         const { data } = await request.get(`${Vue.prototype.$Config.backend}/api/v1/userlist`)
         return data
     },

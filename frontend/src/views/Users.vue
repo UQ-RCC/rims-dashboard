@@ -15,6 +15,7 @@
 <script>
     import Vue from 'vue'
     import Dropdown from 'vue-simple-search-dropdown'
+    import RimsdashAPI from "@/api/RimsdashAPI"
 
     Vue.use(Dropdown);
 
@@ -35,7 +36,7 @@
             };
         },
     
-        methods: {
+        methods: {        
             validateSelection(selection) {
                 this.selected = selection;
                 console.log(selection.name + " has been selected");
@@ -44,6 +45,18 @@
             getDropdownValues(keyword) {
                 console.log("You could refresh options by querying the API with " + keyword);
             }
+        },
+        mounted: async function() {
+            console.log("trying api")
+            try {
+                this.userlist = await RimsdashAPI.getUserList()
+            } catch (error) {
+                console.log("api failed")                        
+                this.userlist = null;
+            }
+            console.log("post api, userlist[2].label:  "  + this.userlist[2].label)
+            console.log("post api, userlist[2]:  "  + JSON.stringify(this.userlist[2]))
         }
-    };
+
+    } 
 </script>

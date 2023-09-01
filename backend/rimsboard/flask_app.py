@@ -1,5 +1,6 @@
 """Initialize Flask app."""
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 import rimsboard.usergather as gather
 import rimsboard.rims as rims
@@ -7,6 +8,7 @@ import rimsboard.collate as collate
 
 """Construct core Flask application with embedded Dash app."""
 app = Flask(__name__, instance_relative_config=False)
+CORS(app)
 
 #prevent flask.jsonify reordering dicts
 # we are passing into python atm, dicts should retain order
