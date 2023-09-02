@@ -1,62 +1,62 @@
 <template>
     <div>        
         <div>
-            <Dropdown
-                :options="options"
-                v-on:selected="validateSelection"
-                v-on:filter="getDropdownValues"
-                :disabled="false"
-                placeholder="Select a user">
-            </Dropdown>
-        </div>
+            <v-autocomplete 
+                v-model="selected" 
+                :items="userlist"            
+                item-text="search"
+                return-object>
+            </v-autocomplete>            
+        </div>            
     </div>
 </template>
 
-<script>
-    import Vue from 'vue'
-    import Dropdown from 'vue-simple-search-dropdown'
-    import RimsdashAPI from "@/api/RimsdashAPI"
 
-    Vue.use(Dropdown);
+<script>
+
+    import Vue from 'vue'
+    import "v-autocomplete/dist/v-autocomplete.css"
+    import RimsdashAPI from "@/api/RimsdashAPI"
+    import VueLogger from 'vuejs-logger'
+    Vue.use(VueLogger)
 
     export default {
         name: 'Users',
         components:{
-            Dropdown: Dropdown
         },
         data() {
             return {
                 //api query here
-                options: [
-                    { name: "John Smith", id: "j.smith" },
-                    { name: "Bob Jenkins", id: "b.jenkins" }
-                ],
-            
-                selected: { name: null, id: null }
+                selected: { search: null, ulogin: null, name: null },
+                userlist: [ this.selected, ],
             };
         },
-    
-        methods: {        
-            validateSelection(selection) {
-                this.selected = selection;
-                console.log(selection.name + " has been selected");
+        watch: {
+            //watcher for update from dropdown
+            //TODO link project, board calls here
+            selected: function() {
+                Vue.$log.info("new selection: " + this.selected.search);
+                return 0
             },
-        
-            getDropdownValues(keyword) {
-                console.log("You could refresh options by querying the API with " + keyword);
-            }
         },
-        mounted: async function() {
-            console.log("trying api")
+        methods: {        
+            refreshDropdownValues() {
+                console.log("placeholder for dropdown refresh");
+            },
+               
+        },
+        created: async function() {
+            //retrieve values to populate dropdown
             try {
+                Vue.$log.info("before api")
                 this.userlist = await RimsdashAPI.getUserList()
             } catch (error) {
-                console.log("api failed")                        
+                Vue.$log.info("API call getUserList FAILED")                       
                 this.userlist = null;
             }
-            console.log("post api, userlist[2].label:  "  + this.userlist[2].label)
-            console.log("post api, userlist[2]:  "  + JSON.stringify(this.userlist[2]))
+            Vue.$log.info("data retrieved, eg:  "  + this.userlist[0].search)
         }
 
     } 
+
 </script>

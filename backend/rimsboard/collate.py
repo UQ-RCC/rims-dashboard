@@ -31,7 +31,7 @@ def populate_userdropdown():
     options=[]
 
     for i, uid in enumerate(uid_list):
-        options.append({'label': f"{name_list[i]} ({uid_list[i]})", 'value': uid_list[i], 'search': name_list[i]})
+        options.append({'search': f"{name_list[i]} ({uid_list[i]})", 'ulogin': uid_list[i], 'name': name_list[i]})
     
     return options
 
