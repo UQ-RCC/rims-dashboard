@@ -1,9 +1,10 @@
-import request from '@/utils/request'
+//import request from '@/utils/request'
+import axios from 'axios'
 import Vue from 'vue'
 
 export default {
     async getUserList() {
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/api/v1/userlist`)
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userlist`)
         return data
     },
 
@@ -13,7 +14,7 @@ export default {
         let payload = {
             'login': user_login
         }
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/api/v1/state/`, payload)
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/state`, { params: payload } )
         return data
     },
 
@@ -21,7 +22,7 @@ export default {
         let payload = {
             'login': user_login
         }        
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/api/v1/userprojects/`, payload)
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userprojects`, { params: payload })
         return data
     },    
 
@@ -29,7 +30,7 @@ export default {
         let payload = {
             'project_number': project_number
         }        
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/api/v1/projectdetails/`, payload)
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/projectdetails`, { params: payload })
         return data
     },        
 

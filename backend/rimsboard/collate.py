@@ -36,6 +36,27 @@ def populate_userdropdown():
     return options
 
 
+"""
+TO-DO:
+    really need separate functions
+
+    state_from_user
+    - retrieve primary project
+    - (retrieve all projects)
+    
+    state_from_project
+    - retrieve primary user
+    - (retrieve all users)
+
+    all carrying same info, but recombined
+    preferably querying local DB, not rims
+
+    for now, just consider dash_state as state_from_user
+
+"""
+
+
+
 def dash_state(user_login):
     """
     compile dashboard state for this project
@@ -53,9 +74,7 @@ def dash_state(user_login):
     labright_array = extract_labrights_array(rights_df)
 
     #try to find user name in project titles
-    #   if found use first match (ie. oldest)
-    #   if not found as lead, use oldest active project containing user
-    #   if no active projects at all, use oldest project
+
     oldest=None
     oldest_active=None
     found=False
@@ -69,6 +88,10 @@ def dash_state(user_login):
                 #dict conversion will fail on inaccessible projects (eg. 1995)
                 #skip these if present
                 continue
+
+            #   if found use first match (ie. oldest)
+            #   if not found as lead, use oldest active project containing user
+            #   if no active projects at all, use oldest project
 
             if oldest is None:
                 oldest = project_df
@@ -115,6 +138,7 @@ def dash_state(user_login):
     #   ghost project (ie. 1995)
     #   only ghost project
     #   only bad projects
+    #   CHECK alafif failing
 
 
 def extract_core_array(user_login, project_array):

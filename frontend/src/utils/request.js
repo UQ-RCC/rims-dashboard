@@ -10,27 +10,26 @@ const service = axios.create({
   // request interceptor
   service.interceptors.request.use(
     config => {
-      // do something before request is sent
+      //if token is good
       if (Vue.prototype.$keycloak && Vue.prototype.$keycloak.token 
             && !Vue.prototype.$keycloak.isTokenExpired(Vue.prototype.$Config.keycloak.minValidity)) {
-        // config.headers['token'] = Vue.prototype.$keycloak.token
         config.headers['Authorization'] = 'Bearer ' + Vue.prototype.$keycloak.token;
-        // config.headers['Access-Control-Allow-Origin'] = '*';
         return config
       }
+      // elif token expired
       else if (Vue.prototype.$keycloak.isTokenExpired(Vue.prototype.$Config.keycloak.minValidity)) {
-        // token expired
+
         Vue.prototype.$keycloak.updateToken(Vue.prototype.$Config.keycloak.minValidity).then(function(refreshed) {
           if (refreshed) {
-            //Vue.$log.info('Token refreshed' + refreshed)
+            Vue.$log.info('Token refreshed' + refreshed)
             config.headers['Authorization'] = 'Bearer ' + Vue.prototype.$keycloak.token
             return config
           } else {
-            //Vue.$log.info('Token not refreshed, valid for '
-            //  + Math.round(Vue.prototype.$keycloak.tokenParsed.exp + Vue.prototype.$keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds')
+            Vue.$log.info('Token not refreshed, valid for '
+              + Math.round(Vue.prototype.$keycloak.tokenParsed.exp + Vue.prototype.$keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds')
           }
         }).catch(function() {
-            //Vue.$log.error(">>> Cannot refresh token")
+            Vue.$log.error(">>> Cannot refresh token")
             window.location.reload()
         })
       }

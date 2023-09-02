@@ -2,6 +2,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+import sys
 import rimsboard.usergather as gather
 import rimsboard.rims as rims
 import rimsboard.collate as collate
@@ -13,6 +14,8 @@ CORS(app)
 #prevent flask.jsonify reordering dicts
 # we are passing into python atm, dicts should retain order
 app.json.sort_keys = False
+
+print("START", file=sys.stderr)
 
 @app.route('/', methods=['GET'])
 def home():
@@ -29,15 +32,22 @@ def api_getuserlist():
 @app.route('/api/v1/state', methods=['GET'])
 def api_getstate(): #expects user_login
 
-    if 'login' in request.args:
-        user_login = str(request.args['login'])
-    else:
-        return "Error: No login field provided. Please specify a login id."
+    try:
+        print("received call for state", file=sys.stderr)
+        if 'login' in request.args:
+            print(str(request.args['login']), file=sys.stderr)
+            user_login = str(request.args['login'])
+        else:
+            return "Error: No login field provided. Please specify a login id."
+        
+        state_core, state_access, state_project = collate.dash_state(user_login)
     
-    state_core, state_access, state_project = collate.dash_state(user_login)
+        #TODO not sure i should jsonify a tuple like this
+        #   becomes list in js
+        return jsonify(state_core, state_access, state_project)
     
-    #TODO not sure i can jsonify a tuple like this
-    return jsonify(state_core, state_access, state_project)
+    except:
+        return f"Error: could not generate state for login {user_login}."
 
 @app.route('/api/v1/userprojects', methods=['GET'])
 def api_getuserprojects():  #expects user_login
