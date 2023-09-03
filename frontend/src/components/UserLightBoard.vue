@@ -2,8 +2,8 @@
     <div id="user-lightboard">  
         {{ state }}
         <div>
-            <LightSetMaster :localstate=this.state.core />
-            <LightSetUser :localstate=this.state.user />
+            <LightSetMaster :localstate=this.state.core />    
+            <LightSetUser :localstate=this.state.user />           
             <LightSetProject :localstate=this.state.projects[0] />
         </div>
     </div>        

@@ -1,6 +1,11 @@
 <template>
     <div id="lightcell">  
-        {{ localval }}
+        <v-row><p class="text-overline" style="text-align:right">{{this.cell_label}}</p></v-row>
+        <v-row><v-btn
+            color="secondary"
+            elevation="2"
+            icon
+        ></v-btn></v-row>
     </div>        
 </template>
 
@@ -9,7 +14,7 @@
     
     export default {
         name: 'LightCell',
-        props:['localval'],
+        props:['localval', 'cell_label'],
 
         created: function() {
             Vue.$log.info("LC val  " + this.localval)               
@@ -19,5 +24,11 @@
 
 </script>
 
-<style>
+<style scoped >
+.text-indicator-small
+{
+    font-size: '24px';
+    text-align: center;
+    color: blue;
+}
 </style>
