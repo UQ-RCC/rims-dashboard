@@ -7,7 +7,10 @@
                 item-text="search"
                 return-object>
             </v-autocomplete>            
-        </div>            
+        </div>    
+        <div>        
+            <UserLightBoard :state=this.state />
+        </div>  
     </div>
 </template>
 
@@ -18,13 +21,27 @@
     import "v-autocomplete/dist/v-autocomplete.css"
     import RimsdashAPI from "@/api/RimsdashAPI"
     import VueLogger from 'vuejs-logger'
+    import UserLightBoard from '../components/UserLightBoard.vue'
+
     Vue.use(VueLogger)
 
-    const DEFAULT_STATE = [ 0,0,  0,0,0,0,  0,0,0,0,0,0,0,0,]
+    //const DEFAULT_STATE = { 
+    //    core: [0,0,],  
+    //    user: [0,0,0,0,],  
+    //    projects: [[0,0,0,0,0,0,0,0,],],
+    //}
+
+    const DEFAULT_STATE = { 
+        core: [1,1,],  
+        user: [2,2,2,2,],  
+        projects: [[3,4,1,0,0,0,0,0,],],
+    }
+    
 
     export default {
         name: 'Users',
         components:{
+            UserLightBoard: UserLightBoard
         },
         data() {
             return {
@@ -32,7 +49,6 @@
                 selected: { search: null, ulogin: null, name: null },
                 userlist: [ this.selected, ],
                 state: DEFAULT_STATE,
-                user_login: null,
             };
         },
         watch: {
@@ -40,43 +56,51 @@
             //TODO link project, board calls here
             selected: async function() {
                 Vue.$log.info("new selection: " + this.selected.search);
-                await this.retrieveState()
+                this.state = await this.retrieveState(this.selected.ulogin)
                 return 0
             },
         },
         methods: {
 
             async refreshDropdownValues() {
-                console.log("refreshing dropdown");
                 //retrieve values to populate dropdown
+                console.log("refreshing dropdown");
+                let _userlist = null;
+
                 try {
-                    this.userlist = await RimsdashAPI.getUserList()
+                    _userlist = await RimsdashAPI.getUserList()
                 } catch (error) {
                     Vue.$log.info("API call getUserList FAILED")                       
-                    this.userlist = null;
+                    _userlist = null;
                 }
-                Vue.$log.info("data retrieved, eg:  "  + this.userlist[0].search)                
+                Vue.$log.info("data retrieved, eg:  "  + _userlist[0].search)                
+                return _userlist
             },
 
-            async retrieveState() {
-                this.user_login = this.selected.ulogin
-                console.log("retrieving board state for  " + this.user_login);
+            async retrieveState(_user_login) {
+                console.log("retrieving board state for  " + _user_login);
+                let _state = DEFAULT_STATE;
 
                 //retrieve values to populate dropdown
                 try {
-                    this.state = await RimsdashAPI.getState(this.user_login)
+                    _state = await RimsdashAPI.getState(_user_login)
                 } catch (error) {
                     Vue.$log.info("API call getState FAILED")                       
-                    this.state = DEFAULT_STATE;
-                }
-                Vue.$log.info("state retrieved:  "  + this.state)               
-                Vue.$log.info("core retrieved:  "  + this.state.core)  
+                    _state = DEFAULT_STATE;
+                }             
+                Vue.$log.info("state retrieved, core values:  "  + _state.core)  
+                return _state
             },
         },
         created: async function() {
             //retrieve values to populate dropdown
             Vue.$log.info("initalising")
-            await this.refreshDropdownValues()
+            Vue.$log.info("U default state  " + DEFAULT_STATE.core + "/" + DEFAULT_STATE.user + "/" + DEFAULT_STATE.projects)
+            Vue.$log.info("U this.state  " + this.state.core + "/" + this.state.user + "/" + this.state.projects)
+
+            this.userlist = await this.refreshDropdownValues()
+
+                       
         }
 
     } 
