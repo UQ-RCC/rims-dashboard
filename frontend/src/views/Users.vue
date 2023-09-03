@@ -70,6 +70,7 @@
                     this.state = DEFAULT_STATE;
                 }
                 Vue.$log.info("state retrieved:  "  + this.state)               
+                Vue.$log.info("core retrieved:  "  + this.state.core)  
             },
         },
         created: async function() {

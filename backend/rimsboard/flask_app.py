@@ -40,11 +40,10 @@ def api_getstate(): #expects user_login
         else:
             return "Error: No login field provided. Please specify a login id."
         
-        state_core, state_access, state_project = collate.dash_state(user_login)
+        state = collate.dash_state(user_login)  #dict
+        print(state)
     
-        #TODO not sure i should jsonify a tuple like this
-        #   becomes list in js
-        return jsonify(state_core, state_access, state_project)
+        return jsonify(state)
     
     except:
         return f"Error: could not generate state for login {user_login}."

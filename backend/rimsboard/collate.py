@@ -1,5 +1,5 @@
 from enum import Enum
-
+from flask import jsonify
 
 import rimsboard.rims as rims
 import rimsboard.utils as utils
@@ -129,7 +129,18 @@ def dash_state(user_login):
     print(f"access: {labright_array}")
     print(f"proj: {project_array}")    
 
-    result = [core_array, labright_array, project_array]
+    #original
+    #result = [ {core_array}, {labright_array}, {project_array} ]
+    
+    #dict
+    result = { 'core': core_array, 'user': labright_array, 'projects': [project_array]}
+
+    print(f"result: {result}")
+    #json
+    #result = jsonify(
+    #        core=core_array,
+    #       user=labright_array,
+    #        projects=[project_array])
 
     return result
     #TODO test cases:
