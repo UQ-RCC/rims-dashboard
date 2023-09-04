@@ -25,16 +25,27 @@
 
     Vue.use(VueLogger)
 
-    //const DEFAULT_STATE = { 
-    //    core: [0,0,],  
-    //    user: [0,0,0,0,],  
-    //    projects: [[0,0,0,0,0,0,0,0,],],
-    //}
-
     const DEFAULT_STATE = { 
-        core: [1,1,],  
-        user: [2,2,2,2,],  
-        projects: [[3,4,1,0,0,0,0,0,],],
+        user: {
+            overall: 'off',
+            account: 'off',
+            access: {
+                aibn: 'off',
+                hawken: 'off',
+                chemistry: 'off',
+                qbp: 'off',
+            },
+        },  
+        projects: [     
+            {
+                overall: 'off',
+                active: 'off',                
+                financial: 'off', 
+                OHS: 'off', 
+                RDM: 'off', 
+                phase: 'off',                 
+            },
+        ],
     }
     
 

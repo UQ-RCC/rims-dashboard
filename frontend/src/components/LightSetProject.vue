@@ -1,12 +1,14 @@
 <template>
     <div id="lightset-project">  
-        {{ localstate }}
         <v-row>
             <v-col>
-            </v-col>            
+            </v-col>              
+            <v-col>
+                <LightCell cell_label="Ready"/>
+            </v-col> 
             <v-col>
                 <LightCell cell_label="Active"/>
-            </v-col>
+            </v-col>             
             <v-col>
                 <LightCell cell_label="Billing"/>
             </v-col>

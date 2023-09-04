@@ -14,14 +14,15 @@
     
     export default {
         name: 'LightCell',
-        props:['localval', 'cell_label'],
+        props:['cell_label', 'cell_value'],
 
         created: function() {
-            Vue.$log.info("LC val  " + this.localval)               
+            Vue.$log.info("LC val  " + this.cell_value)               
         }       
         
     }
-
+    //simple map from cell_value to colour
+    
 </script>
 
 <style scoped >

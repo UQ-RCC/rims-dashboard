@@ -5,6 +5,7 @@ import rimsboard.rims as rims
 import rimsboard.utils as utils
 import rimsboard.usergather as gather
 
+"""
 class IState():
     def __init__(self):
         #base
@@ -17,8 +18,55 @@ class IState():
         self.warn = 11
         self.fail = 12
         self.na = -1
+"""
+
+
+class IState():
+    """
+    collection of valid states to hand back
+    """
+    def __init__(self):
+        #standard--------
+        self.off = 'off'
+        self.incomplete = 'incomplete'
+        self.waiting = 'waiting'
+        self.waiting_external = 'waiting_external'
+        self.ready = 'ready'
+        self.extended = 'extended'
+        self.disabled = 'disabled'
+        #error------------
+        self.warn = 'warn'
+        self.fail = 'fail'
+        self.na = 'na'
 
 ISTATES = IState()
+
+USER_OUTPUT_DEFAULT = { 
+                'overall': ISTATES.off, 
+                'account': ISTATES.off,
+                'access':{
+                    'aibn': ISTATES.off,
+                    'hawken': ISTATES.off,
+                    'chemistry': ISTATES.off,
+                    'qbp': ISTATES.off,
+                }
+            }
+
+PROEJCT_OUTPUT_DEFAULT = { 
+            'overall': ISTATES.off, 
+            'active': ISTATES.off,
+            'financial': ISTATES.off,
+            'OHS': ISTATES.off,
+            'RDM': ISTATES.off,
+            'phase': ISTATES.off,
+                #pre = off, 0 = waiting, 1=waiting, 2=active, 3=disabled    
+            }
+
+
+#rims codes for each lab & access-level
+RIMS_LAB_CODES_PRIME = [ 82, 89, 87, -1]
+RIMS_LAB_CODES_AH = [ 83, 88, 86, 84]
+                #Ha, AIBN, Chem, QBP
 
 def populate_userdropdown():
     """
@@ -57,9 +105,9 @@ TO-DO:
 
 
 
-def dash_state(user_login):
+def state_from_user(user_login):
     """
-    compile dashboard state for this project
+    compile dashboard state for this user
     """
     user_dict = gather.get_user_details(user_login)
 
@@ -71,7 +119,9 @@ def dash_state(user_login):
     
     rights_df = gather.get_user_rights_df(user_login)
 
-    labright_array = extract_labrights_array(rights_df)
+    user_result = collate_user(rights_df)
+
+    print(user_result)
 
     #try to find user name in project titles
 
@@ -118,29 +168,21 @@ def dash_state(user_login):
         else:
             raise ValueError("Unexpected value for project DF")        
 
-        project_array = extract_project_array(project_df)
+        project_result = collate_project(project_df)
     else:
         #return empty array
-        project_array = [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]
+        project_result = PROEJCT_OUTPUT_DEFAULT
 
-    core_array = extract_core_array(user_login, project_array)
+    #to-do:
+    #   project.OHS using user_result and project_result
+    #   loop through multiple projects
 
-    print(f"core: {core_array}")
-    print(f"access: {labright_array}")
-    print(f"proj: {project_array}")    
+    project_result_array = [ project_result ]
 
-    #original
-    #result = [ {core_array}, {labright_array}, {project_array} ]
-    
     #dict
-    result = { 'core': core_array, 'user': labright_array, 'projects': [project_array]}
+    result = { 'user': user_result, 'projects': project_result_array}
 
     print(f"result: {result}")
-    #json
-    #result = jsonify(
-    #        core=core_array,
-    #       user=labright_array,
-    #        projects=[project_array])
 
     return result
     #TODO test cases:
@@ -152,78 +194,69 @@ def dash_state(user_login):
     #   CHECK alafif failing
 
 
-def extract_core_array(user_login, project_array):
-
-    result = [ ISTATES.off, ISTATES.off ]
-
-    if not user_login is None:
-        result[0] = ISTATES.ok
-
-    #set ok if
-    #   project is active, has account, has ohs, has rdm, and is phase 2
-    if project_array[0:4] == [ ISTATES.ok, ISTATES.ok, ISTATES.ok, ISTATES.ok ] \
-        and project_array[6] == ISTATES.ok:
-        result[1] = ISTATES.ok
-
-    #set in-progress if
-    #   any of the above are ok
-    elif project_array[0:8] == [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]:
-        result[1] = ISTATES.fail
-    else:
-        result[1] = ISTATES.warn
-
-    return result
-
-
-def extract_labrights_array(df):
+def collate_user(df):
     """
     produce a list of rights by lab
     """
 
-                    #Ha, AIBN, Chem, QBP
-    LAB_CODES_PRIME = [ 82, 89, 87, -1]
-    LAB_CODES_AH = [ 83, 88, 86, 84]
 
-    result = [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]
+    result = USER_OUTPUT_DEFAULT
+
+    _keys=list(result['access'].keys())
 
     if len(df) == 0:
         return result
 
-    for i, code in enumerate(LAB_CODES_PRIME):
+    for i, code in enumerate(RIMS_LAB_CODES_PRIME):
+        access_level = None
         row = df.loc[df['systemid'] == code]['access_level']
 
         try:
             access_level = row.iloc[0]
 
             if access_level in ['N', 'A', 'S']:
-                result[i] = ISTATES.ok
+                result['access'][_keys[i]] = ISTATES.ready
             elif access_level == 'D':
-                result[i] = ISTATES.fail           
+                result['access'][_keys[i]] = ISTATES.disabled
             else:
-                result[i] = ISTATES.off
+                result['access'][_keys[i]] = ISTATES.off
         
         except:
-            result[i] = 0
+            print(f'unexpected access {access_level} for lab: {i}, {code}')
+            result['access'][_keys[i]] = ISTATES.off
 
-    for i, code in enumerate(LAB_CODES_AH):
+    for i, code in enumerate(RIMS_LAB_CODES_AH):
         row = df.loc[df['systemid'] == code]['access_level']
 
         try:
             access_level = row.iloc[0]
 
             if access_level in ['N', 'A', 'S']:
-                result[i] = ISTATES.ok
+                result['access'][_keys[i]] = ISTATES.extended
 
         except:
             pass
+    
+    #TO-DO get this from df
+    result['account'] = ISTATES.ready
+
+    #calc overall from other states
+    if result['account'] == ISTATES.ready and ( 
+        result['access']['aibn'] == ISTATES.ready or result['access']['aibn'] == ISTATES.extended or \
+        result['access']['hawken'] == ISTATES.ready or result['access']['hawken'] == ISTATES.extended or \
+        result['access']['chemistry'] == ISTATES.ready or result['access']['hawken'] == ISTATES.extended or \
+        result['access']['qbp'] == ISTATES.ready or result['access']['hawken'] == ISTATES.extended
+    ):
+        result['overall'] = ISTATES.ready
+    else:
+        result['overall'] = ISTATES.off
 
     return result
 
 
-def extract_project_array(df):
+def collate_project(df):
     
-                #active, account, ohs, rdm, p0, p1, p2, p3
-    result = [ ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off, ISTATES.off ]
+    result = PROEJCT_OUTPUT_DEFAULT
 
     try:
         if len(df) == 0:
@@ -233,24 +266,40 @@ def extract_project_array(df):
         OFFSET=4
 
         if phase == 0:
-            result[OFFSET+0] = ISTATES.fail
+            result['phase'] = ISTATES.waiting
         elif phase == 1:
-            result[OFFSET+1] = ISTATES.warn
+            result['phase'] = ISTATES.waiting
         elif phase == 2:
-            result[OFFSET+2] = ISTATES.ok
+            result['phase'] = ISTATES.ready
         elif phase == 3:
-            result[OFFSET+3] = ISTATES.fail   
+            result['phase'] = ISTATES.disabled   
 
         if bool(df['Active'].iloc[0]) == True:
-            result[0] = ISTATES.ok
+            result['active'] = ISTATES.ready
         
         if not df['Bcode'].iloc[0] is None:
-            result[1] = ISTATES.ok    
+            result['financial'] = ISTATES.ready    
 
-        result[2] = ISTATES.ok    #TO-DO
+        #if has rights in any lab
+        #or is fee-for-service
+        result['OHS'] = ISTATES.ready    #TO-DO
 
-        result[3] = ISTATES.ok    #TO-DO
-    except:
-        result = result
+        #if has an RDM assigned
+        result['RDM'] = ISTATES.ready    #TO-DO
 
-    return result
+        #set overall from other states
+        #bugged?
+        all_ready = result['active'] == ISTATES.ready and \
+            result['financial'] == ISTATES.ready and \
+            result['OHS'] == ISTATES.ready and \
+            result['RDM'] == ISTATES.ready and \
+            result['phase'] == ISTATES.ready
+
+        if all_ready:
+            #endif
+            result['overall'] = ISTATES.ready
+        else:
+            result['overall'] = ISTATES.off
+
+    finally:
+        return result

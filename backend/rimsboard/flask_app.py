@@ -40,7 +40,7 @@ def api_getstate(): #expects user_login
         else:
             return "Error: No login field provided. Please specify a login id."
         
-        state = collate.dash_state(user_login)  #dict
+        state = collate.state_from_user(user_login)  #dict
         print(state)
     
         return jsonify(state)

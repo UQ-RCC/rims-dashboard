@@ -1,24 +1,27 @@
 <template>
     <div id="user-lightboard">  
-        {{ state }}
-        <div>
-            <LightSetMaster :localstate=this.state.core />    
-            <LightSetUser :localstate=this.state.user />           
+        <div> 
+            <v-row><h4 style="text-align:left">User</h4></v-row> 
+            <LightSetUser :localstate=this.state.user />
+            <v-row></v-row>   
+            <v-row><h4 style="text-align:left">Projects</h4></v-row>       
             <LightSetProject :localstate=this.state.projects[0] />
         </div>
+        <div>       
+            {{this.state.user}}
+            {{this.state.projects[0]}}
+        </div>           
     </div>        
 </template>
 
 <script>
     import Vue from 'vue'
-    import LightSetMaster from './LightSetMaster.vue'
     import LightSetUser from './LightSetUser.vue';
     import LightSetProject from './LightSetProject.vue'
 
     export default {
         name: 'UserLightBoard',
         components:{
-            LightSetMaster: LightSetMaster,
             LightSetUser: LightSetUser,
             LightSetProject: LightSetProject
         },
