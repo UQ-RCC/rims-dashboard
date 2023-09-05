@@ -21,6 +21,37 @@ class IState():
 """
 
 
+class State():
+    def __init__(self, label: str, value: str):
+        self.label = label
+        self.value = value
+    def as_dict(self):
+        return { 'label': self.label, 'value': self.value}
+
+
+
+class State_group():
+    def __init__(self, label: str, states:list = []):
+        self.label = label
+        self.states = states
+
+    def add(self, state: State):
+        self.states.append(state)
+
+    def assign(self, label: str, value):
+        for i in self.states:
+            if i.label == label:
+                i.value = value
+
+    def as_dict(self):
+        value_array = [] 
+        for i in self.states:
+            value_array.append(i.as_dict())
+
+        return { 'label': self.label, 'value': self.value_array }
+
+
+
 class IState():
     """
     collection of valid states to hand back
@@ -39,28 +70,35 @@ class IState():
         self.fail = 'fail'
         self.na = 'na'
 
-ISTATES = IState()
+ISTATES = IState()  
 
-USER_OUTPUT_DEFAULT = { 
-                'overall': ISTATES.off, 
-                'account': ISTATES.off,
-                'access':{
-                    'aibn': ISTATES.off,
-                    'hawken': ISTATES.off,
-                    'chemistry': ISTATES.off,
-                    'qbp': ISTATES.off,
-                }
-            }
+USER_ACCESS_DEFAULT =   State('access',
+                            [
+                                State('aibn', ISTATES.off),
+                                State('hawken', ISTATES.off),
+                                State('chemistry', ISTATES.off),
+                                State('qbp', ISTATES.off),
+                            ]
+                        )
 
-PROEJCT_OUTPUT_DEFAULT = { 
-            'overall': ISTATES.off, 
-            'active': ISTATES.off,
-            'financial': ISTATES.off,
-            'OHS': ISTATES.off,
-            'RDM': ISTATES.off,
-            'phase': ISTATES.off,
-                #pre = off, 0 = waiting, 1=waiting, 2=active, 3=disabled    
-            }
+USER_OUTPUT_DEFAULT =   State('user',
+                            [ 
+                                State('active', ISTATES.off),
+                                State('account', ISTATES.off),
+                                USER_ACCESS_DEFAULT,
+                            ]
+                        )
+
+PROEJCT_OUTPUT_DEFAULT =    State('project',
+                                [
+                                    State('overall', ISTATES.off),
+                                    State('active', ISTATES.off),
+                                    State('financial', ISTATES.off),
+                                    State('OHS', ISTATES.off),
+                                    State('RDM', ISTATES.off),
+                                    State('phase', ISTATES.off),
+                                ]
+                            )
 
 
 #rims codes for each lab & access-level
