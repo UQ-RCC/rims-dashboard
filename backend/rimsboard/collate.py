@@ -5,6 +5,8 @@ import rimsboard.rims as rims
 import rimsboard.utils as utils
 import rimsboard.usergather as gather
 
+from logic import ISTATES, IndicatorState, IndicatorStateGroup
+
 """
 class IState():
     def __init__(self):
@@ -20,83 +22,31 @@ class IState():
         self.na = -1
 """
 
-
-class State():
-    def __init__(self, label: str, value: str):
-        self.label = label
-        self.value = value
-    def as_dict(self):
-        return { 'label': self.label, 'value': self.value}
-
-
-
-class State_group():
-    def __init__(self, label: str, states:list = []):
-        self.label = label
-        self.states = states
-
-    def add(self, state: State):
-        self.states.append(state)
-
-    def assign(self, label: str, value):
-        for i in self.states:
-            if i.label == label:
-                i.value = value
-
-    def as_dict(self):
-        value_array = [] 
-        for i in self.states:
-            value_array.append(i.as_dict())
-
-        return { 'label': self.label, 'value': self.value_array }
-
-
-
-class IState():
-    """
-    collection of valid states to hand back
-    """
-    def __init__(self):
-        #standard--------
-        self.off = 'off'
-        self.incomplete = 'incomplete'
-        self.waiting = 'waiting'
-        self.waiting_external = 'waiting_external'
-        self.ready = 'ready'
-        self.extended = 'extended'
-        self.disabled = 'disabled'
-        #error------------
-        self.warn = 'warn'
-        self.fail = 'fail'
-        self.na = 'na'
-
-ISTATES = IState()  
-
-USER_ACCESS_DEFAULT =   State('access',
+USER_ACCESS_DEFAULT =   IndicatorStateGroup('access',
                             [
-                                State('aibn', ISTATES.off),
-                                State('hawken', ISTATES.off),
-                                State('chemistry', ISTATES.off),
-                                State('qbp', ISTATES.off),
+                                IndicatorState('aibn', ISTATES.off),
+                                IndicatorState('hawken', ISTATES.off),
+                                IndicatorState('chemistry', ISTATES.off),
+                                IndicatorState('qbp', ISTATES.off),
                             ]
                         )
 
-USER_OUTPUT_DEFAULT =   State('user',
+USER_OUTPUT_DEFAULT =   IndicatorStateGroup('user',
                             [ 
-                                State('active', ISTATES.off),
-                                State('account', ISTATES.off),
+                                IndicatorState('active', ISTATES.off),
+                                IndicatorState('account', ISTATES.off),
                                 USER_ACCESS_DEFAULT,
                             ]
                         )
 
-PROEJCT_OUTPUT_DEFAULT =    State('project',
+PROEJECT_OUTPUT_DEFAULT =    IndicatorStateGroup('project',
                                 [
-                                    State('overall', ISTATES.off),
-                                    State('active', ISTATES.off),
-                                    State('financial', ISTATES.off),
-                                    State('OHS', ISTATES.off),
-                                    State('RDM', ISTATES.off),
-                                    State('phase', ISTATES.off),
+                                    IndicatorState('overall', ISTATES.off),
+                                    IndicatorState('active', ISTATES.off),
+                                    IndicatorState('financial', ISTATES.off),
+                                    IndicatorState('OHS', ISTATES.off),
+                                    IndicatorState('RDM', ISTATES.off),
+                                    IndicatorState('phase', ISTATES.off),
                                 ]
                             )
 
@@ -209,7 +159,7 @@ def state_from_user(user_login):
         project_result = collate_project(project_df)
     else:
         #return empty array
-        project_result = PROEJCT_OUTPUT_DEFAULT
+        project_result = PROEJECT_OUTPUT_DEFAULT
 
     #to-do:
     #   project.OHS using user_result and project_result
@@ -294,7 +244,7 @@ def collate_user(df):
 
 def collate_project(df):
     
-    result = PROEJCT_OUTPUT_DEFAULT
+    result = PROEJECT_OUTPUT_DEFAULT
 
     try:
         if len(df) == 0:

@@ -18,7 +18,7 @@ class IState():
         self.fail = 'fail'
         self.na = 'na'
 
-ISTATE = IState()
+ISTATES = IState()
 
 
 
@@ -81,18 +81,44 @@ class IndicatorStateGroup():
             raise ValueError(f"{indicator.key} is not valid state to append")
    
 
-    def assign(self, key: str, state):
+    def assign(self, keys, state):
         """
-        assign value to state from key
-        NB: does not check state to be assigned
-        """        
-        for i in self.indicators:
-            if i.key == key:
-                i.state = state
+        assign value to state from list of keys
+        """ 
+        if type(keys) is str:
+            keys = [ keys ]
+        if type(keys) is list:
+            pass
+
+        else:
+            raise TypeError(f"unexpected type for keys {keys}")
+
+        #move into nested groups using keys list
+        i=0
+        current=self
+        while i < len(keys):
+            if ( hasattr(sub, 'indicators')):
+                for sub in current.indicators:
+                    if sub.key == keys[i]:
+                        current = sub
+                        i+=1
+            else:
+                raise TypeError(f"expected subgroup at {sub.key}, aborting assignment")
+
+        #assign only if types match
+        if ( hasattr(current, 'indicators')) and ( type(state) is list ):
+                current.indicators = state
+        elif ( hasattr(current, 'state')) and ( type(state) is str ):
+                current.state = state
+        else:
+            raise TypeError(f"mismatch between input {type(state)} and target {current.key}")
+
 
     def get_state(self, key):
         """
         return state from key
+
+        to-do: correct this for nested groups similar to assign()
         """
 
         for i in self.indicators:
