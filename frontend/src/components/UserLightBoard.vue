@@ -1,17 +1,14 @@
 <template>
-    <div id="user-lightboard">  
-        <div> 
-            <v-row><h4 style="text-align:left">User</h4></v-row> 
-            <LightSetUser :localstate=this.state.user />
-            <v-row></v-row>   
-            <v-row><h4 style="text-align:left">Projects</h4></v-row>       
-            <LightSetProject :localstate=this.state.projects[0] />
-        </div>
-        <div>       
-            {{this.state.user}}
-            {{this.state.projects[0]}}
-        </div>           
-    </div>        
+    <v-container height='800px'>
+        <v-row rows="2"><v-divider :thickness="4"></v-divider></v-row>
+        <v-spacer rows="2"/> 
+        <LightSetUser :user_state=this.state.user />
+        <v-spacer rows="2"/>   
+        <v-spacer rows="2"/>             
+        <v-row rows="2"><v-divider :thickness="4"></v-divider></v-row>
+        <LightSetProject :proj_state=this.state.user_projects[0] />
+        <v-spacer rows="2"/>    
+    </v-container>                              
 </template>
 
 <script>
@@ -29,7 +26,7 @@
 
         created: function() {
             Vue.$log.info("init ULB")
-            Vue.$log.info("ULB state  " + this.state.core + "/" + this.state.user + "/" + this.state.projects)               
+            Vue.$log.info("ULB state  " + this.state.user + "/" + this.state.user_projects)               
         }        
         
     }

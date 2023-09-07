@@ -14,7 +14,7 @@ export default {
         let payload = {
             'login': user_login
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/state`, { params: payload } )
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userstate`, { params: payload } )
         return data
     },
 

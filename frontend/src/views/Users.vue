@@ -1,17 +1,17 @@
 <template>
-    <div>        
-        <div>
-            <v-autocomplete 
-                v-model="selected" 
-                :items="userlist"            
-                item-text="search"
-                return-object>
-            </v-autocomplete>            
-        </div>    
-        <div>        
-            <UserLightBoard :state=this.state />
-        </div>  
-    </div>
+    <v-container height='1000px'>
+            <div>
+                <v-autocomplete 
+                    v-model="selected" 
+                    :items="userlist"            
+                    item-text="search"
+                    return-object>
+                </v-autocomplete>            
+            </div>    
+            <div>        
+                <UserLightBoard :state=this.state />
+            </div>  
+    </v-container>
 </template>
 
 
@@ -76,16 +76,16 @@
             async refreshDropdownValues() {
                 //retrieve values to populate dropdown
                 console.log("refreshing dropdown");
-                let _userlist = null;
+                let userlist = null;
 
                 try {
-                    _userlist = await RimsdashAPI.getUserList()
+                    userlist = await RimsdashAPI.getUserList()
                 } catch (error) {
                     Vue.$log.info("API call getUserList FAILED")                       
-                    _userlist = null;
+                    userlist = null;
                 }
-                Vue.$log.info("data retrieved, eg:  "  + _userlist[0].search)                
-                return _userlist
+                Vue.$log.info("data retrieved, eg:  "  + userlist[0].search)                
+                return userlist
             },
 
             async retrieveState(_user_login) {

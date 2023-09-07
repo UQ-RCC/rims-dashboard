@@ -1,32 +1,17 @@
 <template>
     <div id="lightset-project">  
-        <v-row>
-            <v-col>
-            </v-col>              
-            <v-col>
-                <LightCell cell_label="Ready"/>
-            </v-col> 
-            <v-col>
-                <LightCell cell_label="Active"/>
-            </v-col>             
-            <v-col>
-                <LightCell cell_label="Billing"/>
-            </v-col>
-            <v-col>
-                <LightCell cell_label="RA"/>
-            </v-col>
-            <v-col>
-                <LightCell cell_label="RDM"/>
-            </v-col>   
-            <v-col>
-                <LightCell cell_label="Phase"/>                
-            </v-col>   
-            <v-col>
-            </v-col>   
-            <v-col>            
-            </v-col>                                                                               
-            <v-col>
-            </v-col>               
+        <v-row rows="2"> 
+            <v-col cols="1"><h4 style="text-align:left">Project</h4></v-col>  
+            <v-spacer cols="1"/>                    
+            <v-col cols="1"
+                v-for="item in this.proj_state"
+                :key="item.key"
+            >
+                <LightCell :cell_label=item.label :cell_value=item.state />
+            </v-col>        
+            <v-spacer cols="1"/> 
+            <v-spacer cols="1"/>                             
+            <v-spacer cols="1"/>                                   
         </v-row>        
     </div>        
 </template>
@@ -37,14 +22,14 @@
     
     export default {
         name: 'LightSetProject',
-        props:['localstate'],
+        props:['proj_state'],
         components:{
             LightCell: LightCell
         },
 
         created: function() {
             Vue.$log.info("LSP init")
-            Vue.$log.info("LSP state  " + this.localstate)               
+            Vue.$log.info("LSP state  " + this.proj_state)               
         }       
         
     }

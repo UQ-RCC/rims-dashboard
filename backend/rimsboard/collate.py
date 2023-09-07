@@ -85,14 +85,14 @@ RIMS_LAB_CODES_AH = [ 83, 88, 86, 84]
 
 #keys/labels for dataclasses - order must match list of rims codes above                
 RIMS_LAB_KEYS = [ 'aibn', 'hawken', 'chem', 'qbp']
-RIMS_LAB_LABELS = [ 'AIBN', 'Hawken', 'Chemistry', 'QBP']
+RIMS_LAB_LABELS = [ 'AIBN', 'Hawken', 'Chem', 'QBP']
 
 #   copied from dataclasses above
 #   hack due to custom classes not working as default in dataclass
 #   used as base for derived states 
 DEFAULT_USER_STATE = UserState( \
         total = Indicator("total", ISTATES.off, label="OK"), \
-        active = Indicator("active", ISTATES.off, label="User account"), \
+        active = Indicator("active", ISTATES.off, label="Active"), \
         access = [ 
             Indicator(RIMS_LAB_KEYS[0], ISTATES.off, label=RIMS_LAB_LABELS[0]),
             Indicator(RIMS_LAB_KEYS[1], ISTATES.off, label=RIMS_LAB_LABELS[1]),
@@ -223,7 +223,7 @@ def state_from_user(user_login):
         project_state = collate_project(project_df)
     else:
         #return empty array
-        project_state = copy.deepcopy(DEFAULT_USER_STATE)
+        project_state = copy.deepcopy(DEFAULT_PROJECT_STATE)
 
     #to-do:
     #   project.OHS using user_result and project_result
@@ -269,11 +269,12 @@ def collate_user(df):
             elif access_level == 'D':
                 user_state.access[i].state = ISTATES.disabled
             else:
-                user_state.access[i].state = ISTATES.off
+                print(f'unexpected access {access_level} for lab: {i}, {code}')                
+                user_state.access[i].state = ISTATES.na
         
         except:
-            print(f'unexpected access {access_level} for lab: {i}, {code}')
-            user_state.access[i].state = ISTATES.na
+            #if fails, assume inactive - usually means data missing
+            user_state.access[i].state = ISTATES.off
 
     for i, code in enumerate(RIMS_LAB_CODES_AH):
         row = df.loc[df['systemid'] == code]['access_level']
@@ -292,7 +293,7 @@ def collate_user(df):
 
     #calc overall from other states
     if user_state.active.state == ISTATES.ready and \
-            all((lab.state == ISTATES.ready or lab.state == ISTATES.extended) for lab in user_state.access):
+            any((lab.state == ISTATES.ready or lab.state == ISTATES.extended) for lab in user_state.access):
 
         user_state.total.state = ISTATES.ready
     else:
@@ -343,7 +344,7 @@ def collate_project(df):
             project_state.ohs.state == ISTATES.ready and \
             project_state.rdm.state == ISTATES.ready and \
             project_state.phase.state == ISTATES.ready and \
-            project_state.id >= 0
+            int(project_state.id.label) >= 0
 
         if all_ready:
             project_state.total.state = ISTATES.ready

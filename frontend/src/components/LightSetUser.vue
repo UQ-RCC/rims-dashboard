@@ -1,34 +1,18 @@
 <template>
     <div id="lightset-user">  
-        <v-row>
-            <v-col>
-            </v-col>              
-            <v-col>
-                <LightCell cell_label="Ready"/>
-            </v-col> 
-            <v-col>
-                <LightCell cell_label="Active"/>
-            </v-col>                        
-            <v-col>
-                <LightCell cell_label="AIBN"/>
-            </v-col>
-            <v-col>
-                <LightCell cell_label="Hawken"/>
-            </v-col>
-            <v-col>
-                <LightCell cell_label="Chemistry"/>
-            </v-col>
-            <v-col>
-                <LightCell cell_label="QBP"/>
-            </v-col>   
-            <v-col>
-            </v-col>   
-            <v-col>
-            </v-col>   
-            <v-col>            
-            </v-col>                                                                               
-            <v-col>
-            </v-col>               
+        <v-row rows="2">           
+            <v-col cols="1"><h4 style="text-align:left">User</h4></v-col>    
+            <v-spacer cols="1"/>             
+            <v-col cols="1"
+                v-for="item in this.user_state"
+                :key="item.key"
+            >
+                <LightCell :cell_label=item.label :cell_value=item.state />
+            </v-col>  
+            <v-spacer cols="1"/>        
+            <v-spacer cols="1"/> 
+            <v-spacer cols="1"/>                             
+            <v-spacer cols="1"/>               
         </v-row>
     </div>        
 </template>
@@ -43,11 +27,11 @@
             LightCell: LightCell
         },
 
-        props:['localstate'],
+        props:['user_state'],
 
         created: function() {
             Vue.$log.info("LSU init")
-            Vue.$log.info("LSU state  " + this.localstate)               
+            Vue.$log.info("LSU state  " + this.user_state)               
         }           
     }
 

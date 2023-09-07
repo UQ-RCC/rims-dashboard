@@ -1,0 +1,204 @@
+/*  
+component derived from:
+https://github.com/tnhu/status-indicator/blob/master/styles.css
+via
+https://github.com/coderdiaz/vue-status-indicator/tree/master
+Copyright (c) 2018 Javier Diaz Chamorro
+*/
+
+:root {
+    --status-indicator-size: 20px;
+    --status-indicator-animation-duration: 2s;
+  
+    --status-indicator-color: rgb(216, 226, 233);
+    --status-indicator-color-semi: rgba(216, 226, 233, .5);
+    --status-indicator-color-transparent: rgba(216, 226, 233, 0);
+
+    --status-indicator-color-off: rgb(216, 226, 233);
+    --status-indicator-color-off-semi: rgba(216, 226, 233, .5);
+    --status-indicator-color-off-transparent: rgba(216, 226, 233, 0);    
+
+    --status-indicator-color-extended: rgb(0, 149, 255);
+    --status-indicator-color-extended-semi: rgba(0, 149, 255, .5);
+    --status-indicator-color-extended-transparent: rgba(0, 149, 255, 0);
+  
+    --status-indicator-color-ready: rgb(75, 210, 143);
+    --status-indicator-color-ready-semi: rgba(75, 210, 143, .5);
+    --status-indicator-color-ready-transparent: rgba(75, 210, 143, 0);
+  
+    --status-indicator-color-warn: rgb(255, 170, 0);
+    --status-indicator-color-warn-semi: rgba(255, 170, 0, .5);
+    --status-indicator-color-warn-transparent: rgba(255, 170, 0, 0);
+  
+    --status-indicator-color-fail: rgb(255, 77, 77);
+    --status-indicator-color-fail-semi: rgba(255, 77, 77, .5);
+    --status-indicator-color-fail-transparent: rgba(255, 77, 77, 0);
+  }
+  
+  @keyframes status-indicator-pulse {
+    0%   { box-shadow: 0 0 0 0 var(--status-indicator-color-semi); }
+    70%  { box-shadow: 0 0 0 var(--status-indicator-size) var(--status-indicator-color-transparent); }
+    100% { box-shadow: 0 0 0 0 var(--status-indicator-color-transparent); }
+  }
+  
+  @keyframes status-indicator-pulse-off {
+    0%   { box-shadow: 0 0 0 0 var(--status-indicator-color-off-semi); }
+    70%  { box-shadow: 0 0 0 var(--status-indicator-size) var(--status-indicator-color-off-transparent); }
+    100% { box-shadow: 0 0 0 0 var(--status-indicator-color-off-transparent); }
+  }
+
+  @keyframes status-indicator-pulse-extended {
+    0%   { box-shadow: 0 0 0 0 var(--status-indicator-color-extended-semi); }
+    70%  { box-shadow: 0 0 0 var(--status-indicator-size) var(--status-indicator-color-extended-transparent); }
+    100% { box-shadow: 0 0 0 0 var(--status-indicator-color-extended-transparent); }
+  }
+  
+  @keyframes status-indicator-pulse-ready {
+    0%   { box-shadow: 0 0 0 0 var(--status-indicator-color-ready-semi); }
+    70%  { box-shadow: 0 0 0 var(--status-indicator-size) var(--status-indicator-color-ready-transparent); }
+    100% { box-shadow: 0 0 0 0 var(--status-indicator-color-ready-transparent); }
+  }
+  
+  @keyframes status-indicator-pulse-warn {
+    0%   { box-shadow: 0 0 0 0 var(--status-indicator-color-warn-semi); }
+    70%  { box-shadow: 0 0 0 var(--status-indicator-size) var(--status-indicator-color-warn-transparent); }
+    100% { box-shadow: 0 0 0 0 var(--status-indicator-color-warn-transparent); }
+  }
+  
+  @keyframes status-indicator-pulse-fail {
+    0%   { box-shadow: 0 0 0 0 var(--status-indicator-color-fail-semi); }
+    70%  { box-shadow: 0 0 0 var(--status-indicator-size) var(--status-indicator-color-fail-transparent); }
+    100% { box-shadow: 0 0 0 0 var(--status-indicator-color-fail-transparent); }
+  }
+  
+  .status-indicator {
+    display: inline-block;
+    border-radius: 50%;
+    cursor: pointer;
+    width: var(--status-indicator-size);
+    height: var(--status-indicator-size);
+    background-color: var(--status-indicator-color);
+  }
+  
+  .status-indicator[pulse] {
+    animation-name: status-indicator-pulse;
+      animation-duration: var(--status-indicator-animation-duration);
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      animation-direction: normal;
+      animation-delay: 0;
+      animation-fill-mode: none;
+  }
+
+  .status-indicator[off] {
+    background-color: var(--status-indicator-color-off);
+  }
+  
+  .status-indicator[off][pulse] {
+    animation-name: status-indicator-pulse-off;
+  }  
+  
+  .status-indicator[incomplete] {
+    background-color: var(--status-indicator-color-off);
+  }
+  
+  .status-indicator[incomplete][pulse] {
+    animation-name: status-indicator-pulse-off;
+  }  
+
+  .status-indicator[extended] {
+    background-color: var(--status-indicator-color-extended);
+  }
+  
+  .status-indicator[extended][pulse] {
+    animation-name: status-indicator-pulse-extended;
+  }
+  
+  .status-indicator[ready] {
+    background-color: var(--status-indicator-color-ready);
+    animation-name: status-indicator-pulse-ready;
+  }
+  
+  .status-indicator[ready][pulse] {
+    animation-name: status-indicator-pulse-ready;
+  }
+  
+  .status-indicator[warn] {
+    background-color: var(--status-indicator-color-warn);
+  }
+  
+  .status-indicator[warn][pulse] {
+    animation-name: status-indicator-pulse-warn;
+  }
+
+  .status-indicator[waiting] {
+    background-color: var(--status-indicator-color-warn);
+  }
+  
+  .status-indicator[waiting][pulse] {
+    animation-name: status-indicator-pulse-warn;
+  }  
+
+  .status-indicator[waiting_external] {
+    background-color: var(--status-indicator-color-warn);
+  }
+  
+  .status-indicator[waiting_external][pulse] {
+    animation-name: status-indicator-pulse-warn;
+  }  
+
+  
+  .status-indicator[fail] {
+    background-color: var(--status-indicator-color-fail);
+    animation-name: status-indicator-pulse-fail;
+  }
+  
+  .status-indicator[fail][pulse] {
+    animation-name: status-indicator-pulse-fail;
+  }
+
+  .status-indicator[disabled] {
+    background-color: var(--status-indicator-color-fail);
+    animation-name: status-indicator-pulse-fail;
+  }
+  
+  .status-indicator[disabled][pulse] {
+    animation-name: status-indicator-pulse-fail;
+  }
+
+  .status-indicator[na] {
+    background-color: var(--status-indicator-color-fail);
+    animation-name: status-indicator-pulse-fail;
+  }
+  
+  .status-indicator[na][pulse] {
+    animation-name: status-indicator-pulse-fail;
+  }
+
+
+
+
+/*
+MIT License
+
+Copyright (c) 2018 Javier Diaz Chamorro
+Adapted (c) 2023 Lachlan Casey at the University of Queensland
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/

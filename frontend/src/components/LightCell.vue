@@ -1,20 +1,22 @@
 <template>
     <div id="lightcell">  
-        <v-row><p class="text-overline" style="text-align:right">{{this.cell_label}}</p></v-row>
-        <v-row><v-btn
-            color="secondary"
-            elevation="2"
-            icon
-        ></v-btn></v-row>
+        <v-row rows="2"><p class="text-overline" style="text-align:right">{{this.cell_label}}</p></v-row>
+        <v-row rows="2">
+            <StatusIndicatorLocal :status="this.cell_value" pulse="true"/>
+        </v-row>
     </div>        
 </template>
 
 <script>
     import Vue from 'vue'
-    
+    import StatusIndicatorLocal from './StatusIndicatorLocal.vue'    
+
     export default {
         name: 'LightCell',
         props:['cell_label', 'cell_value'],
+        components:{
+            StatusIndicatorLocal: StatusIndicatorLocal
+        },
 
         created: function() {
             Vue.$log.info("LC val  " + this.cell_value)               
@@ -33,3 +35,12 @@
     color: blue;
 }
 </style>
+
+
+<!--
+<v-btn
+color="secondary"
+elevation="2"
+icon
+></v-btn>
+-->
