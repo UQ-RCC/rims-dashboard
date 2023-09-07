@@ -1,5 +1,7 @@
 import copy
 
+import rimsboard.utils as utils
+
 class IState():
     """
     collection of valid states to hand back
@@ -55,72 +57,41 @@ class IndicatorStateGroup():
         else:
             self.label = label
 
-   
-    def group_check(self):
+    def check(self):
         """
-        check if current instance is a state_group
-        REMOVE
-        """        
-        if not ( type(self.indicators) is list):
-            raise TypeError(f"State {self.key} is not group of states")
+        check all keys are unique, including ISG key itself
+        """           
+        label_list = [ self.key ]
 
-    def add(self, indicator):   
+        for substate in self.indicators:
+            label_list.append(substate.key)
+
+        if not (utils.all_unique(label_list)):
+            raise ValueError(f"non-unique keys in {label_list}")
+     
+    def add(self, indicator: IndicatorState):   
         """
-        add an instance of state if current instance is a state_group
+        add a state to group
         """   
+        for i in self.indicators:
+            if i.key == indicator.key:
+                raise ValueError(f"State {indicator.key} already in group {self.indicators}")
 
-        #recursive, takes instance of State(), not sure how to type hint
-        #   check by attributes
-        if ( hasattr(indicator, 'key') and hasattr(indicator, 'label') and hasattr(indicator, 'state') ):
-            for i in self.indicators:
-                if i.key == indicator.key:
-                    raise ValueError(f"State {indicator.key} already in group {self.indicators}")
+        self.indicators.append(indicator)     
 
-            self.indicators.append(indicator)     
-        else:
-            raise ValueError(f"{indicator.key} is not valid state to append")
-   
-
-    def assign(self, keys, state):
+    def assign(self, key: str, state: str):
         """
         assign value to state from list of keys
         """ 
-        if type(keys) is str:
-            keys = [ keys ]
-        if type(keys) is list:
-            pass
-
-        else:
-            raise TypeError(f"unexpected type for keys {keys}")
-
-        #move into nested groups using keys list
-        i=0
-        current=self
-        while i < len(keys):
-            if ( hasattr(sub, 'indicators')):
-                for sub in current.indicators:
-                    if sub.key == keys[i]:
-                        current = sub
-                        i+=1
-            else:
-                raise TypeError(f"expected subgroup at {sub.key}, aborting assignment")
-
-        #assign only if types match
-        if ( hasattr(current, 'indicators')) and ( type(state) is list ):
-                current.indicators = state
-        elif ( hasattr(current, 'state')) and ( type(state) is str ):
-                current.state = state
-        else:
-            raise TypeError(f"mismatch between input {type(state)} and target {current.key}")
-
+        for i in self.indicators:
+            if i.key == key:
+                i.state = state
 
     def get_state(self, key):
         """
         return state from key
-
-        to-do: correct this for nested groups similar to assign()
+        
         """
-
         for i in self.indicators:
             if i.key == key:
                 return(i.state)
@@ -136,8 +107,26 @@ class IndicatorStateGroup():
 
         return { 'key': self.key, 'label': self.label, 'indicators': sub_result }
 
+
+
+class MetaStateGroup():
+    """
+    TO-DO: unused
+    """
+    def __init__(self, key: str, indicators: list, label:str =None):
+            self.key = key
+            self.indicators = indicators
+
+            if label == None:
+                self.label = key        
+            else:
+                self.label = label
+
+
     def flat(self):
         """
+        TO-DO: unused, taken from IndicatorSG()
+
         flatten nested subgroups into parent
         """        
 

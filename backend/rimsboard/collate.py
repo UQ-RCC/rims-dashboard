@@ -35,7 +35,10 @@ USER_OUTPUT_DEFAULT =   IndicatorStateGroup('user',
                             [ 
                                 IndicatorState('active', ISTATES.off),
                                 IndicatorState('account', ISTATES.off),
-                                USER_ACCESS_DEFAULT,
+                                IndicatorState('aibn', ISTATES.off),
+                                IndicatorState('hawken', ISTATES.off),
+                                IndicatorState('chemistry', ISTATES.off),
+                                IndicatorState('qbp', ISTATES.off),
                             ]
                         )
 

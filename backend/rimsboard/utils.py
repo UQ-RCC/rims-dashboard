@@ -1,7 +1,15 @@
 import plotly
 import re
 
-#antony airin
+
+def all_unique(input_list):
+    """
+    returns true if all items in list are unique
+    """    
+    seen = set()
+    return not any(i in seen or seen.add(i) for i in input_list)
+
+
 def cleanup_user_name(user_name: str):
     """
     removes brackets from user full name
