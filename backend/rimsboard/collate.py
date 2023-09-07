@@ -22,27 +22,26 @@ class IState():
         self.na = -1
 """
 
-USER_ACCESS_DEFAULT =   IndicatorStateGroup('access',
-                            [
-                                IndicatorState('aibn', ISTATES.off),
-                                IndicatorState('hawken', ISTATES.off),
-                                IndicatorState('chemistry', ISTATES.off),
-                                IndicatorState('qbp', ISTATES.off),
-                            ]
-                        )
 
-USER_OUTPUT_DEFAULT =   IndicatorStateGroup('user',
+#rims codes for each lab & access-level
+RIMS_LAB_CODES_PRIME = [ 82, 89, 87, -1]
+RIMS_LAB_CODES_AH = [ 83, 88, 86, 84]
+                #Ha, AIBN, Chem, QBP
+RIMS_LAB_KEYS = [ 'aibn', 'hawken', 'chemistry', 'qbp']
+
+
+USER_TEMPLATE =   IndicatorStateGroup('user',
                             [ 
-                                IndicatorState('active', ISTATES.off),
+                                IndicatorState('overall', ISTATES.off),
                                 IndicatorState('account', ISTATES.off),
-                                IndicatorState('aibn', ISTATES.off),
-                                IndicatorState('hawken', ISTATES.off),
-                                IndicatorState('chemistry', ISTATES.off),
-                                IndicatorState('qbp', ISTATES.off),
+                                IndicatorState(RIMS_LAB_KEYS[0], ISTATES.off),
+                                IndicatorState(RIMS_LAB_KEYS[1], ISTATES.off),
+                                IndicatorState(RIMS_LAB_KEYS[2], ISTATES.off),
+                                IndicatorState(RIMS_LAB_KEYS[3], ISTATES.off),
                             ]
                         )
 
-PROEJECT_OUTPUT_DEFAULT =    IndicatorStateGroup('project',
+PROJECT_TEMPLATE =    IndicatorStateGroup('project',
                                 [
                                     IndicatorState('overall', ISTATES.off),
                                     IndicatorState('active', ISTATES.off),
@@ -54,10 +53,7 @@ PROEJECT_OUTPUT_DEFAULT =    IndicatorStateGroup('project',
                             )
 
 
-#rims codes for each lab & access-level
-RIMS_LAB_CODES_PRIME = [ 82, 89, 87, -1]
-RIMS_LAB_CODES_AH = [ 83, 88, 86, 84]
-                #Ha, AIBN, Chem, QBP
+
 
 def populate_userdropdown():
     """
@@ -162,7 +158,7 @@ def state_from_user(user_login):
         project_result = collate_project(project_df)
     else:
         #return empty array
-        project_result = PROEJECT_OUTPUT_DEFAULT
+        project_result = PROJECT_TEMPLATE
 
     #to-do:
     #   project.OHS using user_result and project_result
@@ -190,13 +186,11 @@ def collate_user(df):
     produce a list of rights by lab
     """
 
-
-    result = USER_OUTPUT_DEFAULT
-
-    _keys=list(result['access'].keys())
+    user_result = USER_TEMPLATE
+    _keys=RIMS_LAB_KEYS
 
     if len(df) == 0:
-        return result
+        return user_result
 
     for i, code in enumerate(RIMS_LAB_CODES_PRIME):
         access_level = None
@@ -206,15 +200,15 @@ def collate_user(df):
             access_level = row.iloc[0]
 
             if access_level in ['N', 'A', 'S']:
-                result['access'][_keys[i]] = ISTATES.ready
+                user_result.assign([_keys[i]], ISTATES.ready)
             elif access_level == 'D':
-                result['access'][_keys[i]] = ISTATES.disabled
+                user_result.assign([_keys[i]], ISTATES.disabled)
             else:
-                result['access'][_keys[i]] = ISTATES.off
+                user_result.assign([_keys[i]], ISTATES.off)
         
         except:
             print(f'unexpected access {access_level} for lab: {i}, {code}')
-            result['access'][_keys[i]] = ISTATES.off
+            user_result.assign([_keys[i]], ISTATES.na)
 
     for i, code in enumerate(RIMS_LAB_CODES_AH):
         row = df.loc[df['systemid'] == code]['access_level']
@@ -223,74 +217,75 @@ def collate_user(df):
             access_level = row.iloc[0]
 
             if access_level in ['N', 'A', 'S']:
-                result['access'][_keys[i]] = ISTATES.extended
+                user_result.assign([_keys[i]], ISTATES.extended)
 
         except:
             pass
     
     #TO-DO get this from df
-    result['account'] = ISTATES.ready
+    user_result.assign('account', ISTATES.ready)
 
     #calc overall from other states
-    if result['account'] == ISTATES.ready and ( 
-        result['access']['aibn'] == ISTATES.ready or result['access']['aibn'] == ISTATES.extended or \
-        result['access']['hawken'] == ISTATES.ready or result['access']['hawken'] == ISTATES.extended or \
-        result['access']['chemistry'] == ISTATES.ready or result['access']['hawken'] == ISTATES.extended or \
-        result['access']['qbp'] == ISTATES.ready or result['access']['hawken'] == ISTATES.extended
+    if user_result.get('account') == ISTATES.ready and ( 
+        user_result.get('aibn') == ISTATES.ready or user_result.get('aibn') == ISTATES.extended or \
+        user_result.get('hawken') == ISTATES.ready or user_result.get('hawken') == ISTATES.extended or \
+        user_result.get('chemistry') == ISTATES.ready or user_result.get('chemistry') == ISTATES.extended or \
+        user_result.get('qbp') == ISTATES.ready or user_result.get('qbp') == ISTATES.extended
     ):
-        result['overall'] = ISTATES.ready
+        user_result.assign('overall', ISTATES.ready)
     else:
-        result['overall'] = ISTATES.off
+        user_result.assign('overall', ISTATES.off)
 
-    return result
+    return user_result
 
 
 def collate_project(df):
     
-    result = PROEJECT_OUTPUT_DEFAULT
+    project_result = PROJECT_TEMPLATE
 
     try:
         if len(df) == 0:
-            return result
+            return project_result
 
         phase = df['Phase'].iloc[0]
         OFFSET=4
 
         if phase == 0:
-            result['phase'] = ISTATES.waiting
+            project_result.assign('phase', ISTATES.waiting)
         elif phase == 1:
-            result['phase'] = ISTATES.waiting
+            project_result.assign('phase', ISTATES.waiting)
         elif phase == 2:
-            result['phase'] = ISTATES.ready
+            project_result.assign('phase', ISTATES.ready)
         elif phase == 3:
-            result['phase'] = ISTATES.disabled   
+            project_result.assign('phase', ISTATES.disabled)
 
         if bool(df['Active'].iloc[0]) == True:
-            result['active'] = ISTATES.ready
+            project_result.assign('active', ISTATES.ready)
         
         if not df['Bcode'].iloc[0] is None:
-            result['financial'] = ISTATES.ready    
+            project_result.assign('financial', ISTATES.ready)
 
         #if has rights in any lab
         #or is fee-for-service
-        result['OHS'] = ISTATES.ready    #TO-DO
+        project_result.assign('OHS', ISTATES.ready)    #TO-DO
 
         #if has an RDM assigned
-        result['RDM'] = ISTATES.ready    #TO-DO
+        project_result.assign('RDM', ISTATES.ready)    #TO-DO
 
         #set overall from other states
         #bugged?
-        all_ready = result['active'] == ISTATES.ready and \
-            result['financial'] == ISTATES.ready and \
-            result['OHS'] == ISTATES.ready and \
-            result['RDM'] == ISTATES.ready and \
-            result['phase'] == ISTATES.ready
+        all_ready = \
+            project_result.get('active') == ISTATES.ready and \
+            project_result.get('financial') == ISTATES.ready and \
+            project_result.get('OHS') == ISTATES.ready and \
+            project_result.get('RDM') == ISTATES.ready and \
+            project_result.get('phase') == ISTATES.ready
 
         if all_ready:
             #endif
-            result['overall'] = ISTATES.ready
+            project_result.assign('overall', ISTATES.ready)
         else:
-            result['overall'] = ISTATES.off
+            project_result.assign('overall', ISTATES.off)
 
     finally:
-        return result
+        return project_result

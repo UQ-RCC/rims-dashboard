@@ -87,7 +87,7 @@ class IndicatorStateGroup():
             if i.key == key:
                 i.state = state
 
-    def get_state(self, key):
+    def get(self, key):
         """
         return state from key
         
@@ -95,6 +95,16 @@ class IndicatorStateGroup():
         for i in self.indicators:
             if i.key == key:
                 return(i.state)
+
+    def getlabel(self, key):
+        """
+        return label from key
+        
+        """
+        for i in self.indicators:
+            if i.key == key:
+                return(i.label)
+
 
     def to_dict(self):
         """

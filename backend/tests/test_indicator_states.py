@@ -42,6 +42,40 @@ def test_create_stategroup():
 
     assert result == expected
 
+def test_get_substate():
+    access = utils_intialise_access()
+
+    expected = 'fail'    
+
+    result = access.get('radiography')
+
+    assert result == expected
+
+def test_assign_substate():
+    access = utils_intialise_access()
+
+    expected = {'key': 'Access',
+                'label': 'Access',
+                'indicators': [
+                    {'key': 'analytical_chem', 'label': 'analytical_chem', 'state': 'off'},
+                    {'key': 'radiography', 'label': 'RAD', 'state': 'ready'},
+                    {'key': 'materials_science', 'label': 'materials_science', 'state': 'ready'}
+                ]}    
+
+    access.assign('radiography', ISTATES.ready)
+
+    result = access.to_dict()
+
+    assert result == expected
+
+    expected = ISTATES.ready    
+
+    result = access.get('radiography')
+
+    assert result == expected
+
+
+
 def test_add_state():
     lab4 = IndicatorState('softmatter', ISTATES.ready, label="soft")
     access = utils_intialise_access()
