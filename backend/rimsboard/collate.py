@@ -174,9 +174,7 @@ def state_from_user(user_login):
     user_name_clean = utils.cleanup_user_name(user_name)
     user_name_first_last = utils.reorder_user_name(user_name_clean)
 
-    oldest=None
-    oldest_active=None
-    found=False
+    project_states = ProjectStateList([ ])
 
     if not user_projects == [-1]:
         for proj in user_projects:
@@ -184,53 +182,21 @@ def state_from_user(user_login):
             project_df = gather.gather_projectdetails(proj)
             try:
                 project_dict = project_df.to_dict('records')[0]
+                project_state = collate_project(project_df)                
             except:
                 #dict conversion will fail on inaccessible projects (eg. 1995)
                 #skip these if present
-                continue
+                project_state = copy.deepcopy(DEFAULT_PROJECT_STATE)
 
-            #   if found use first match (ie. oldest)
-            #   if not found as lead, use oldest active project containing user
-            #   if no active projects at all, use oldest project
-
-            if oldest is None:
-                oldest = project_df
-
-            if oldest_active is None and \
-                bool(project_dict['Active'])==True and project_dict['Phase']==2:
-
-                oldest_active = project_df
-
-            if ( user_name_first_last.lower() in project_dict['ProjectName'].lower() \
-                or user_name_clean.lower() in project_dict['ProjectName'].lower() )\
-                and bool(project_dict['Active'])==True and project_dict['Phase']==2:
-
-                project_df = project_df
-                found=True
-                break
-
-        if found == True:
-            pass        
-        elif oldest_active is not None:
-            project_df = oldest_active
-        elif oldest is not None:
-            project_df = oldest    
-        else:
-            raise ValueError("Unexpected value for project DF")        
-
-
-        #generate the state for this project
-        project_state = collate_project(project_df)
+            project_states.projects.append(project_state)
     else:
         #return empty array
         project_state = copy.deepcopy(DEFAULT_PROJECT_STATE)
+        project_states.projects.append(project_state)
 
     #to-do:
     #   project.OHS using user_result and project_result
     #   loop through multiple projects
-
-    project_states = ProjectStateList([ ])
-    project_states.projects.append(project_state)
 
     #dict
     result = { 'user': user_state.to_list(), 'user_projects': project_states.to_list() }
