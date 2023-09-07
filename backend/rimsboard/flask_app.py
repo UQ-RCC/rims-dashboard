@@ -29,8 +29,8 @@ def api_getuserlist():
 
     return jsonify(userlist)
 
-@app.route('/api/v1/state', methods=['GET'])
-def api_getstate(): #expects user_login
+@app.route('/api/v1/userstate', methods=['GET'])
+def api_getuserstate(): #expects user_login
 
     try:
         print("received call for state", file=sys.stderr)

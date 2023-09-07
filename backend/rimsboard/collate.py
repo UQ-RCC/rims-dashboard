@@ -1,11 +1,16 @@
+import copy
+
 from enum import Enum
 from flask import jsonify
+from dataclasses import dataclass, asdict, field
+
 
 import rimsboard.rims as rims
 import rimsboard.utils as utils
 import rimsboard.usergather as gather
 
-from logic import ISTATES, IndicatorState, IndicatorStateGroup
+from rimsboard.logic import ISTATES, IndicatorState, IndicatorStateGroup
+from rimsboard.statelogic import Indicator
 
 """
 class IState():
@@ -23,36 +28,88 @@ class IState():
 """
 
 
+
+
+#NOTE: can't assign defaults here, maybe problem with custom classes
+#   have to define these below in DEFAULT_*_STATE
+@dataclass
+class UserState:
+    total: Indicator
+    active: Indicator 
+    access: list = field(default_factory=list)
+
+    def to_list(self):
+        #flatten to list
+
+        result = [ asdict(self.total), asdict(self.active) ]
+
+        #future: add check for non-unique keys
+        for lab in self.access:
+            result.append(asdict(lab))
+
+        return result
+
+@dataclass
+class ProjectState:
+    total: Indicator 
+    active: Indicator 
+    billing: Indicator 
+    ohs: Indicator 
+    rdm: Indicator 
+    phase: Indicator      
+    id: Indicator   #id only, used as wrapper for label value
+
+    def to_list(self):
+        result = [ asdict(self.total), asdict(self.active), asdict(self.billing), \
+                  asdict(self.ohs), asdict(self.rdm), asdict(self.phase), asdict(self.id) ]
+
+        return result
+
+@dataclass
+class ProjectStateList:
+    projects: list = field(default_factory=list)
+
+    def to_list(self):
+            result = [ ]
+            for proj in self.projects:
+                result.append(proj.to_list())
+
+            return result
+
+#DEFAULTS
+
 #rims codes for each lab & access-level
 RIMS_LAB_CODES_PRIME = [ 82, 89, 87, -1]
 RIMS_LAB_CODES_AH = [ 83, 88, 86, 84]
                 #Ha, AIBN, Chem, QBP
-RIMS_LAB_KEYS = [ 'aibn', 'hawken', 'chemistry', 'qbp']
 
+#keys/labels for dataclasses - order must match list of rims codes above                
+RIMS_LAB_KEYS = [ 'aibn', 'hawken', 'chem', 'qbp']
+RIMS_LAB_LABELS = [ 'AIBN', 'Hawken', 'Chemistry', 'QBP']
 
-USER_TEMPLATE =   IndicatorStateGroup('user',
-                            [ 
-                                IndicatorState('overall', ISTATES.off),
-                                IndicatorState('account', ISTATES.off),
-                                IndicatorState(RIMS_LAB_KEYS[0], ISTATES.off),
-                                IndicatorState(RIMS_LAB_KEYS[1], ISTATES.off),
-                                IndicatorState(RIMS_LAB_KEYS[2], ISTATES.off),
-                                IndicatorState(RIMS_LAB_KEYS[3], ISTATES.off),
-                            ]
-                        )
+#   copied from dataclasses above
+#   hack due to custom classes not working as default in dataclass
+#   used as base for derived states 
+DEFAULT_USER_STATE = UserState( \
+        total = Indicator("total", ISTATES.off, label="OK"), \
+        active = Indicator("active", ISTATES.off, label="User account"), \
+        access = [ 
+            Indicator(RIMS_LAB_KEYS[0], ISTATES.off, label=RIMS_LAB_LABELS[0]),
+            Indicator(RIMS_LAB_KEYS[1], ISTATES.off, label=RIMS_LAB_LABELS[1]),
+            Indicator(RIMS_LAB_KEYS[2], ISTATES.off, label=RIMS_LAB_LABELS[2]),
+            Indicator(RIMS_LAB_KEYS[3], ISTATES.off, label=RIMS_LAB_LABELS[3]),
+        ]
+)
 
-PROJECT_TEMPLATE =    IndicatorStateGroup('project',
-                                [
-                                    IndicatorState('overall', ISTATES.off),
-                                    IndicatorState('active', ISTATES.off),
-                                    IndicatorState('financial', ISTATES.off),
-                                    IndicatorState('OHS', ISTATES.off),
-                                    IndicatorState('RDM', ISTATES.off),
-                                    IndicatorState('phase', ISTATES.off),
-                                ]
-                            )
-
-
+DEFAULT_PROJECT_STATE = ProjectState( \
+        total = Indicator("total", ISTATES.off, label="OK"), \
+        active = Indicator("active", ISTATES.off, label="Active"), \
+        billing = Indicator("financial", ISTATES.off, label="Billing"), \
+        ohs = Indicator("ohs", ISTATES.off, label="OHS"), \
+        rdm = Indicator("rdm", ISTATES.off, label="RDM"), \
+        phase = Indicator("phase", ISTATES.off, label="Phase"),        
+        id = Indicator("id", ISTATES.off, label="N/A")
+)
 
 
 def populate_userdropdown():
@@ -96,21 +153,26 @@ def state_from_user(user_login):
     """
     compile dashboard state for this user
     """
-    user_dict = gather.get_user_details(user_login)
 
-    user_name = user_dict['name']
-    user_name_clean = utils.cleanup_user_name(user_name)
-    user_name_first_last = utils.reorder_user_name(user_name_clean)
+    #data gathering
+    #------------------
+    user_dict = gather.get_user_details(user_login)
 
     user_projects = rims.get_user_projects(user_login)
     
     rights_df = gather.get_user_rights_df(user_login)
 
-    user_result = collate_user(rights_df)
+    #user state
+    #------------------
+    user_state = collate_user(rights_df)
 
-    print(user_result)
+    #project state
+    #------------------
 
-    #try to find user name in project titles
+    #preprocessing
+    user_name = user_dict['name']
+    user_name_clean = utils.cleanup_user_name(user_name)
+    user_name_first_last = utils.reorder_user_name(user_name_clean)
 
     oldest=None
     oldest_active=None
@@ -118,6 +180,7 @@ def state_from_user(user_login):
 
     if not user_projects == [-1]:
         for proj in user_projects:
+        #try to find user name in project titles            
             project_df = gather.gather_projectdetails(proj)
             try:
                 project_dict = project_df.to_dict('records')[0]
@@ -155,19 +218,22 @@ def state_from_user(user_login):
         else:
             raise ValueError("Unexpected value for project DF")        
 
-        project_result = collate_project(project_df)
+
+        #generate the state for this project
+        project_state = collate_project(project_df)
     else:
         #return empty array
-        project_result = PROJECT_TEMPLATE
+        project_state = copy.deepcopy(DEFAULT_USER_STATE)
 
     #to-do:
     #   project.OHS using user_result and project_result
     #   loop through multiple projects
 
-    project_result_array = [ project_result ]
+    project_states = ProjectStateList([ ])
+    project_states.projects.append(project_state)
 
     #dict
-    result = { 'user': user_result, 'projects': project_result_array}
+    result = { 'user': user_state.to_list(), 'user_projects': project_states.to_list() }
 
     print(f"result: {result}")
 
@@ -186,11 +252,10 @@ def collate_user(df):
     produce a list of rights by lab
     """
 
-    user_result = USER_TEMPLATE
-    _keys=RIMS_LAB_KEYS
+    user_state = copy.deepcopy(DEFAULT_USER_STATE)
 
     if len(df) == 0:
-        return user_result
+        return user_state
 
     for i, code in enumerate(RIMS_LAB_CODES_PRIME):
         access_level = None
@@ -200,15 +265,15 @@ def collate_user(df):
             access_level = row.iloc[0]
 
             if access_level in ['N', 'A', 'S']:
-                user_result.assign([_keys[i]], ISTATES.ready)
+                user_state.access[i].state = ISTATES.ready
             elif access_level == 'D':
-                user_result.assign([_keys[i]], ISTATES.disabled)
+                user_state.access[i].state = ISTATES.disabled
             else:
-                user_result.assign([_keys[i]], ISTATES.off)
+                user_state.access[i].state = ISTATES.off
         
         except:
             print(f'unexpected access {access_level} for lab: {i}, {code}')
-            user_result.assign([_keys[i]], ISTATES.na)
+            user_state.access[i].state = ISTATES.na
 
     for i, code in enumerate(RIMS_LAB_CODES_AH):
         row = df.loc[df['systemid'] == code]['access_level']
@@ -217,75 +282,73 @@ def collate_user(df):
             access_level = row.iloc[0]
 
             if access_level in ['N', 'A', 'S']:
-                user_result.assign([_keys[i]], ISTATES.extended)
+                user_state.access[i].state = ISTATES.extended
 
         except:
             pass
     
     #TO-DO get this from df
-    user_result.assign('account', ISTATES.ready)
+    user_state.active.state = ISTATES.ready
 
     #calc overall from other states
-    if user_result.get('account') == ISTATES.ready and ( 
-        user_result.get('aibn') == ISTATES.ready or user_result.get('aibn') == ISTATES.extended or \
-        user_result.get('hawken') == ISTATES.ready or user_result.get('hawken') == ISTATES.extended or \
-        user_result.get('chemistry') == ISTATES.ready or user_result.get('chemistry') == ISTATES.extended or \
-        user_result.get('qbp') == ISTATES.ready or user_result.get('qbp') == ISTATES.extended
-    ):
-        user_result.assign('overall', ISTATES.ready)
-    else:
-        user_result.assign('overall', ISTATES.off)
+    if user_state.active.state == ISTATES.ready and \
+            all((lab.state == ISTATES.ready or lab.state == ISTATES.extended) for lab in user_state.access):
 
-    return user_result
+        user_state.total.state = ISTATES.ready
+    else:
+        user_state.total.state = ISTATES.off
+
+    return user_state
 
 
 def collate_project(df):
     
-    project_result = PROJECT_TEMPLATE
+    project_state = copy.deepcopy(DEFAULT_PROJECT_STATE)
 
     try:
         if len(df) == 0:
-            return project_result
+            return project_state
+
+        project_state.id.label = str(int(df['ProjectRef']))
 
         phase = df['Phase'].iloc[0]
-        OFFSET=4
 
         if phase == 0:
-            project_result.assign('phase', ISTATES.waiting)
+            project_state.phase.state = ISTATES.waiting
         elif phase == 1:
-            project_result.assign('phase', ISTATES.waiting)
+            project_state.phase.state = ISTATES.waiting
         elif phase == 2:
-            project_result.assign('phase', ISTATES.ready)
+            project_state.phase.state = ISTATES.ready
         elif phase == 3:
-            project_result.assign('phase', ISTATES.disabled)
+            project_state.phase.state = ISTATES.disabled
 
         if bool(df['Active'].iloc[0]) == True:
-            project_result.assign('active', ISTATES.ready)
+            project_state.active.state = ISTATES.ready
         
         if not df['Bcode'].iloc[0] is None:
-            project_result.assign('financial', ISTATES.ready)
+            project_state.billing.state = ISTATES.ready
+            #future: check financial report for chartstring validity
 
         #if has rights in any lab
         #or is fee-for-service
-        project_result.assign('OHS', ISTATES.ready)    #TO-DO
+        project_state.ohs.state = ISTATES.ready    #TO-DO
 
         #if has an RDM assigned
-        project_result.assign('RDM', ISTATES.ready)    #TO-DO
+        project_state.rdm.state = ISTATES.ready    #TO-DO
 
         #set overall from other states
-        #bugged?
         all_ready = \
-            project_result.get('active') == ISTATES.ready and \
-            project_result.get('financial') == ISTATES.ready and \
-            project_result.get('OHS') == ISTATES.ready and \
-            project_result.get('RDM') == ISTATES.ready and \
-            project_result.get('phase') == ISTATES.ready
+            project_state.active.state == ISTATES.ready and \
+            project_state.billing.state == ISTATES.ready and \
+            project_state.ohs.state == ISTATES.ready and \
+            project_state.rdm.state == ISTATES.ready and \
+            project_state.phase.state == ISTATES.ready and \
+            project_state.id >= 0
 
         if all_ready:
-            #endif
-            project_result.assign('overall', ISTATES.ready)
+            project_state.total.state = ISTATES.ready
         else:
-            project_result.assign('overall', ISTATES.off)
+            project_state.total.state = ISTATES.off
 
     finally:
-        return project_result
+        return project_state
