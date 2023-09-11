@@ -8,12 +8,9 @@ COPY . .
 RUN yarn install && yarn build
 
 #server
-FROM nginx:1.25
-
-WORKDIR /usr/share/nginx/html
-RUN rm -rf ./*
-
-COPY --from=builder /app/dist .
+#FROM nginx:1.25
+FROM nginx:1.21.1-alpine
+COPY --from=builder /app/dist/ /usr/share/nginx/html/
 COPY --from=builder /app/nginx/dashboard.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
