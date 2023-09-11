@@ -21,6 +21,7 @@
     "vue-select": "^3.20.2",
     "vue-simple-alert": "^1.1.1",
     "vue-simple-search-dropdown": "^1.0.1",
+    "vue-truncate": "^1.0.0",
     "vuejs-logger": "^1.5.4",
     "vuetify": "^2.3.10"
   },

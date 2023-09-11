@@ -28,8 +28,6 @@ class IState():
 """
 
 
-
-
 #NOTE: can't assign defaults here, maybe problem with custom classes
 #   have to define these below in DEFAULT_*_STATE
 @dataclass
@@ -61,7 +59,7 @@ class ProjectState:
 
     def to_list(self):
         result = [ asdict(self.total), asdict(self.active), asdict(self.billing), \
-                  asdict(self.ohs), asdict(self.rdm), asdict(self.phase), asdict(self.id) ]
+                  asdict(self.ohs), asdict(self.rdm), asdict(self.phase) ]
 
         return result
 
@@ -100,6 +98,18 @@ DEFAULT_USER_STATE = UserState( \
             Indicator(RIMS_LAB_KEYS[3], ISTATES.off, label=RIMS_LAB_LABELS[3]),
         ]
 )
+
+DEFAULT_PROJECT_METADATA = {
+    'CoreFacilityRef': 2,
+    'ProjectName': '( Not found )',
+    'Phase': '',
+    'Active': '',
+    'BCode': '',
+    'ProjectRef': -1,
+    'Affiliation': '',
+    'ProjectType': '',
+    'ProjectGroup': '',
+}
 
 DEFAULT_PROJECT_STATE = ProjectState( \
         total = Indicator("total", ISTATES.off, label="OK"), \
@@ -148,6 +158,18 @@ TO-DO:
 """
 
 
+def empty_project():
+
+    _project_state = copy.deepcopy(DEFAULT_PROJECT_STATE)
+    _project_dict = copy.deepcopy(DEFAULT_PROJECT_METADATA)
+
+    project_result = {
+        'metadata': _project_state,
+        'states': _project_dict,
+    }
+
+    return project_result
+
 
 def state_from_user(user_login):
     """
@@ -166,6 +188,11 @@ def state_from_user(user_login):
     #------------------
     user_state = collate_user(rights_df)
 
+    user_result = {
+        'metadata': user_dict,
+        'states': user_state.to_list(),
+    }
+
     #project state
     #------------------
 
@@ -174,32 +201,41 @@ def state_from_user(user_login):
     user_name_clean = utils.cleanup_user_name(user_name)
     user_name_first_last = utils.reorder_user_name(user_name_clean)
 
-    project_states = ProjectStateList([ ])
+    project_results = []
 
     if not user_projects == [-1]:
         for proj in user_projects:
         #try to find user name in project titles            
             project_df = gather.gather_projectdetails(proj)
             try:
-                project_dict = project_df.to_dict('records')[0]
+                project_dict = project_df.to_dict('records')[0] #to-dict returns a list
+                project_dict.pop('Descr', None) #remove description field
                 project_state = collate_project(project_df)                
             except:
                 #dict conversion will fail on inaccessible projects (eg. 1995)
-                #skip these if present
+                #return empty defaults for these
                 project_state = copy.deepcopy(DEFAULT_PROJECT_STATE)
+                project_dict = copy.deepcopy(DEFAULT_PROJECT_METADATA)
 
-            project_states.projects.append(project_state)
+            project_result = {
+                'metadata': project_dict,
+                'states': project_state.to_list(),
+            }
+
+            project_results.append(project_result)
     else:
         #return empty array
         project_state = copy.deepcopy(DEFAULT_PROJECT_STATE)
-        project_states.projects.append(project_state)
+        project_results.append(project_state)
+
+
 
     #to-do:
     #   project.OHS using user_result and project_result
     #   loop through multiple projects
 
     #dict
-    result = { 'user': user_state.to_list(), 'user_projects': project_states.to_list() }
+    result = { 'user_state': user_result, 'user_projects': project_results }
 
     print(f"result: {result}")
 

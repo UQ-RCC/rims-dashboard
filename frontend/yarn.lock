@@ -8679,6 +8679,11 @@ vue-template-es2015-compiler@^1.9.0:
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz#1ee3bc9a16ecbf5118be334bb15f9c46f82f5825"
   integrity sha512-4gDntzrifFnCEvyoO8PqyJDmguXgVPxKiIxrBKjIowvL9l+N66196+72XVYR8BBf1Uv1Fgt3bGevJ+sEmxfZzw==
 
+vue-truncate@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/vue-truncate/-/vue-truncate-1.0.0.tgz#4debe548948e4a7260453eed634003ef4164f7b1"
+  integrity sha512-d8dUGdEmjba9NE+TP3e9zbLhhTE789uF7Is893k42mt5PXMbHnSi8aH+vAKIoBQpP5FYQ2LpT86GXBfVAiVcKw==
+
 vue@2.6.11:
   version "2.6.11"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.11.tgz#76594d877d4b12234406e84e35275c6d514125c5"

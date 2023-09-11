@@ -1,18 +1,22 @@
 <template>
     <div>        
         <v-row rows="1"><v-divider :thickness="4"></v-divider></v-row>
+        <v-row rows="1"><h4 style="text-align:left">User</h4></v-row>                     
         <v-row rows="1">
-            <LightSetUser :user_state=this.state.user />      
+            <LightSetUser :user_state=this.state.user_state />      
         </v-row>  
         <v-row rows="1"><v-divider :thickness="4"></v-divider></v-row>  
-        <v-row rows="1">      
-            <LightSetProject :proj_state=this.state.user_projects[0] />            
+        <v-row rows="1"><h4 style="text-align:left">Projects</h4></v-row>   
+        <v-row rows="1" 
+            v-for="item in this.state.user_projects"
+            :key="item.metadata.PojectRef"     
+        >
+            <LightSetProject :proj_state=item />            
         </v-row>
     </div>                          
 </template>
 
 <script>
-    import Vue from 'vue'
     import LightSetUser from './LightSetUser.vue';
     import LightSetProject from './LightSetProject.vue'
 
@@ -23,11 +27,7 @@
             LightSetProject: LightSetProject
         },
         props:['state'],   
-
-        created: function() {
-            Vue.$log.info("init ULB")
-            Vue.$log.info("ULB state  " + this.state.user + "/" + this.state.user_projects)               
-        }        
+   
         
     }
 

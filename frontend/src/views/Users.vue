@@ -97,16 +97,13 @@
                     Vue.$log.info("API call getState FAILED")                       
                     _state = DEFAULT_STATE;
                 }             
-                Vue.$log.info("state retrieved, core values:  "  + _state.core)  
+                Vue.$log.info("user state retrieved:  "  + _state)  
                 return _state
             },
         },
         created: async function() {
             //retrieve values to populate dropdown
             Vue.$log.info("initalising")
-            Vue.$log.info("U default state  " + DEFAULT_STATE.core + "/" + DEFAULT_STATE.user + "/" + DEFAULT_STATE.projects)
-            Vue.$log.info("U this.state  " + this.state.core + "/" + this.state.user + "/" + this.state.projects)
-
             this.userlist = await this.refreshDropdownValues()
 
                        

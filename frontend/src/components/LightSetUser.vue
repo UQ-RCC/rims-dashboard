@@ -1,9 +1,12 @@
 <template>
     <v-row>     
-        <v-col cols="1"><h4 style="text-align:left">User</h4></v-col>    
-        <v-spacer cols="1"/>             
+        <v-col cols="2">
+            <div class="vertical-center">
+                <h5 style="text-align:center">{{user_state.metadata.name}}</h5>
+            </div>
+        </v-col>    
         <v-col cols="1"
-            v-for="item in this.user_state"
+            v-for="item in this.user_state.states"
             :key="item.key"
         >
             <LightCell :cell_label=item.label :cell_value=item.state />
@@ -16,7 +19,6 @@
 </template>
 
 <script>
-    import Vue from 'vue'
     import LightCell from './LightCell.vue'
 
     export default {
@@ -26,14 +28,17 @@
         },
 
         props:['user_state'],
-
-        created: function() {
-            Vue.$log.info("LSU init")
-            Vue.$log.info("LSU state  " + this.user_state)               
-        }           
+      
     }
 
 </script>
 
 <style>
+.vertical-center {
+  margin: 0;
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
 </style>

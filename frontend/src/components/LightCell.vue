@@ -2,7 +2,7 @@
     <div id="lightcell">  
         <p class="text-caption" style="text-align:center">{{this.cell_label}}</p>
         <div id="indicator_div">
-            <StatusIndicatorLocal :status="this.cell_value" pulse="true"/>
+            <StatusIndicatorLocal :status="this.cell_value" :pulse="true"/>
         </div>
     </div>        
 </template>
@@ -10,7 +10,6 @@
 
 
 <script>
-    import Vue from 'vue'
     import StatusIndicatorLocal from './StatusIndicatorLocal.vue'    
 
     export default {
@@ -18,11 +17,7 @@
         props:['cell_label', 'cell_value'],
         components:{
             StatusIndicatorLocal: StatusIndicatorLocal
-        },
-
-        created: function() {
-            Vue.$log.info("LC val  " + this.cell_value)               
-        }       
+        },   
         
     }
     //simple map from cell_value to colour
