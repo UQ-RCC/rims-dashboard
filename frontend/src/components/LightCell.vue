@@ -1,11 +1,13 @@
 <template>
     <div id="lightcell">  
-        <v-row rows="2"><p class="text-overline" style="text-align:right">{{this.cell_label}}</p></v-row>
-        <v-row rows="2">
+        <p class="text-caption" style="text-align:center">{{this.cell_label}}</p>
+        <div id="indicator_div">
             <StatusIndicatorLocal :status="this.cell_value" pulse="true"/>
-        </v-row>
+        </div>
     </div>        
 </template>
+
+
 
 <script>
     import Vue from 'vue'
@@ -28,16 +30,30 @@
 </script>
 
 <style scoped >
-.text-indicator-small
+
+#lightcell
 {
-    font-size: '24px';
-    text-align: center;
-    color: blue;
+    text-align: center
 }
+
+#indicator_div
+{
+    text-align: center;
+    padding-bottom: 25%;    /*% of width*/
+}
+
 </style>
 
 
 <!--
+<v-row rows="2"><p class="text-overline" style="text-align:right">{{this.cell_label}}</p></v-row>
+<v-row rows="2">
+   <StatusIndicatorLocal :status="this.cell_value" pulse="true"/>
+</v-row>
+
+
+
+
 <v-btn
 color="secondary"
 elevation="2"

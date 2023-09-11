@@ -13,7 +13,6 @@
                   <a href="https://github.com/UQ-RCC/rims-dashboard">RIMS Dashboard</a>
               </v-row>
           </v-footer>    
-
   </v-app>
 </template>
 

@@ -1,14 +1,14 @@
 <template>
-    <v-container height='800px'>
-        <v-row rows="2"><v-divider :thickness="4"></v-divider></v-row>
-        <v-spacer rows="2"/> 
-        <LightSetUser :user_state=this.state.user />
-        <v-spacer rows="2"/>   
-        <v-spacer rows="2"/>             
-        <v-row rows="2"><v-divider :thickness="4"></v-divider></v-row>
-        <LightSetProject :proj_state=this.state.user_projects[0] />
-        <v-spacer rows="2"/>    
-    </v-container>                              
+    <div>        
+        <v-row rows="1"><v-divider :thickness="4"></v-divider></v-row>
+        <v-row rows="1">
+            <LightSetUser :user_state=this.state.user />      
+        </v-row>  
+        <v-row rows="1"><v-divider :thickness="4"></v-divider></v-row>  
+        <v-row rows="1">      
+            <LightSetProject :proj_state=this.state.user_projects[0] />            
+        </v-row>
+    </div>                          
 </template>
 
 <script>

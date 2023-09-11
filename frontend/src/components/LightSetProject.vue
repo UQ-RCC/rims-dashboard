@@ -1,19 +1,17 @@
 <template>
-    <div id="lightset-project">  
-        <v-row rows="2"> 
-            <v-col cols="1"><h4 style="text-align:left">Project</h4></v-col>  
-            <v-spacer cols="1"/>                    
-            <v-col cols="1"
-                v-for="item in this.proj_state"
-                :key="item.key"
-            >
-                <LightCell :cell_label=item.label :cell_value=item.state />
-            </v-col>        
-            <v-spacer cols="1"/> 
-            <v-spacer cols="1"/>                             
-            <v-spacer cols="1"/>                                   
-        </v-row>        
-    </div>        
+    <v-row>
+        <v-col cols="1"><h4 style="text-align:left">Project</h4></v-col>  
+        <v-spacer cols="1"/>                    
+        <v-col cols="1"
+            v-for="item in this.proj_state"
+            :key="item.key"
+        >
+            <LightCell :cell_label=item.label :cell_value=item.state />
+        </v-col>        
+        <v-spacer cols="1"/> 
+        <v-spacer cols="1"/>                             
+        <v-spacer cols="1"/>  
+    </v-row>                                              
 </template>
 
 <script>

@@ -1,5 +1,5 @@
 <template>
-    <v-container height='1000px'>
+    <v-container grid-list>
             <div>
                 <v-autocomplete 
                     v-model="selected" 
@@ -8,9 +8,7 @@
                     return-object>
                 </v-autocomplete>            
             </div>    
-            <div>        
                 <UserLightBoard :state=this.state />
-            </div>  
     </v-container>
 </template>
 
