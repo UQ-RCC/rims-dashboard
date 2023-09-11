@@ -6,6 +6,6 @@
     "onLoad": "login-required",
     "minValidity": 10
   },
-  "backend": "http://localhost:5000",
+  "backend": "http://backend:5000",
   "signoutUrl": "https://cmm.centre.uq.edu.au/"
 }

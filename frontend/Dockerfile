@@ -4,7 +4,7 @@
 #builder
 FROM node:16.20.2 AS builder
 WORKDIR /app
-COPY ../frontend .
+COPY . .
 RUN yarn install && yarn build
 
 #server
@@ -14,5 +14,9 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 
 COPY --from=builder /app/dist .
+COPY --from=builder /app/nginx/dashboard.conf /etc/nginx/conf.d/default.conf
 
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+EXPOSE 80
+
+CMD nginx -g "daemon off;"
+#ENTRYPOINT ["nginx", "-g", "daemon off;"]
