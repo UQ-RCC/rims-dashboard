@@ -81,6 +81,13 @@ def get_user_rights_df(ulogin: str):
 
     return df
 
+def get_user_rights_dict(ulogin: str):
+
+    raw = rims.get_user_rights(ulogin)
+
+    return raw
+
+
 def get_user_details(ulogin: str):
     """
     retrieve user details as dict

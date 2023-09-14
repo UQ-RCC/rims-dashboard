@@ -211,7 +211,7 @@ def get_user_rights(ulogin: str):
             _system_rights_text = response.text.strip()
             _lines = _system_rights_text.split('\n')
             if not _lines == ['']:
-                _permissions = { int(_line.split(":")[1]):_line.split(":")[0] for _line in _lines } #int() strips remaining carriage return
+                _permissions = { str(int(_line.split(":")[1])):_line.split(":")[0] for _line in _lines } #int() strips remaining carriage return
             else:
                 return {}
             return _permissions

@@ -1,173 +1,132 @@
 import copy
+from rimsboard.statelogic import Istate, UserState, UserStateLabels, ProjectState, ProjectStateLabels
 
 import rimsboard.utils as utils
 
-class IState():
+#rims codes for each lab & access-level
+RIMS_LAB_KEYS = [ 'aibn', 'hawken', 'chem', 'qbp']
+RIMS_LAB_CODES_PRIME = [ 82, 89, 87, -1]
+RIMS_LAB_CODES_AH = [ 83, 88, 86, 84]
+                #Ha, AIBN, Chem, QBP
+
+
+def get_rims_key(code: int):
+    for i in range(4):
+        if code == RIMS_LAB_CODES_PRIME[i] or code == RIMS_LAB_CODES_AH[i]:
+            return RIMS_LAB_KEYS[i]
+    raise ValueError(f"code {code} not found in rims lab code lists")
+
+
+DEFAULT_PROJECT_METADATA = {
+    'CoreFacilityRef': 2,
+    'ProjectName': '( Not found )',
+    'Phase': '',
+    'Active': '',
+    'BCode': '',
+    'ProjectRef': -1,
+    'Affiliation': '',
+    'ProjectType': '',
+    'ProjectGroup': '',
+}
+
+
+def collate_user(user_rights):
     """
-    collection of valid states to hand back
+    produce a list of rights by lab
     """
-    def __init__(self):
-        #standard--------
-        self.off = 'off'
-        self.incomplete = 'incomplete'
-        self.waiting = 'waiting'
-        self.waiting_external = 'waiting_external'
-        self.ready = 'ready'
-        self.extended = 'extended'
-        self.disabled = 'disabled'
-        #error------------
-        self.warn = 'warn'
-        self.fail = 'fail'
-        self.na = 'na'
 
-ISTATES = IState()
+    user_state = UserState()
+
+    for key in user_rights:
+        
+        if int(key) in RIMS_LAB_CODES_PRIME:
+
+            for i, code in enumerate(RIMS_LAB_CODES_PRIME):    
+                current_lab = get_rims_key(code)        
+
+                if int(key) == code:
+                    access_level = user_rights[key]
+
+                    if access_level in ['N', 'A', 'S']:
+                        user_state.assign_by_lab(current_lab, Istate.ready)
+                    elif access_level == 'D':
+                        user_state.assign_by_lab(current_lab, Istate.disabled)
+                    else:
+                        print(f'unexpected access {access_level} for lab: {i}, {code}')                
+                        user_state.assign_by_lab(current_lab, Istate.na)   
+
+        if int(key) in RIMS_LAB_CODES_AH:
+
+            for i, code in enumerate(RIMS_LAB_CODES_AH):    
+                current_lab = get_rims_key(code)        
+
+                if int(key) == code:
+                    access_level = user_rights[key]
+
+                    if access_level in ['N', 'A', 'S']:
+                        user_state.assign_by_lab(current_lab, Istate.extended)
+                    else:
+                        pass               
+    
+    #TO-DO get this from df
+    user_state.active = Istate.ready
+
+    #calc overall from other states
+    if user_state.active == Istate.ready and \
+            any((labstate == Istate.ready or labstate == Istate.extended) for labstate in user_state.labs_as_list()):
+
+        user_state.total = Istate.ready
+    else:
+        user_state.total = Istate.off
+
+    return user_state
 
 
+def collate_project(df):
+    
+    project_state = ProjectState()
 
-class IndicatorState():
-    """
-    class to hold state values, and lists of state values
-    """      
-    def __init__(self, key: str, state: str, label:str =None):
-        self.key = key
-        self.state = state
+    try:
+        if len(df) == 0:
+            return project_state
 
-        if label == None:
-            self.label = key        
+        phase = df['Phase'].iloc[0]
+
+        if phase == 0:
+            project_state.phase = Istate.waiting
+        elif phase == 1:
+            project_state.phase = Istate.waiting
+        elif phase == 2:
+            project_state.phase = Istate.ready
+        elif phase == 3:
+            project_state.phase = Istate.disabled
+
+        if bool(df['Active'].iloc[0]) == True:
+            project_state.active = Istate.ready
+        
+        if not df['Bcode'].iloc[0] is None:
+            project_state.billing = Istate.ready
+            #future: check financial report for chartstring validity
+
+        #if has rights in any lab
+        #or is fee-for-service
+        project_state.ohs = Istate.ready    #TO-DO
+
+        #if has an RDM assigned
+        project_state.rdm = Istate.ready    #TO-DO
+
+        #set overall from other states
+        all_ready = \
+            project_state.active == Istate.ready and \
+            project_state.billing == Istate.ready and \
+            project_state.ohs == Istate.ready and \
+            project_state.rdm == Istate.ready and \
+            project_state.phase == Istate.ready
+
+        if all_ready:
+            project_state.total = Istate.ready
         else:
-            self.label = label
-    def to_dict(self):
-        """
-        return as nested dicts
-        """
+            project_state.total = Istate.off
 
-        return { 'key': self.key, 'label': self.label, 'state': self.state }
-
-
-class IndicatorStateGroup():
-    """
-    class to hold state values, and lists of state values
-    """      
-    def __init__(self, key: str, indicators: list, label:str =None):
-        self.key = key
-        self.indicators = indicators
-
-        if label == None:
-            self.label = key        
-        else:
-            self.label = label
-
-    def check(self):
-        """
-        check all keys are unique, including ISG key itself
-        """           
-        label_list = [ self.key ]
-
-        for substate in self.indicators:
-            label_list.append(substate.key)
-
-        if not (utils.all_unique(label_list)):
-            raise ValueError(f"non-unique keys in {label_list}")
-     
-    def add(self, indicator: IndicatorState):   
-        """
-        add a state to group
-        """   
-        for i in self.indicators:
-            if i.key == indicator.key:
-                raise ValueError(f"State {indicator.key} already in group {self.indicators}")
-
-        self.indicators.append(indicator)     
-
-    def assign(self, key: str, state: str):
-        """
-        assign value to state from list of keys
-        """ 
-        for i in self.indicators:
-            if i.key == key:
-                i.state = state
-
-    def get(self, key):
-        """
-        return state from key
-        
-        """
-        for i in self.indicators:
-            if i.key == key:
-                return(i.state)
-
-    def getlabel(self, key):
-        """
-        return label from key
-        
-        """
-        for i in self.indicators:
-            if i.key == key:
-                return(i.label)
-
-
-    def to_dict(self):
-        """
-        return as nested dicts
-        """
-
-        sub_result = [] 
-        for i in self.indicators:
-            sub_result.append(i.to_dict())
-
-        return { 'key': self.key, 'label': self.label, 'indicators': sub_result }
-
-
-
-class MetaStateGroup():
-    """
-    TO-DO: unused
-    """
-    def __init__(self, key: str, indicators: list, label:str =None):
-            self.key = key
-            self.indicators = indicators
-
-            if label == None:
-                self.label = key        
-            else:
-                self.label = label
-
-
-    def flat(self):
-        """
-        TO-DO: unused, taken from IndicatorSG()
-
-        flatten nested subgroups into parent
-        """        
-
-        _target = copy.deepcopy(self)
-
-        remove_list = []
-
-        for subgroup in _target.indicators:
-
-            #check if subcomponent is group
-            if ( hasattr(subgroup, 'indicators')):
-                try:
-                    #check for further nesting and flatten recursively if needed
-                    for substate in subgroup.indicators:
-                        if ( hasattr(substate, 'indicators')):
-                            subgroup = subgroup.flat()
-                            break   #only need to run flat() once, will flatten out all sub-subgroups
-
-                    #add sub-state to parent
-                    for substate in subgroup.indicators:        
-                        _target.add(substate)
-                    
-                    #flag subgroup for removal
-                    remove_list.append(subgroup)
-
-                except:
-                    print(f"WARNING: flattening state instance {_target}, {_target.key} failed at {subgroup.key}, {substate.key}")
-                    #remove any added js if there is a failure
-        
-        for subgroup in remove_list:
-            _target.indicators.remove(subgroup)
-
-        return _target
-
+    finally:
+        return project_state

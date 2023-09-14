@@ -7,14 +7,13 @@
                     item-text="search"
                     return-object>
                 </v-autocomplete>            
-            </div>    
-            <UserLightBoard :state=this.state />
+            </div>
+            <UserLightBoard :user_state=this.user_state :project_states=this.project_states />
     </v-container>
 </template>
 
 
 <script>
-
     import Vue from 'vue'
     import "v-autocomplete/dist/v-autocomplete.css"
     import RimsdashAPI from "@/api/RimsdashAPI"
@@ -23,19 +22,32 @@
 
     Vue.use(VueLogger)
 
-    const DEFAULT_STATE = { 
-        user: {
-            overall: 'off',
-            account: 'off',
-            access: {
-                aibn: 'off',
-                hawken: 'off',
-                chemistry: 'off',
-                qbp: 'off',
+    const DEFAULT_USER_STATE = { 
+            metadata: {
+                name: "Unknown"
             },
-        },  
-        projects: [     
-            {
+            state_labels: {
+
+            },
+            state: {
+                overall: 'off',
+                account: 'off',
+                access_aibn: 'off',
+                access_hawken: 'off',
+                access_chemistry: 'off',
+                access_qbp: 'off',
+            }
+        }
+        
+    const DEFAULT_PROJECT_STATES = [
+        {     
+            metadata: {
+                ProjectName: 'N/A',
+            },     
+            state_labels: {
+
+            },       
+            state: {
                 overall: 'off',
                 active: 'off',                
                 financial: 'off', 
@@ -43,8 +55,9 @@
                 RDM: 'off', 
                 phase: 'off',                 
             },
-        ],
-    }
+        }
+    ]
+
     
 
     export default {
@@ -57,7 +70,8 @@
                 //api query here
                 selected: { search: null, ulogin: null, name: null },
                 userlist: [ this.selected, ],
-                state: DEFAULT_STATE,
+                user_state: {},
+                project_states: [{},],
             };
         },
         watch: {
@@ -65,7 +79,8 @@
             //TODO link project, board calls here
             selected: async function() {
                 Vue.$log.info("new selection: " + this.selected.search);
-                this.state = await this.retrieveState(this.selected.ulogin)
+                this.user_state = await this.retrieveUserState(this.selected.ulogin)
+                this.project_states = await this.retrieveUserProjectStates(this.selected.ulogin)
                 return 0
             },
         },
@@ -86,20 +101,36 @@
                 return userlist
             },
 
-            async retrieveState(_user_login) {
-                console.log("retrieving board state for  " + _user_login);
-                let _state = DEFAULT_STATE;
+            async retrieveUserState(user_login) {
+                console.log("retrieving user state for  " + user_login);
+                let user_state = DEFAULT_USER_STATE;
 
                 //retrieve values to populate dropdown
                 try {
-                    _state = await RimsdashAPI.getState(_user_login)
+                    user_state = await RimsdashAPI.getState(user_login)
                 } catch (error) {
                     Vue.$log.info("API call getState FAILED")                       
-                    _state = DEFAULT_STATE;
+                    user_state = DEFAULT_USER_STATE;
                 }             
-                Vue.$log.info("user state retrieved:  "  + _state)  
-                return _state
+                Vue.$log.info("user state retrieved:  "  + user_state)  
+                return user_state
             },
+
+
+            async retrieveUserProjectStates(user_login) {
+                console.log("retrieving project states for user: " + user_login);
+                let project_states = DEFAULT_PROJECT_STATES;
+
+                //retrieve values to populate dropdown
+                try {
+                    project_states = await RimsdashAPI.getUserProjectStates(user_login)
+                } catch (error) {
+                    Vue.$log.info("API call getState FAILED")                       
+                    project_states = DEFAULT_PROJECT_STATES
+                }             
+                Vue.$log.info("user state retrieved:  "  + user_login)  
+                return project_states
+            },            
         },
         created: async function() {
             //retrieve values to populate dropdown

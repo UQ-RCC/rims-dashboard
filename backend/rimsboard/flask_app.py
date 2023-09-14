@@ -29,24 +29,6 @@ def api_getuserlist():
 
     return jsonify(userlist)
 
-@app.route('/api/v1/userstate', methods=['GET'])
-def api_getuserstate(): #expects user_login
-
-    try:
-        print("received call for state", file=sys.stderr)
-        if 'login' in request.args:
-            print(str(request.args['login']), file=sys.stderr)
-            user_login = str(request.args['login'])
-        else:
-            return "Error: No login field provided. Please specify a login id."
-        
-        state = collate.state_from_user(user_login)  #dict
-        print(state)
-    
-        return jsonify(state)
-    
-    except:
-        return f"Error: could not generate state for login {user_login}."
 
 @app.route('/api/v1/userprojects', methods=['GET'])
 def api_getuserprojects():  #expects user_login
@@ -80,6 +62,63 @@ def api_getprojectdetails():    #expects project_number
     project_info = project_info_df.to_dict('records')
 
     return jsonify(project_info)
+
+
+
+
+@app.route('/api/v1/userstate', methods=['GET'])
+def api_getuserstate(): #expects user_login
+
+    try:
+        print("received call for state", file=sys.stderr)
+        if 'login' in request.args:
+            print(str(request.args['login']), file=sys.stderr)
+            user_login = str(request.args['login'])
+        else:
+            return "Error: No login field provided. Please specify a login id."
+        
+        user_state = collate.state_from_user(user_login)  #dict
+    
+        return jsonify(user_state.to_dict())
+    
+    except:
+        return f"Error: could not generate state for login {user_login}."
+
+@app.route('/api/v1/userprojectstates', methods=['GET'])
+def api_getuserprojectstates(): #expects user_login
+
+    try:
+        print("received call for state", file=sys.stderr)
+        if 'login' in request.args:
+            print(str(request.args['login']), file=sys.stderr)
+            user_login = str(request.args['login'])
+        else:
+            return "Error: No login field provided. Please specify a login id."
+        
+        user_project_states = collate.get_user_project_states(user_login)  #dict
+    
+        #convert to dict for export
+        result_dicts = []
+        for project_state in user_project_states:
+            result_dicts.append(project_state.to_dict())
+
+        return jsonify(result_dicts)
+    
+    except:
+        return f"Error: could not generate state for login {user_login}."
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def check_inputs():
     userlist=collate.populate_userdropdown()

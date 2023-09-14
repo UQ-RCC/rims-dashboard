@@ -8,13 +8,19 @@ export default {
         return data
     },
 
-    // get a collection
-    //NOTE: param passing not verified
-    async getState(user_login) {        
+    async getUserState(user_login) {        
         let payload = {
             'login': user_login
         }
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userstate`, { params: payload } )
+        return data
+    },
+
+    async getUserProjectStates(user_login) {        
+        let payload = {
+            'login': user_login
+        }
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userprojectstates`, { params: payload } )
         return data
     },
 
