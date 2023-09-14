@@ -13,12 +13,9 @@ RUN yarn install && yarn run build
 #-----------------------------------------------
 #server
 FROM nginx:1.25
-FROM nginx:1.21.1-alpine
+#FROM nginx:1.21.1-alpine
 COPY --from=builder /app/dist/ /usr/share/nginx/html/
 COPY --from=builder /app/nginx/dashboard.conf /etc/nginx/conf.d/default.conf
-
-RUN apk update
-RUN apk add --no-cache bash
 
 EXPOSE 80
 

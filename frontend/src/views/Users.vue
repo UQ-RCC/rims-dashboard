@@ -8,7 +8,7 @@
                     return-object>
                 </v-autocomplete>            
             </div>    
-                <UserLightBoard :state=this.state />
+            <UserLightBoard :state=this.state />
     </v-container>
 </template>
 
