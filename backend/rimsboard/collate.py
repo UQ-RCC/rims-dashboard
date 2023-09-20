@@ -42,7 +42,7 @@ class UserResult:
     def to_dict(self):
         return {
             'metadata': self.metadata,
-            'state': self.state.as_indicators(),
+            'indicators': self.state.as_indicators(),
         }
 
 @dataclass
@@ -53,7 +53,7 @@ class ProjectResult:
     def to_dict(self):
         return {
             'metadata': self.metadata,
-            'state': self.state.as_indicators(),
+            'indicators': self.state.as_indicators(),
         }
 
 

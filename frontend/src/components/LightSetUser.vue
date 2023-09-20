@@ -2,14 +2,14 @@
     <v-row>     
         <v-col cols="2">
             <div class="vertical-center">
-                <h5 style="text-align:center">{{user_result.metadata.name}}</h5>
+                <h5 style="text-align:center">{{this.user_result.metadata.name}}</h5>
             </div>
         </v-col>    
         <v-col cols="1"
-            v-for="([key, value]) in Object.entries(user_result.state)"
-            :key = key
+            v-for="item in this.user_result.indicators"
+            :key="item.key"
         >
-            <LightCell :cell_value=value :cell_label=user_result.state_labels.key  />
+            <LightCell :cell_label=item.label :cell_value=item.value   />
         </v-col>  
         <v-spacer cols="1"/>        
         <v-spacer cols="1"/> 

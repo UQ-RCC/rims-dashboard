@@ -82,7 +82,7 @@ class UserState:
                 field_result = {
                     'key': field.name,
                     'label': self.state_labels[str(field.name)],
-                    'state': str(local_state.value),                    
+                    'value': str(local_state.value),                    
                 }
                 result.append(field_result)
         
@@ -116,7 +116,7 @@ class ProjectState:
                 field_result = {
                     'key': field.name,
                     'label': self.state_labels[str(field.name)],                    
-                    'state': str(local_state.value),  
+                    'value': str(local_state.value),  
                 }
                 result.append(field_result)
         
