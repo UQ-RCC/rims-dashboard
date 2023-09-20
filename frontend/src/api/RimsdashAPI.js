@@ -24,6 +24,27 @@ export default {
         return data
     },
 
+    async getDefaultUserState() {        
+
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/defaultuserstate` )
+        return data
+    },
+
+    async getDefaultProjectStates() {        
+
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/defaultuserprojectstates` )
+        return data
+    },
+
+
+
+
+
+
+
+
+
+
     async getUserProjects(user_login) {
         let payload = {
             'login': user_login

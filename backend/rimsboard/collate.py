@@ -12,7 +12,15 @@ import rimsboard.usergather as gather
 import rimsboard.logic as logic
 from rimsboard.statelogic import Istate, UserState, UserStateLabels, ProjectState, ProjectStateLabels
 
-DEFAULT_USER_METADATA = {}
+DEFAULT_USER_METADATA = {
+    'id': 2,
+    'login': '',
+    'name': '( Not found )',
+    'email': '',
+    'account number': '',
+    'group': '',
+    'active': False,
+}
 
 DEFAULT_PROJECT_METADATA = {
     'CoreFacilityRef': 2,
@@ -30,27 +38,22 @@ DEFAULT_PROJECT_METADATA = {
 class UserResult:
     metadata: dict = field(default_factory=lambda: DEFAULT_USER_METADATA)
     state: UserState = UserState()
-    state_labels: dict = field(default_factory=lambda: {i.name: i.value for i in UserStateLabels})
 
     def to_dict(self):
         return {
             'metadata': self.metadata,
-            'state_labels': self.labels,            
-            'state': asdict(self.state),
+            'state': self.state.as_indicators(),
         }
 
 @dataclass
 class ProjectResult:
     metadata: dict = field(default_factory=lambda: DEFAULT_PROJECT_METADATA)
-    state: ProjectState = ProjectState()
-    state_labels: dict = field(default_factory=lambda: {i.name: i.value for i in ProjectStateLabels})    
-
+    state: ProjectState = ProjectState()  
 
     def to_dict(self):
         return {
             'metadata': self.metadata,
-            'state_labels': self.labels,
-            'state': asdict(self.state),
+            'state': self.state.as_indicators(),
         }
 
 
@@ -70,8 +73,24 @@ def populate_userdropdown():
     return options
 
 
+def get_default_user_indicator():
+    user_result = UserResult()
 
-def get_user_state(user_login):
+    result = user_result.to_dict()
+
+    return result
+
+def get_default_project_indicators():
+    result = []
+
+    project_result = ProjectResult()
+
+    result.append(project_result.to_dict())
+
+    return result
+
+
+def get_user_indicators(user_login):
     """
     compile dashboard state for this user
     """
@@ -92,17 +111,19 @@ def get_user_state(user_login):
     #------------------
     user_state = logic.collate_user(user_rights)
 
-    user_result = UserResult()
-    user_result.metadata = user_dict
-    user_result.state = user_state
+    #FUTURE: save user_result to DB here
+
+    user_result = UserResult(user_dict, user_state)
+
+    result_dict = user_result.to_dict()
 
     print(f"returned userstate for user: {user_login}")
 
-    return user_result
+    return result_dict
 
 
 
-def get_user_project_states(user_login):
+def get_user_project_indicators(user_login):
 
     #project state
     #------------------
@@ -117,26 +138,39 @@ def get_user_project_states(user_login):
             try:
                 project_dict = project_df.to_dict('records')[0] #to-dict returns a list
                 project_dict.pop('Descr', None) #remove description field
-                project_state = logic.collate_project(project_df)                
+                project_state = logic.collate_project(project_df)        
+                
+                #FUTURE: save project_result to DB here        
+                                
             except:
                 #dict conversion will fail on inaccessible projects (eg. 1995)
                 #return empty defaults for these
-                project_state = UserState()
+                project_state = ProjectState()
                 project_dict = copy.deepcopy(DEFAULT_PROJECT_METADATA)
 
-            project_result = ProjectResult()
-            project_result.metadata = project_dict
-            project_state = project_state
-            
+            #project_result = ProjectResult()
+            #project_result.metadata = project_dict
+            #project_result.state = project_state
+            project_result = ProjectResult(project_dict, project_state)
+
             project_results.append(project_result)
     else:
         #return empty array
         project_state = ProjectState()
-        project_results.append(project_state)
+        project_dict = copy.deepcopy(DEFAULT_PROJECT_METADATA)
+        project_result = ProjectResult(project_dict, project_state)
+        project_results.append(project_result)
 
     print(f"returned projectstates for user: {user_login}")
 
-    return project_results
+    #to dict for export
+    result_dicts = []
+    for project_result in project_results:
+        result_dicts.append(project_result.to_dict())
+
+    print(result_dicts)
+
+    return result_dicts
 
 
 def state_from_user(user_login):

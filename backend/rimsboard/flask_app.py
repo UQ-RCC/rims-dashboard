@@ -77,12 +77,14 @@ def api_getuserstate(): #expects user_login
         else:
             return "Error: No login field provided. Please specify a login id."
         
-        user_state = collate.state_from_user(user_login)  #dict
+        result = collate.get_user_indicators(user_login)  #dict
     
-        return jsonify(user_state.to_dict())
+        print(result)
+
+        return jsonify(result)
     
     except:
-        return f"Error: could not generate state for login {user_login}."
+        return f"Error: could not generate user state for login {user_login}."
 
 @app.route('/api/v1/userprojectstates', methods=['GET'])
 def api_getuserprojectstates(): #expects user_login
@@ -95,24 +97,36 @@ def api_getuserprojectstates(): #expects user_login
         else:
             return "Error: No login field provided. Please specify a login id."
         
-        user_project_states = collate.get_user_project_states(user_login)  #dict
+        result = collate.get_user_project_indicators(user_login)  #dict
     
-        #convert to dict for export
-        result_dicts = []
-        for project_state in user_project_states:
-            result_dicts.append(project_state.to_dict())
-
-        return jsonify(result_dicts)
+        return jsonify(result)
     
     except:
-        return f"Error: could not generate state for login {user_login}."
+        return f"Error: could not generate project states for login {user_login}."
 
 
+@app.route('/api/v1/defaultuserstate', methods=['GET'])
+def api_defaultuserstate(): #expects user_login
+
+    try:
+        result = collate.get_default_user_indicator()  #dict
+
+        return jsonify(result)
+    
+    except:
+        return f"Error: could not generate default user state."
 
 
+@app.route('/api/v1/defaultuserprojectstates', methods=['GET'])
+def api_defaultprojectstates(): #expects user_login
 
+    try:
+        result = collate.get_default_project_indicators()  #dict
 
-
+        return jsonify(result)
+    
+    except:
+        return f"Error: could not generate default user state."
 
 
 

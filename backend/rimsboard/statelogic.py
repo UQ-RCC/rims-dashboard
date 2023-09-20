@@ -1,5 +1,6 @@
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict, field, fields, Field
 from enum import Enum
+from typing import Tuple
 
 red2 = "yes"
 
@@ -19,6 +20,23 @@ class Istate(Enum):
     fail = 'fail'
     na = 'na'
 
+class UserStateLabels(Enum):
+    total = 'OK'
+    active = 'Active'
+    access_aibn = 'AIBN'
+    access_hawken = 'Hawken'
+    access_chem = 'Chem'
+    access_qbp = 'QBP'
+
+class ProjectStateLabels(Enum):
+    total = 'OK'
+    active = 'Active'
+    billing = 'Billing'
+    ohs = 'OHS'
+    rdm = 'RDM'
+    phase = 'Phase'
+
+
 @dataclass
 class UserState:
     total: str = Istate.off
@@ -27,6 +45,9 @@ class UserState:
     access_hawken: str = Istate.off
     access_chem: str = Istate.off
     access_qbp: str = Istate.off
+
+    #label enum as dict
+    state_labels: dict = field(default_factory=lambda: {i.name: i.value for i in UserStateLabels})
 
     def labs_as_list(self):
         return [ self.access_aibn, self.access_hawken, self.access_chem, self.access_qbp]
@@ -46,6 +67,28 @@ class UserState:
         else:
             raise ValueError(f"invalid lab {lab}")
 
+    def as_indicators(self):
+
+        result = []
+
+        #initialise fields
+        cls_fields: Tuple[Field, ...] = fields(self.__class__)
+        
+        for field in cls_fields:
+            #iterate through fields, appending all str 
+            if issubclass(field.type, str):
+                local_state=getattr(self,field.name)
+
+                field_result = {
+                    'key': field.name,
+                    'label': self.state_labels[str(field.name)],
+                    'state': str(local_state.value),                    
+                }
+                result.append(field_result)
+        
+        return result
+
+
 @dataclass
 class ProjectState:
     total: str = Istate.off
@@ -55,18 +98,26 @@ class ProjectState:
     rdm: str = Istate.off
     phase: str = Istate.off
 
-class UserStateLabels(Enum):
-    total = 'OK'
-    active = 'Active'
-    access_aibn = 'AIBN'
-    access_hawken = 'Hawken'
-    access_chem = 'Chem'
-    access_qbp = 'QBP'
+    #label enum as dict
+    state_labels: dict = field(default_factory=lambda: {i.name: i.value for i in ProjectStateLabels})
 
-class ProjectStateLabels(Enum):
-    total = 'OK'
-    active = 'Active'
-    billing = 'Billing'
-    ohs = 'OHS'
-    rdm = 'RDM'
-    phase = 'Phase'
+    def as_indicators(self):
+
+        result = []
+
+        #initialise fields
+        cls_fields: Tuple[Field, ...] = fields(self.__class__)
+        
+        for field in cls_fields:
+            #iterate through fields, appending all str 
+            if issubclass(field.type, str):
+                local_state=getattr(self,field.name)
+
+                field_result = {
+                    'key': field.name,
+                    'label': self.state_labels[str(field.name)],                    
+                    'state': str(local_state.value),  
+                }
+                result.append(field_result)
+        
+        return result

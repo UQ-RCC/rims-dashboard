@@ -22,43 +22,6 @@
 
     Vue.use(VueLogger)
 
-    const DEFAULT_USER_STATE = { 
-            metadata: {
-                name: "Unknown"
-            },
-            state_labels: {
-
-            },
-            state: {
-                overall: 'off',
-                account: 'off',
-                access_aibn: 'off',
-                access_hawken: 'off',
-                access_chemistry: 'off',
-                access_qbp: 'off',
-            }
-        }
-        
-    const DEFAULT_PROJECT_STATES = [
-        {     
-            metadata: {
-                ProjectName: 'N/A',
-            },     
-            state_labels: {
-
-            },       
-            state: {
-                overall: 'off',
-                active: 'off',                
-                financial: 'off', 
-                OHS: 'off', 
-                RDM: 'off', 
-                phase: 'off',                 
-            },
-        }
-    ]
-
-    
 
     export default {
         name: 'Users',
@@ -103,41 +66,74 @@
 
             async retrieveUserState(user_login) {
                 console.log("retrieving user state for  " + user_login);
-                let user_state = DEFAULT_USER_STATE;
+                let user_state = {};
 
                 //retrieve values to populate dropdown
                 try {
-                    user_state = await RimsdashAPI.getState(user_login)
+                    user_state = await RimsdashAPI.getUserState(user_login)
                 } catch (error) {
                     Vue.$log.info("API call getState FAILED")                       
-                    user_state = DEFAULT_USER_STATE;
+                    user_state = this.default_user_state;
                 }             
-                Vue.$log.info("user state retrieved:  "  + user_state)  
+                Vue.$log.info("user state retrieved for:  "  + user_login) 
+                Vue.$log.info("retrieved user name:  "  + user_state.metadata.name)  
                 return user_state
             },
 
 
             async retrieveUserProjectStates(user_login) {
-                console.log("retrieving project states for user: " + user_login);
-                let project_states = DEFAULT_PROJECT_STATES;
+                console.log("retrieving project states for  " + user_login);
+                let project_states = [ {} ];
 
                 //retrieve values to populate dropdown
                 try {
                     project_states = await RimsdashAPI.getUserProjectStates(user_login)
                 } catch (error) {
                     Vue.$log.info("API call getState FAILED")                       
-                    project_states = DEFAULT_PROJECT_STATES
+                    project_states = this.default_project_states;
                 }             
-                Vue.$log.info("user state retrieved:  "  + user_login)  
+                Vue.$log.info("project states retrieved for:  "  + user_login) 
+                Vue.$log.info("first project name:  "  + project_states[0].metadata.ProjectName)  
                 return project_states
-            },            
+            },
+
+
+            async retrieveDefaultUserState() {
+                let user_state = { };
+
+                //retrieve values to populate dropdown
+                try {
+                    user_state = await RimsdashAPI.getDefaultUserState()
+                } catch (error) {
+                    Vue.$log.info("API call getState FAILED")                       
+                }             
+                Vue.$log.info("default user state retrieved:  " ) 
+                Vue.$log.info("retrieved user name:  "  + user_state.metadata.name)  
+                return user_state
+            },  
+
+            async retrieveDefaultUserProjectStates() {
+                let project_states = [];
+
+                //retrieve values to populate dropdown
+                try {
+                    project_states = await RimsdashAPI.getDefaultProjectStates()
+                } catch (error) {
+                    Vue.$log.info("API call getState FAILED")                       
+                }             
+                Vue.$log.info("default project state retrieved")
+                Vue.$log.info("retrieved project name:  "  + project_states[0].metadata.ProjectName)
+                return project_states
+            },
+
         },
         created: async function() {
             //retrieve values to populate dropdown
             Vue.$log.info("initalising")
             this.userlist = await this.refreshDropdownValues()
-
-                       
+            this.default_user_state = await this.retrieveDefaultUserState()
+            this.default_project_states = await this.retrieveDefaultProjectStates()
+            Vue.$log.info("initalised")              
         }
 
     } 
