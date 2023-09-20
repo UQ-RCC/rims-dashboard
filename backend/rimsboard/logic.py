@@ -17,19 +17,6 @@ def get_rims_key(code: int):
     raise ValueError(f"code {code} not found in rims lab code lists")
 
 
-DEFAULT_PROJECT_METADATA = {
-    'CoreFacilityRef': 2,
-    'ProjectName': '( Not found )',
-    'Phase': '',
-    'Active': '',
-    'BCode': '',
-    'ProjectRef': -1,
-    'Affiliation': '',
-    'ProjectType': '',
-    'ProjectGroup': '',
-}
-
-
 def collate_user(user_rights):
     """
     produce a list of rights by lab
