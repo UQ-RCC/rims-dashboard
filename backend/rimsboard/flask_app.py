@@ -22,7 +22,7 @@ def home():
     return '''<h1>rimsboard home - backend for rims dashboard</h1>
                 <p>A flask api implementation for collating rims data.   </p>'''
 
-@app.route('/api/v1/userlist', methods=['GET'])
+@app.route('/rapi/v1/userlist', methods=['GET'])
 def api_getuserlist():
 
     userlist=collate.populate_userdropdown()
@@ -30,7 +30,7 @@ def api_getuserlist():
     return jsonify(userlist)
 
 
-@app.route('/api/v1/userprojects', methods=['GET'])
+@app.route('/rapi/v1/userprojects', methods=['GET'])
 def api_getuserprojects():  #expects user_login
 
     print(f"received: {request.args}")    
@@ -44,7 +44,7 @@ def api_getuserprojects():  #expects user_login
     
     return jsonify(user_projects)
 
-@app.route('/api/v1/projectdetails', methods=['GET'])
+@app.route('/rapi/v1/projectdetails', methods=['GET'])
 def api_getprojectdetails():    #expects project_number
 
     print(f"received: {request.args}")    
@@ -66,7 +66,7 @@ def api_getprojectdetails():    #expects project_number
 
 
 
-@app.route('/api/v1/userstate', methods=['GET'])
+@app.route('/rapi/v1/userstate', methods=['GET'])
 def api_getuserstate(): #expects user_login
 
     try:
@@ -86,7 +86,7 @@ def api_getuserstate(): #expects user_login
     except:
         return f"Error: could not generate user state for login {user_login}."
 
-@app.route('/api/v1/userprojectstates', methods=['GET'])
+@app.route('/rapi/v1/userprojectstates', methods=['GET'])
 def api_getuserprojectstates(): #expects user_login
 
     try:
@@ -105,7 +105,7 @@ def api_getuserprojectstates(): #expects user_login
         return f"Error: could not generate project states for login {user_login}."
 
 
-@app.route('/api/v1/defaultuserstate', methods=['GET'])
+@app.route('/rapi/v1/defaultuserstate', methods=['GET'])
 def api_defaultuserstate(): #expects user_login
 
     try:
@@ -117,7 +117,7 @@ def api_defaultuserstate(): #expects user_login
         return f"Error: could not generate default user state."
 
 
-@app.route('/api/v1/defaultuserprojectstates', methods=['GET'])
+@app.route('/rapi/v1/defaultuserprojectstates', methods=['GET'])
 def api_defaultprojectstates(): #expects user_login
 
     try:

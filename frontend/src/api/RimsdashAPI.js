@@ -4,7 +4,7 @@ import Vue from 'vue'
 
 export default {
     async getUserList() {
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userlist`)
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userlist`)
         return data
     },
 
@@ -12,7 +12,7 @@ export default {
         let payload = {
             'login': user_login
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userstate`, { params: payload } )
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userstate`, { params: payload } )
         return data
     },
 
@@ -20,19 +20,19 @@ export default {
         let payload = {
             'login': user_login
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userprojectstates`, { params: payload } )
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userprojectstates`, { params: payload } )
         return data
     },
 
     async getDefaultUserState() {        
 
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/defaultuserstate` )
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/defaultuserstate` )
         return data
     },
 
     async getDefaultProjectStates() {        
 
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/defaultuserprojectstates` )
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/defaultuserprojectstates` )
         return data
     },
 
@@ -49,7 +49,7 @@ export default {
         let payload = {
             'login': user_login
         }        
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/userprojects`, { params: payload })
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userprojects`, { params: payload })
         return data
     },    
 
@@ -57,7 +57,7 @@ export default {
         let payload = {
             'project_number': project_number
         }        
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/api/v1/projectdetails`, { params: payload })
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectdetails`, { params: payload })
         return data
     },        
 
