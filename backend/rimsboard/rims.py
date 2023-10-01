@@ -20,6 +20,7 @@ BASE_URL=f"{config.get('ppms','ppms_url')}"
 DATE_FORMAT='%Y-%m-%d'
 
 
+
 def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetime.date(2022, 7, 31)):
     """
     requests instrument usage per project between start and end dates from RIMS API
@@ -157,6 +158,38 @@ def get_userdata_by_id(uid):
             return response.json(strict=False)
     else:
         raise Exception('Not found')
+
+def rightcheck(ulogin: str, sysid: int):
+    """
+    checks user's rights on a system
+    field returns "ADM" if user is an admin 
+    """
+
+    url = f"{BASE_URL}pumapi/"
+
+    payload=f"apikey={KEY}&action=rightcheck&login={ulogin}&id={sysid}&format=json"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    if response.ok:
+        if response.status_code == 204:
+            return {}
+        else:
+            _text = response.text.strip()
+            _lines = _text.split('\r\n')
+            if not _lines == ['']:
+                permissions = { 'rights': _lines[0], 'admin': False }
+                try:
+                    if _lines[1] == 'ADM':
+                         permissions['admin'] = True
+                finally:
+                    return permissions
+            else:
+                return {}
+    else:
+        return {}
+
 
 
 def get_projects(active_only = False):

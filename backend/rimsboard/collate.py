@@ -57,6 +57,30 @@ class ProjectResult:
         }
 
 
+def get_user_admin_status(ulogin: str):
+    """
+    checks admin status
+    data source is roundabout - check for rights on specific system via old 
+        API returns option "ADM" field if user is an admin
+
+    
+    """
+
+    #check against nominal system "1" and retreive admin field    
+    sysid = 1   #nominal, this is the FIB
+
+    result = { 'admin': False }
+
+    try:
+        _returned = rims.rightcheck(ulogin, sysid)
+
+        if _returned['admin'] == True:
+            result['admin'] = True
+
+    finally:
+        return result
+
+
 def populate_userdropdown():
     """
     generate a list of dicts for user logins and names for dash dropdown

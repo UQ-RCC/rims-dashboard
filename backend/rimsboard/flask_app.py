@@ -106,7 +106,7 @@ def api_getuserprojectstates(): #expects user_login
 
 
 @app.route('/rapi/v1/defaultuserstate', methods=['GET'])
-def api_defaultuserstate(): #expects user_login
+def api_defaultuserstate():
 
     try:
         result = collate.get_default_user_indicator()  #dict
@@ -118,7 +118,7 @@ def api_defaultuserstate(): #expects user_login
 
 
 @app.route('/rapi/v1/defaultuserprojectstates', methods=['GET'])
-def api_defaultprojectstates(): #expects user_login
+def api_defaultprojectstates():
 
     try:
         result = collate.get_default_project_indicators()  #dict
@@ -128,6 +128,25 @@ def api_defaultprojectstates(): #expects user_login
     except:
         return f"Error: could not generate default user state."
 
+
+@app.route('/rapi/v1/useradminstatus', methods=['GET'])
+def api_useradminstatus(): #expects user_login
+
+    try:
+        print("received admincheck request", file=sys.stderr)
+
+        if 'login' in request.args:
+            print(str(request.args['login']), file=sys.stderr)
+            user_login = str(request.args['login'])
+        else:
+            return "Error: No login field provided. Please specify a login id."
+
+        result = collate.get_user_admin_status(user_login)  #dict
+
+        return jsonify(result)
+    
+    except:
+        return f"Error: could not check admin status for login {user_login}"
 
 
 
