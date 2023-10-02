@@ -13,6 +13,8 @@ DATA_BASE='data/'
 DATA_DIR=os.path.join(BASE_DIR, DATA_BASE)
 
 
+
+
 def get_userdata_df(force=False):
     """
     get user data
@@ -93,10 +95,27 @@ def get_user_details(ulogin: str):
     retrieve user details as dict
     """    
     result = user_data.loc[user_data['login'] == ulogin]
-    if not len(result) == 1:
+    if not len(result) > 1:
         raise ValueError(f"FATAL: multiple matches to login {ulogin}")
+    elif len(result) < 1:
+        raise ValueError(f"FATAL: {ulogin} not found in user data")    
     else:
         return result.to_dict('records')[0]
+
+
+def user_details_by_email(email: str):
+    """
+    retrieve user details as dict
+    """    
+    result = user_data.loc[user_data['email'] == email]
+    if len(result) > 1:
+        raise ValueError(f"FATAL: multiple matches to {email}")
+    elif len(result) < 1:
+        raise ValueError(f"FATAL: {email} not found in user data")
+    else:
+        return result.to_dict('records')[0]
+
+
 
 def gather_userlists():
     """

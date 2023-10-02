@@ -36,8 +36,21 @@ export default {
         return data
     },
 
+    async checkEmailIsAdmin(email) {
+        let payload = {
+            'email': email
+        }        
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkadminbyemail`, { params: payload } )
+        return data
+    },
 
-
+    async getUserFromEmail(email) {
+        let payload = {
+            'email': email
+        }        
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkadminbyemail`, { params: payload } )
+        return data
+    },
 
 
 

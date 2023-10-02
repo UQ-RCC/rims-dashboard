@@ -54,7 +54,7 @@
                     <v-list-item-title class="ml-n5">Home</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item to="/users" v-if="this.has_dashboard_access">
+                <v-list-item to="/users" v-if="this.has_rims_admin || this.has_dashboard_access">
                     <v-list-item-icon>
                         <v-icon>mdi-account-group</v-icon>
                     </v-list-item-icon>
@@ -76,13 +76,26 @@
 
 <script>
     import Vue from 'vue'
-    
+    import RimsdashAPI from "@/api/RimsdashAPI"
+    import VueLogger from 'vuejs-logger'
+
+    Vue.use(VueLogger)
+
     export default {
         components:{
         },
         data: () => ({
-            drawer: true
+            drawer: true,
+            has_rims_admin: false,
         }),
+
+        async created() {
+            Vue.$log.info("NB retrieving admin:" + this.$keycloak.idTokenParsed.email);            
+            const response = await RimsdashAPI.checkEmailIsAdmin(this.$keycloak.idTokenParsed.email)
+            Vue.$log.info(response)
+            this.has_rims_admin = response.admin
+            Vue.$log.info("NB has admin: " + this.has_rims_admin)            
+        },
 
         computed: {
             email: function() {
@@ -91,7 +104,7 @@
             },
             has_dashboard_access: function() {
                 return this.$keycloak.hasRealmRole("dashboard")
-            },   
+            },     
         },
         methods: {
             signout: function(){
@@ -100,10 +113,18 @@
             },
             toggleDrawer(){
                 this.drawer = !this.drawer
-            }
+            },               
         },
     }
 </script>
 
 <style>
 </style>
+
+
+<!---
+    async is_rims_admin: function() {
+                result = await RimsdashAPI.getDefaultUserState()
+                return result
+            }          
+-->

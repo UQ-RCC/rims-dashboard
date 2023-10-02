@@ -129,26 +129,49 @@ def api_defaultprojectstates():
         return f"Error: could not generate default user state."
 
 
-@app.route('/rapi/v1/useradminstatus', methods=['GET'])
-def api_useradminstatus(): #expects user_login
+@app.route('/rapi/v1/checkadminbyemail', methods=['GET'])
+def api_adminstatusbyemail(): #expects email
 
     try:
         print("received admincheck request", file=sys.stderr)
 
-        if 'login' in request.args:
-            print(str(request.args['login']), file=sys.stderr)
-            user_login = str(request.args['login'])
+        if 'email' in request.args:
+            print(f"recived args: {str(request.args['email'])}", file=sys.stderr)
+            email = str(request.args['email'])
         else:
-            return "Error: No login field provided. Please specify a login id."
+            return "Error: No email field provided. Please specify an email."
 
-        result = collate.get_user_admin_status(user_login)  #dict
+        _ulogin = collate.user_from_email(email)['ulogin']
+        print(f"user {_ulogin}")
+        result = collate.admin_status(_ulogin)  #dict
+
+        print(f"returning {result}")
 
         return jsonify(result)
     
     except:
-        return f"Error: could not check admin status for login {user_login}"
+        return f"Error: could not check admin status for email {email}"
 
+@app.route('/rapi/v1/userfromemail', methods=['GET'])
+def api_userbyemail(): #expects email
 
+    try:
+        print("received ulogin name request", file=sys.stderr)
+
+        if 'email' in request.args:
+            print(f"recived args: {str(request.args['email'])}", file=sys.stderr)
+            email = str(request.args['email'])
+        else:
+            return "Error: No email field provided. Please specify an email."
+
+        result = collate.user_from_email(email)  #dict
+
+        print(f"returning {result}")
+
+        return jsonify(result)
+    
+    except:
+        return f"Error: could not check admin status for email {email}"
 
 
 

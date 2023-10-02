@@ -56,23 +56,39 @@ class ProjectResult:
             'indicators': self.state.as_indicators(),
         }
 
+def user_from_email(email: str):
+    """
+    get ulogin associated with email
 
-def get_user_admin_status(ulogin: str):
+    """
+    
+    result = { 'ulogin': '' }
+
+    try:
+        _user_details = gather.user_details_by_email(email)
+
+        result['ulogin'] = str(_user_details['login'])
+
+    finally:
+        return result
+
+
+def admin_status(ulogin: str):
     """
     checks admin status
-    data source is roundabout - check for rights on specific system via old 
-        API returns option "ADM" field if user is an admin
 
-    
+    downstream call a bit questionable:
+        checking for rights on specific system via old API 
+        will return optional "ADM" field if user is an admin
     """
 
-    #check against nominal system "1" and retreive admin field    
-    sysid = 1   #nominal, this is the FIB
+    sysid = 1   #nominal system, happens to be the FIB
 
     result = { 'admin': False }
 
     try:
         _returned = rims.rightcheck(ulogin, sysid)
+        print(f"{_returned}")
 
         if _returned['admin'] == True:
             result['admin'] = True
