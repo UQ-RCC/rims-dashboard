@@ -2,7 +2,7 @@
     <v-row>
         <v-col cols="2">
             <div class="vertical-center">
-                <h5 style="text-align:center">{{this.proj_state.metadata.ProjectName | truncate(99)}}</h5>
+                <h5 style="text-align:center">{{this.proj_state.metadata.ProjectName | truncate(99) }}</h5>
             </div>
         </v-col>                    
         <v-col cols="1"
@@ -24,7 +24,8 @@
 
 <script>
     import LightCell from './LightCell.vue'
-    
+    //import truncate from 'vue-truncate'
+
     export default {
         name: 'LightSetProject',
         props:['proj_state'],

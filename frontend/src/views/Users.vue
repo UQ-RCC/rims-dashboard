@@ -31,10 +31,18 @@
         data() {
             return {
                 //api query here
-                selected: { search: null, ulogin: null, name: null },
+                selected: { search: null, login: null, name: null },
                 userlist: [ this.selected, ],
-                user_state: {},
-                project_states: [{},],
+                //empty default user                
+                user_state: { 
+                    metadata: { login: '', name: ''}, 
+                    indicators: [{key: '', label: '', value: ''}]
+                },
+                //empty default project                
+                project_states: [{ 
+                    metadata: { ProjectName: '', CoreFacilityRef: 0}, 
+                    indicators: [{key: '', label: '', value: ''}]
+                },],
             };
         },
         watch: {
@@ -42,8 +50,8 @@
             //TODO link project, board calls here
             selected: async function() {
                 Vue.$log.info("new selection: " + this.selected.search);
-                this.user_state = await this.retrieveUserState(this.selected.ulogin)
-                this.project_states = await this.retrieveUserProjectStates(this.selected.ulogin)
+                this.user_state = await this.retrieveUserState(this.selected.login)
+                this.project_states = await this.retrieveUserProjectStates(this.selected.login)
                 return 0
             },
         },
@@ -132,7 +140,7 @@
             Vue.$log.info("initalising")
             this.userlist = await this.refreshDropdownValues()
             this.default_user_state = await this.retrieveDefaultUserState()
-            this.default_project_states = await this.retrieveDefaultProjectStates()
+            this.default_project_states = await this.retrieveDefaultUserProjectStates()
             Vue.$log.info("initalised")              
         }
 

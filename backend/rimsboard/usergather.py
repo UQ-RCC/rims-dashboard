@@ -75,30 +75,30 @@ def query_user(uid: int):
     result = rims.get_user_by_id(uid)
     return result
 
-def get_user_rights_df(ulogin: str):
+def get_user_rights_df(login: str):
 
-    raw = rims.get_user_rights(ulogin)
+    raw = rims.get_user_rights(login)
 
     df = pd.DataFrame(raw.items(), columns=['systemid', 'access_level'])
 
     return df
 
-def get_user_rights_dict(ulogin: str):
+def get_user_rights_dict(login: str):
 
-    raw = rims.get_user_rights(ulogin)
+    raw = rims.get_user_rights(login)
 
     return raw
 
 
-def get_user_details(ulogin: str):
+def get_user_details(login: str):
     """
     retrieve user details as dict
     """    
-    result = user_data.loc[user_data['login'] == ulogin]
-    if not len(result) > 1:
-        raise ValueError(f"FATAL: multiple matches to login {ulogin}")
+    result = user_data.loc[user_data['login'] == login]
+    if len(result) > 1:
+        raise ValueError(f"FATAL: multiple matches to login {login}")
     elif len(result) < 1:
-        raise ValueError(f"FATAL: {ulogin} not found in user data")    
+        raise ValueError(f"FATAL: {login} not found in user data")    
     else:
         return result.to_dict('records')[0]
 

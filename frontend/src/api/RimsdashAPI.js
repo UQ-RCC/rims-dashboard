@@ -44,11 +44,11 @@ export default {
         return data
     },
 
-    async getUserFromEmail(email) {
+    async getUserByEmail(email) {
         let payload = {
             'email': email
-        }        
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkadminbyemail`, { params: payload } )
+        }
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userfromemail`, { params: payload } )
         return data
     },
 

@@ -58,22 +58,20 @@ class ProjectResult:
 
 def user_from_email(email: str):
     """
-    get ulogin associated with email
+    get login associated with email
 
     """
     
-    result = { 'ulogin': '' }
+    result = { 'login': '' }
 
     try:
-        _user_details = gather.user_details_by_email(email)
-
-        result['ulogin'] = str(_user_details['login'])
+        result = gather.user_details_by_email(email)
 
     finally:
         return result
 
 
-def admin_status(ulogin: str):
+def admin_status(login: str):
     """
     checks admin status
 
@@ -87,7 +85,7 @@ def admin_status(ulogin: str):
     result = { 'admin': False }
 
     try:
-        _returned = rims.rightcheck(ulogin, sysid)
+        _returned = rims.rightcheck(login, sysid)
         print(f"{_returned}")
 
         if _returned['admin'] == True:
@@ -108,7 +106,7 @@ def populate_userdropdown():
     options=[]
 
     for i, uid in enumerate(uid_list):
-        options.append({'search': f"{name_list[i]} ({uid_list[i]})", 'ulogin': uid_list[i], 'name': name_list[i]})
+        options.append({'search': f"{name_list[i]} ({uid_list[i]})", 'login': uid_list[i], 'name': name_list[i]})
     
     return options
 

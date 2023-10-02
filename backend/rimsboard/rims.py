@@ -159,7 +159,7 @@ def get_userdata_by_id(uid):
     else:
         raise Exception('Not found')
 
-def rightcheck(ulogin: str, sysid: int):
+def rightcheck(login: str, sysid: int):
     """
     checks user's rights on a system
     field returns "ADM" if user is an admin 
@@ -167,7 +167,7 @@ def rightcheck(ulogin: str, sysid: int):
 
     url = f"{BASE_URL}pumapi/"
 
-    payload=f"apikey={KEY}&action=rightcheck&login={ulogin}&id={sysid}&format=json"
+    payload=f"apikey={KEY}&action=rightcheck&login={login}&id={sysid}&format=json"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -221,7 +221,7 @@ def get_projects(active_only = False):
 
 
 
-def get_user_rights(ulogin: str):
+def get_user_rights(login: str):
     """
     get user rights by system
 
@@ -231,7 +231,7 @@ def get_user_rights(ulogin: str):
     logger.debug("Querying systems")
     url = f"{BASE_URL}pumapi/"
 
-    payload=f"apikey={KEY}&action=getuserrights&login={ulogin}&format=json"
+    payload=f"apikey={KEY}&action=getuserrights&login={login}&format=json"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -252,15 +252,15 @@ def get_user_rights(ulogin: str):
         return {}
 
 
-def get_user_projects(ulogin: str):
+def get_user_projects(login: str):
     """
-    returns list of all projects associated with user ulogin
+    returns list of all projects associated with user login
     """
 
     logger.debug("Querying systems")
     url = f"{BASE_URL}pumapi/"
 
-    payload=f"apikey={KEY}&action=getuserprojects&login={ulogin}&format=json"
+    payload=f"apikey={KEY}&action=getuserprojects&login={login}&format=json"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }

@@ -70,7 +70,7 @@ def api_getprojectdetails():    #expects project_number
 def api_getuserstate(): #expects user_login
 
     try:
-        print("received call for state", file=sys.stderr)
+        print("received call for user state", file=sys.stderr)
         if 'login' in request.args:
             print(str(request.args['login']), file=sys.stderr)
             user_login = str(request.args['login'])
@@ -90,7 +90,7 @@ def api_getuserstate(): #expects user_login
 def api_getuserprojectstates(): #expects user_login
 
     try:
-        print("received call for state", file=sys.stderr)
+        print("received call for user project states", file=sys.stderr)
         if 'login' in request.args:
             print(str(request.args['login']), file=sys.stderr)
             user_login = str(request.args['login'])
@@ -141,9 +141,9 @@ def api_adminstatusbyemail(): #expects email
         else:
             return "Error: No email field provided. Please specify an email."
 
-        _ulogin = collate.user_from_email(email)['ulogin']
-        print(f"user {_ulogin}")
-        result = collate.admin_status(_ulogin)  #dict
+        _login = collate.user_from_email(email)['login']
+        print(f"user {_login}")
+        result = collate.admin_status(_login)  #dict
 
         print(f"returning {result}")
 
@@ -156,7 +156,7 @@ def api_adminstatusbyemail(): #expects email
 def api_userbyemail(): #expects email
 
     try:
-        print("received ulogin name request", file=sys.stderr)
+        print("received login name request", file=sys.stderr)
 
         if 'email' in request.args:
             print(f"recived args: {str(request.args['email'])}", file=sys.stderr)

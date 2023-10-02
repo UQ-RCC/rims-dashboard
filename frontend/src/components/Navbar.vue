@@ -54,12 +54,21 @@
                     <v-list-item-title class="ml-n5">Home</v-list-item-title>
                 </v-list-item>
 
+                <v-list-item to="/user">
+                    <v-list-item-icon>
+                        <v-icon>mdi-account-group</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title class="ml-n5">My account</v-list-item-title>
+                </v-list-item>
+
                 <v-list-item to="/users" v-if="this.has_rims_admin || this.has_dashboard_access">
                     <v-list-item-icon>
                         <v-icon>mdi-account-group</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title class="ml-n5">Users</v-list-item-title>
                 </v-list-item>
+         
+                
             </v-list>
             <br />
             <!-- <div align="right" justify="right">
@@ -89,14 +98,6 @@
             has_rims_admin: false,
         }),
 
-        async created() {
-            Vue.$log.info("NB retrieving admin:" + this.$keycloak.idTokenParsed.email);            
-            const response = await RimsdashAPI.checkEmailIsAdmin(this.$keycloak.idTokenParsed.email)
-            Vue.$log.info(response)
-            this.has_rims_admin = response.admin
-            Vue.$log.info("NB has admin: " + this.has_rims_admin)            
-        },
-
         computed: {
             email: function() {
                 //note: this is an if-else using ? :
@@ -115,6 +116,19 @@
                 this.drawer = !this.drawer
             },               
         },
+
+        created: async function() {
+            Vue.$log.info("NB retrieving userdata:" + this.$keycloak.idTokenParsed.email);
+            const user_response = await RimsdashAPI.getUserByEmail(this.$keycloak.idTokenParsed.email)
+            this.user_data = user_response
+
+            Vue.$log.info("NB retrieving admin:" + this.$keycloak.idTokenParsed.email);            
+            const admin_response = await RimsdashAPI.checkEmailIsAdmin(this.$keycloak.idTokenParsed.email)
+            this.has_rims_admin = admin_response.admin
+            Vue.$log.info("NB has admin: " + this.has_rims_admin)            
+        },
+        
+
     }
 </script>
 
