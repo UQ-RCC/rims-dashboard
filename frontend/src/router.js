@@ -3,9 +3,9 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import User from './views/User.vue'
 import Users from './views/Users.vue'
+import Projects from './views/Projects.vue'
 //import User from './views/User.vue'
 //import Projects from './views/Projects.vue'
-
 
 Vue.use(Router)
 
@@ -28,7 +28,11 @@ export default new Router({
             name: 'Users',
             component: Users
         },             
-
+        {
+            path: '/projects',
+            name: 'Projects',
+            component: Projects
+        }, 
         { path: '*', redirect: '/home' }  
     ]
 })

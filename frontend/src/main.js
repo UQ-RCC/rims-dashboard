@@ -64,11 +64,7 @@ const loadConfigAndStart = async () => {
                 title: 'Authentication',
                 text: 'Authenticated!'
                 });
-                
-                //log the token contents
-                console.log('IDToken');            
-                console.log(keycloak.idTokenParsed);  
-              
+                              
                 //assign keycloak
                 Vue.prototype.$keycloak = keycloak;
                 //adding to prototype makes $keycloak available

@@ -14,24 +14,24 @@ from rimsboard.statelogic import Istate, UserState, UserStateLabels, ProjectStat
 
 DEFAULT_USER_METADATA = {
     'id': 2,
-    'login': '',
+    'login': 'N/A',
     'name': '( Not found )',
-    'email': '',
-    'account number': '',
-    'group': '',
+    'email': '( Not found )',
+    'account number': -1,
+    'group': 'N/A',
     'active': False,
 }
 
 DEFAULT_PROJECT_METADATA = {
     'CoreFacilityRef': 2,
     'ProjectName': '( Not found )',
-    'Phase': '',
-    'Active': '',
-    'BCode': '',
+    'Phase': -1,
+    'Active': False,
+    'BCode': -1,
     'ProjectRef': -1,
-    'Affiliation': '',
-    'ProjectType': '',
-    'ProjectGroup': '',
+    'Affiliation': 'N/A',
+    'ProjectType': 'N/A',
+    'ProjectGroup': 'N/A',
 }
 
 @dataclass
