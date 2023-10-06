@@ -43,6 +43,7 @@ class UserResult:
         return {
             'metadata': self.metadata,
             'indicators': self.state.as_indicators(),
+            'indicator_labels': self.state.get_header_list()            
         }
 
 @dataclass
@@ -54,6 +55,7 @@ class ProjectResult:
         return {
             'metadata': self.metadata,
             'indicators': self.state.as_indicators(),
+            'indicator_labels': self.state.get_header_list()            
         }
 
 def user_from_email(email: str):
@@ -118,12 +120,22 @@ def get_default_user_indicator():
 
     return result
 
+"""
 def get_default_project_indicators():
     result = []
 
     project_result = ProjectResult()
 
     result.append(project_result.to_dict())
+
+    return result
+"""
+
+def get_default_project_indicator():
+
+    project_result = ProjectResult()
+
+    result = project_result.to_dict()
 
     return result
 
@@ -160,6 +172,27 @@ def get_user_indicators(user_login):
     return result_dict
 
 
+def get_project_indicators(project_number):
+
+    project_df = gather.gather_projectdetails(project_number)
+
+    try:
+        project_dict = project_df.to_dict('records')[0] #to-dict returns a list
+        project_dict.pop('Descr', None) #remove description field
+        project_state = logic.collate_project(project_df)        
+        
+        #FUTURE: save project_result to DB here        
+                        
+    except:
+        #dict conversion will fail on inaccessible projects (eg. 1995)
+        #return empty defaults for these
+        project_state = ProjectState()
+        project_dict = copy.deepcopy(DEFAULT_PROJECT_METADATA)
+
+    project_result = ProjectResult(project_dict, project_state)
+
+    return project_result
+
 
 def get_user_project_indicators(user_login):
 
@@ -170,27 +203,9 @@ def get_user_project_indicators(user_login):
     project_results = []
 
     if not user_projects == [-1]:
-        for proj in user_projects:
+        for project_number in user_projects:
         #try to find user name in project titles            
-            project_df = gather.gather_projectdetails(proj)
-            try:
-                project_dict = project_df.to_dict('records')[0] #to-dict returns a list
-                project_dict.pop('Descr', None) #remove description field
-                project_state = logic.collate_project(project_df)        
-                
-                #FUTURE: save project_result to DB here        
-                                
-            except:
-                #dict conversion will fail on inaccessible projects (eg. 1995)
-                #return empty defaults for these
-                project_state = ProjectState()
-                project_dict = copy.deepcopy(DEFAULT_PROJECT_METADATA)
-
-            #project_result = ProjectResult()
-            #project_result.metadata = project_dict
-            #project_result.state = project_state
-            project_result = ProjectResult(project_dict, project_state)
-
+            project_result = get_project_indicators(project_number)
             project_results.append(project_result)
     else:
         #return empty array

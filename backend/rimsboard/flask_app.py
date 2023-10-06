@@ -121,12 +121,24 @@ def api_defaultuserstate():
 def api_defaultprojectstates():
 
     try:
-        result = collate.get_default_project_indicators()  #dict
+        result = [ collate.get_default_project_indicator() ] #dict
+       # result.append(collate.get_default_project_indicator())  
 
         return jsonify(result)
     
     except:
-        return f"Error: could not generate default user state."
+        return f"Error: could not generate default project states."
+
+@app.route('/rapi/v1/defaultprojectstate', methods=['GET'])
+def api_defaultprojectstate():
+
+    try:
+        result = collate.get_default_project_indicator()  #dict
+
+        return jsonify(result)
+    
+    except:
+        return f"Error: could not generate default project state."
 
 
 @app.route('/rapi/v1/checkadminbyemail', methods=['GET'])

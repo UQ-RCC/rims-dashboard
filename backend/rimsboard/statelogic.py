@@ -67,6 +67,14 @@ class UserState:
         else:
             raise ValueError(f"invalid lab {lab}")
 
+    def get_header_list(self):
+        result = []
+
+        for key, value in self.state_labels.items():
+            result.append(value)
+        
+        return result
+
     def as_indicators(self):
 
         result = []
@@ -100,6 +108,14 @@ class ProjectState:
 
     #label enum as dict
     state_labels: dict = field(default_factory=lambda: {i.name: i.value for i in ProjectStateLabels})
+
+    def get_header_list(self):
+        result = []
+
+        for key, value in self.state_labels.items():
+            result.append(value)
+        
+        return result
 
     def as_indicators(self):
 
