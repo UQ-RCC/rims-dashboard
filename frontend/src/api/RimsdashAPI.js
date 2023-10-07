@@ -24,6 +24,13 @@ export default {
         return data
     },
 
+    async getAllProjectStates() {        
+
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectstates` )
+        return data
+    },
+
+
     async getDefaultUserState() {        
 
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/defaultuserstate` )
@@ -35,6 +42,13 @@ export default {
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/defaultuserprojectstates` )
         return data
     },
+
+    async getDefaultProjectState() {        
+
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/defaultprojectstate` )
+        return data
+    },    
+
 
     async checkEmailIsAdmin(email) {
         let payload = {

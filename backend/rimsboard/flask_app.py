@@ -86,6 +86,20 @@ def api_getuserstate(): #expects user_login
     except:
         return f"Error: could not generate user state for login {user_login}."
 
+@app.route('/rapi/v1/allprojectstates', methods=['GET'])
+def api_getallprojectstates(): 
+
+    try:
+        print("received call for all project states", file=sys.stderr)
+        
+        result = collate.get_all_project_states()  #list of dicts
+    
+        return jsonify(result)
+    
+    except:
+        return f"Error: could not generate project states."
+
+
 @app.route('/rapi/v1/userprojectstates', methods=['GET'])
 def api_getuserprojectstates(): #expects user_login
 

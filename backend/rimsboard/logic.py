@@ -117,3 +117,57 @@ def collate_project(df):
 
     finally:
         return project_state
+
+
+def collate_project_dict(project_dict):
+    
+    project_state = ProjectState()
+
+    try:
+        if not (isinstance(project_dict, dict)):
+            return project_state
+
+        phase = project_dict['Phase']
+
+        if phase == 0:
+            project_state.phase = Istate.waiting
+        elif phase == 1:
+            project_state.phase = Istate.waiting
+        elif phase == 2:
+            project_state.phase = Istate.ready
+        elif phase == 3:
+            project_state.phase = Istate.disabled
+        else:
+            project_state.phase = Istate.fail
+
+        if utils.str2bool(project_dict['Active']) == True:
+            project_state.active = Istate.ready
+        else:
+            project_state.active = Istate.disabled
+
+        if not project_dict['Bcode'] is None:
+            project_state.billing = Istate.ready
+            #future: check financial report for chartstring validity
+
+        #if has rights in any lab
+        #or is fee-for-service
+        project_state.ohs = project_state.phase    #TO-DO
+
+        #if has an RDM assigned
+        project_state.rdm = Istate.ready    #TO-DO
+
+        #set overall from other states
+        all_ready = \
+            project_state.active == Istate.ready and \
+            project_state.billing == Istate.ready and \
+            project_state.ohs == Istate.ready and \
+            project_state.rdm == Istate.ready and \
+            project_state.phase == Istate.ready
+
+        if all_ready:
+            project_state.total = Istate.ready
+        else:
+            project_state.total = Istate.fail
+
+    finally:
+        return project_state

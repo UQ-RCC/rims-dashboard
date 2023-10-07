@@ -2,6 +2,9 @@ import plotly
 import re
 
 
+def str2bool(v: str):
+  return v.lower() in ("yes", "True", "true", "t", "1")
+
 def all_unique(input_list):
     """
     returns true if all items in list are unique

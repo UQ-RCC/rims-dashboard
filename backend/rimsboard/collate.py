@@ -171,6 +171,19 @@ def get_user_indicators(user_login):
 
     return result_dict
 
+def get_all_project_states():
+    project_dicts = gather.get_projects_dict()
+
+    result_dicts = []
+
+    for item in project_dicts:
+        project_state = logic.collate_project_dict(item)
+        project_result = ProjectResult(item, project_state)
+        result_dicts.append(project_result.to_dict())
+
+    print(len(result_dicts))
+
+    return result_dicts
 
 def get_project_indicators(project_number):
 
@@ -179,7 +192,7 @@ def get_project_indicators(project_number):
     try:
         project_dict = project_df.to_dict('records')[0] #to-dict returns a list
         project_dict.pop('Descr', None) #remove description field
-        project_state = logic.collate_project(project_df)        
+        project_state = logic.collate_project_dict(project_dict)        
         
         #FUTURE: save project_result to DB here        
                         

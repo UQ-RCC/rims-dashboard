@@ -34,6 +34,23 @@ def get_userdata_df(force=False):
         df.to_hdf(file,key='df',mode='w')
     return df
 
+
+def get_projects_dict():
+    project_df = get_projects_df()
+
+    project_dict = project_df.to_dict('records')
+
+    for item in project_dict:
+        item = item.pop('Descr', None)
+
+    #search for facility=2 #likely redundant
+    result = [item for item in project_dict if item['CoreFacilityRef'] == 2]
+
+    print(len(result))
+
+    return result    
+
+
 def get_projects_df():
     """
     get usage data within dates
@@ -44,8 +61,10 @@ def get_projects_df():
     file = os.path.join(DATA_DIR, filename)
 
     if os.path.isfile(file):
+        #read from file
         df = pd.read_hdf(file, 'df')
     else:
+        #request from rims and save
         data=rims.get_projects()
         df = pd.DataFrame.from_dict(data)
         df.to_hdf(file,key='df',mode='w')
