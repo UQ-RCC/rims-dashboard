@@ -34,6 +34,18 @@ def get_userdata_df(force=False):
         df.to_hdf(file,key='df',mode='w')
     return df
 
+def get_users_dict():
+    users_df = get_userdata_df()
+
+    users_dict = users_df.to_dict('records')
+
+    for item in users_dict:
+        item = item.pop('Descr', None)
+
+    print(len(users_dict))
+
+    return users_dict    
+
 
 def get_projects_dict():
     project_df = get_projects_df()
