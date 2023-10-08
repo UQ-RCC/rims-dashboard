@@ -192,6 +192,37 @@ def rightcheck(login: str, sysid: int):
 
 
 
+def get_projects_details(active_only = False):
+    """
+    request full project list incl basic details
+
+    returns list of dicts
+    """    
+
+    """
+    requests user report from RIMS API
+    returns json
+    """    
+    REPORT_NO=645  #user list
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            return response.json(strict=False)
+    else:
+        raise Exception('Not found')
+
+
+
 def get_projects(active_only = False):
     """
     request full project list incl basic details
