@@ -2,12 +2,12 @@ import logging
 import sys
 
 from fastapi import APIRouter, Depends, HTTPException, status
-#import rimsboard.db as rdb
+#import rimsdash.db as rdb
 #from sqlalchemy.orm import Session
 
-import rimsboard.usergather as gather
-import rimsboard.rims as rims
-import rimsboard.collate as collate
+import rimsdash.usergather as gather
+import rimsdash.rims as rims
+import rimsdash.collate as collate
 
 router = APIRouter()
 logger = logging.getLogger('rimsdash')

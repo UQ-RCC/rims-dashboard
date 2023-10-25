@@ -1,7 +1,7 @@
 import copy
-from rimsboard.statelogic import Istate, UserState, UserStateLabels, ProjectState, ProjectStateLabels
+from rimsdash.statelogic import Istate, UserState, UserStateLabels, ProjectState, ProjectStateLabels
 
-import rimsboard.utils as utils
+import rimsdash.utils as utils
 
 #rims codes for each lab & access-level
 RIMS_LAB_KEYS = [ 'aibn', 'hawken', 'chem', 'qbp']

@@ -23,4 +23,4 @@ COPY data /app/data
 COPY conf/ app/conf
 
 #entrypoint
-CMD uvicorn rimsboard.main:app --host 0.0.0.0 --port 5000
+CMD uvicorn rimsdash.main:app --host 0.0.0.0 --port 5000

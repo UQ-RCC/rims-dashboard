@@ -3,9 +3,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 import sys
-import rimsboard.usergather as gather
-import rimsboard.rims as rims
-import rimsboard.collate as collate
+import rimsdash.usergather as gather
+import rimsdash.rims as rims
+import rimsdash.collate as collate
 
 """Construct core Flask application with embedded Dash app."""
 app = Flask(__name__, instance_relative_config=False)
@@ -19,7 +19,7 @@ print("START", file=sys.stderr)
 
 @app.route('/', methods=['GET'])
 def home():
-    return '''<h1>rimsboard home - backend for rims dashboard</h1>
+    return '''<h1>rimsdash home - backend for rims dashboard</h1>
                 <p>A flask api implementation for collating rims data.   </p>'''
 
 @app.route('/rapi/v1/userlist', methods=['GET'])

@@ -7,8 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from logging.handlers import TimedRotatingFileHandler
 
-from rimsboard.routers import general
-import rimsboard.config as config
+from rimsdash.routers import general
+import rimsdash.config as config
 
 
 #logging setup

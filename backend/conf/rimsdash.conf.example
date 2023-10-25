@@ -1,8 +1,22 @@
+[database]
+type=postgresql
+host=0.0.0.0
+username=xxxxx
+password=xxxxx
+name=rimsdashdb
+
 [logging]
-log_file=/var/log/rimsboard/rimsboard.log
+log_file=/var/log/rimsdash/rimsdash.log
 
 [ppms]
 ppms_url=https://rims.uq.edu.au/
 api2_key=xxxxxx
-core_id=2
 timezone=Australia/Brisbane
+core_id=2
+
+[visualisation]
+min_hours=250
+
+[authentication]
+username = xxxxxx
+password = xxxxxx

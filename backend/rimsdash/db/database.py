@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from fastapi_utils.session import FastAPISessionMaker
-import rimsboard.config as config
+import rimsdash.config as config
 
 from functools import lru_cache
 

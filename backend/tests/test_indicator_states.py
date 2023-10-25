@@ -5,7 +5,7 @@ TEST_DIR=os.path.realpath(os.path.dirname(__file__))
 BASE_DIR=os.path.dirname(TEST_DIR)
 sys.path.append(BASE_DIR)
 
-from rimsboard.logic import IndicatorState, IndicatorStateGroup, ISTATES
+from rimsdash.logic import IndicatorState, IndicatorStateGroup, ISTATES
 
 
 def utils_intialise_access():

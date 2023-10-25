@@ -4,12 +4,12 @@ from enum import Enum
 from dataclasses import dataclass, asdict, field
 
 
-import rimsboard.rims as rims
-import rimsboard.utils as utils
-import rimsboard.usergather as gather
+import rimsdash.rims as rims
+import rimsdash.utils as utils
+import rimsdash.usergather as gather
 
-import rimsboard.logic as logic
-from rimsboard.statelogic import Istate, UserState, UserStateLabels, ProjectState, ProjectStateLabels
+import rimsdash.logic as logic
+from rimsdash.statelogic import Istate, UserState, UserStateLabels, ProjectState, ProjectStateLabels
 
 DEFAULT_USER_METADATA = {
     'id': 2,
