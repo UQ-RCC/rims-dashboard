@@ -23,4 +23,4 @@ COPY data /app/data
 COPY conf/ app/conf
 
 #entrypoint
-CMD gunicorn --bind 0.0.0.0:5000 rimsboard.manager:app
+CMD uvicorn rimsboard.main:app --host 0.0.0.0 --port 5000
