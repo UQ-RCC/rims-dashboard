@@ -12,7 +12,7 @@ import rimsdash.config as config
 import rimsdash.utils as utils
 
 
-logger = logging.getLogger('pitschixapi')
+logger = logging.getLogger('rimsdash')
 
 KEY=f"{config.get('ppms', 'api2_key')}"
 CORE_ID=f"{config.get('ppms', 'core_id')}"
@@ -308,6 +308,8 @@ def get_user_projects(login: str):
                 result = [ utils.safecast_int(x) for x in list(_pids)]
                 return result  
     return []
+
+
 
 
 
