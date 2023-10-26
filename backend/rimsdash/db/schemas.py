@@ -34,9 +34,9 @@ class Project(BaseModel):
     type: str
     phase: int
     description: Optional[str] = None
-    rdm_collection: Optional[str] = None
+    qcollection: Optional[str] = None
     coreid: int = 2
-    bcode = Optional[str] = None
+    #bcode = Optional[str] = None
     users: list[UserProjectBase] = []
     active: bool = False
     class Config:

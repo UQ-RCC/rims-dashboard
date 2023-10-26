@@ -11,6 +11,8 @@ import logging
 import rimsdash.config as config
 import rimsdash.utils as utils
 
+from .translator import translate_projectsv2
+
 
 logger = logging.getLogger('rimsdash')
 
@@ -78,6 +80,40 @@ def get_systems():
             return systems
     return {}
 
+
+def get_system_list():
+    """
+    requests system ids from RIMS API
+    returns list-of-dicts
+    """        
+    logger.debug("Querying systems")
+    url = f"{BASE_URL}pumapi/"
+    coreid=f"{config.get('ppms', 'core_id')}"
+    key=f"{config.get('ppms', 'api2_key')}"
+    payload=f"apikey={key}&action=getsystems"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    if response.ok:
+        if response.status_code == 204:
+            return []
+        else:
+            # format is in csv
+            _systems_text = response.text
+            _csv_reader = csv.reader(_systems_text.split('\n'), delimiter=',')
+            _csv_reader.__next__()
+            systems = []
+            for row in _csv_reader:
+                if(len(row) > 3):
+                    _id = int(row[1])
+                    _type = row[2]
+                    _name = row[3]
+                    systems.append({'id': _id, 'type': _type, 'name': _name})
+            return systems
+    return []
+
+
 def get_pending_users():
     """
     requests list of account creation requests
@@ -113,7 +149,9 @@ def get_pending_users():
 def get_userlist():
     """
     requests user report from RIMS API
-    returns json
+    returns list-of-dicts
+    fields:
+        id, name, email, phone, account number, group, affiliation, active
     """    
     REPORT_NO=1335  #user list
     url=f"{BASE_URL}API2/"
@@ -198,12 +236,8 @@ def get_projects_details(active_only = False):
 
     returns list of dicts
     """    
-
-    """
-    requests user report from RIMS API
-    returns json
-    """    
-    REPORT_NO=645  #user list
+   
+    REPORT_NO=645  #projectdetailsv2
     url=f"{BASE_URL}API2/"
     return_format=f"json"
     payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
@@ -217,10 +251,11 @@ def get_projects_details(active_only = False):
         if response.status_code == 204:
             raise Exception('Not found')
         else:
-            return response.json(strict=False)
+            result = response.json(strict=False)
     else:
         raise Exception('Not found')
 
+    return translate.projectsv2(result)
 
 
 def get_projects(active_only = False):

@@ -43,7 +43,7 @@ class Project(Base):
     type = Column(String, primary_key=False, index=False, nullable=False) 
     phase = Column(Integer, primary_key=False, index=False, nullable=False)
     description = Column(String, primary_key=False, index=False, nullable=True)
-    rdm_collection = Column(String, primary_key=False, index=False, nullable=True)
+    qcollection = Column(String, primary_key=False, index=False, nullable=True)
     coreid = Column(Integer, primary_key=False, index=False, nullable=False, default=2)
     bcode = Column(String, primary_key=False, index=False, nullable=True) 
     active = Column(Boolean, primary_key=False, index=False, nullable=False, default=False)    

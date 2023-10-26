@@ -9,8 +9,9 @@ from functools import lru_cache
 SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
                            f"{config.get('database', 'username')}:"
                            f"{config.get('database', 'password')}@"
-                           f"{config.get('database', 'host')}/"
-                           f"{config.get('database', 'name')}")
+                           f"{config.get('database', 'host')}:"
+                           f"{config.get('database', 'port')}/"
+                           f"{config.get('database', 'dbname')}")
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={}
