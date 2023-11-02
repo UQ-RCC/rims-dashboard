@@ -11,7 +11,7 @@ import logging
 import rimsdash.config as config
 import rimsdash.utils as utils
 
-from .translator import translate_projectsv2
+#from .translator import translate_projectsv2
 
 
 logger = logging.getLogger('rimsdash')
@@ -255,7 +255,8 @@ def get_projects_details(active_only = False):
     else:
         raise Exception('Not found')
 
-    return translate.projectsv2(result)
+    return result
+    #translate.projectsv2(
 
 
 def get_projects(active_only = False):
