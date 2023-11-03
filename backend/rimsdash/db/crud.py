@@ -1,7 +1,23 @@
+import enum, datetime
 from sqlalchemy.orm import aliased, Session
 from . import models, schemas
 import logging
 logger = logging.getLogger('rimsdash')
+
+
+#utils
+
+def row2dict(row, keep_id = True):
+    d = {}
+    for column in row.__table__.columns:
+        if column.name == 'id' and not keep_id:
+            continue
+        else:
+            row_val = getattr(row, column.name)
+            if isinstance(row_val, enum.Enum):
+                row_val = row_val.value
+            d[column.name] = row_val
+    return d
 
 #systems
 

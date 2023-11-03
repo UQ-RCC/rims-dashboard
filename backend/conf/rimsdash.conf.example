@@ -1,9 +1,10 @@
 [database]
 type=postgresql
 host=0.0.0.0
-username=xxxxx
-password=xxxxx
-dbname=rimsdashdb
+port=mydbport
+db_username=xxxx
+db_password=xxxx
+db_name=rimsdashdb
 
 
 

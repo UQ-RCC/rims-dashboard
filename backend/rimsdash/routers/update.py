@@ -6,11 +6,11 @@ import rimsdash.rims as rims
 from fastapi_utils.session import FastAPISessionMaker
 
 SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
-                           f"{config.get('database', 'username')}:"
-                           f"{config.get('database', 'password')}@"
+                           f"{config.get('database', 'db_username')}:"
+                           f"{config.get('database', 'db_password')}@"
                            f"{config.get('database', 'host')}:"
                            f"{config.get('database', 'port')}/"
-                           f"{config.get('database', 'dbname')}")
+                           f"{config.get('database', 'db_name')}")
 
 sessionmaker = FastAPISessionMaker(SQLALCHEMY_DATABASE_URL)
 
