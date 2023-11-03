@@ -1,5 +1,6 @@
+import typing
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import as_declarative, declarative_base, declared_attr
 from sqlalchemy.orm import sessionmaker
 from fastapi_utils.session import FastAPISessionMaker
 import rimsdash.config as config
@@ -19,7 +20,21 @@ engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={}
 )
 
-Base = declarative_base()
+class_registry: typing.Dict = {}
+
+#custom baseclass with automatic table names
+@as_declarative(class_registry=class_registry)
+class Base:
+    id: typing.Any
+    __name__: str
+
+    # Generate __tablename__ automatically
+    @declared_attr
+    def __tablename__(cls) -> str:
+        return cls.__name__.lower()
+
+# stock alternative:
+# Base = declarative_base()
 
 @lru_cache()
 def _get_fastapi_sessionmaker() -> FastAPISessionMaker:

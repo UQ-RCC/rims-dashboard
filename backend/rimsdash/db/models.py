@@ -12,6 +12,9 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from .database import Base
 
+"""
+DEPRECATING
+"""
 
 class System(Base):
     __tablename__ = 'system'

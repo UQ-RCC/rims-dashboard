@@ -4,6 +4,9 @@ from . import models, schemas
 import logging
 logger = logging.getLogger('rimsdash')
 
+"""
+DEPRECATING
+"""
 
 #utils
 
