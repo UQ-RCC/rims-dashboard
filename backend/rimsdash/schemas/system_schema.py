@@ -1,10 +1,10 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from .base_schema import BaseSchema
 
-class SystemBaseSchema(BaseModel):
+class SystemBaseSchema(BaseSchema):
     id: int
-    type: str
+    system_type: str
     name: str
     class Config:
         orm_mode = True
@@ -15,4 +15,8 @@ class SystemCreateSchema(SystemBaseSchema):
 
 # Properties on update
 class SystemUpdateSchema(SystemBaseSchema):
+    ...
+
+# Properties on update
+class SystemReceiveSchema(SystemBaseSchema):
     ...

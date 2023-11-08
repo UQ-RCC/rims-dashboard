@@ -1,8 +1,8 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from .base_schema import BaseSchema
 
-class UserProjectBaseSchema(BaseModel):
+class UserProjectBaseSchema(BaseSchema):
     username: str
     projectid: int
 

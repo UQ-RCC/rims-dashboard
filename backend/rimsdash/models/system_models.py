@@ -6,5 +6,5 @@ from .base_model import Base
 class SystemModel(Base):
     __tablename__ = 'rdsystem'
     id = Column(Integer, primary_key=True, index=True)
-    type = Column(String, primary_key=False, index=False, nullable=False)
+    system_type = Column(String, primary_key=False, index=False, nullable=False)
     name = Column(String, primary_key=False, index=False, nullable=False)

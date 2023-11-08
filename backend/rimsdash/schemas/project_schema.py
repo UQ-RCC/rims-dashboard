@@ -1,10 +1,10 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from .base_schema import BaseSchema
 
 from .userproject_schema import UserProjectBaseSchema
 
-class ProjectBaseSchema(BaseModel):
+class ProjectBaseSchema(BaseSchema):
     id: int
     title: str
     type: str
@@ -13,7 +13,7 @@ class ProjectBaseSchema(BaseModel):
     qcollection: Optional[str] = None
     coreid: int = 2
     #bcode = Optional[str] = None
-    users: list[UserProjectBaseSchema] = []
+    users: Optional[list[UserProjectBaseSchema]] = []
     active: bool = False
     class Config:
         orm_mode = True
@@ -25,4 +25,7 @@ class ProjectCreateSchema(ProjectBaseSchema):
 # Properties on update
 class ProjectUpdateSchema(ProjectBaseSchema):
     ...
+
+class ProjectReceiveSchema(ProjectBaseSchema):
+    ...    
 

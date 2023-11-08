@@ -65,3 +65,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj = db.query(self.model).get(id)
         db.delete(obj)
         db.commit()
+
+    def drop_table(self, db: Session):
+        db.query(self.model).delete()
