@@ -17,24 +17,12 @@ SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
 print(SQLALCHEMY_DATABASE_URL)
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={}
+    SQLALCHEMY_DATABASE_URL, connect_args={}, echo=True
 )
 
-class_registry: typing.Dict = {}
-
-#custom baseclass with automatic table names
-@as_declarative(class_registry=class_registry)
-class Base:
-    id: typing.Any
-    __name__: str
-
-    # Generate __tablename__ automatically
-    @declared_attr
-    def __tablename__(cls) -> str:
-        return cls.__name__.lower()
-
+    
 # stock alternative:
-# Base = declarative_base()
+#Base = declarative_base()
 
 @lru_cache()
 def _get_fastapi_sessionmaker() -> FastAPISessionMaker:

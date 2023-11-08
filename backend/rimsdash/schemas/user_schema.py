@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from .userproject_schema import UserProjectBaseSchema
 
-class UserSchema(BaseModel):
+class UserBaseSchema(BaseModel):
     username: str
     name: str
     #userid: Optional[int] = None
@@ -17,9 +17,9 @@ class UserSchema(BaseModel):
         orm_mode = True
 
 # Properties on creation
-class UserCreateSchema(UserSchema):
+class UserCreateSchema(UserBaseSchema):
     userid: int
 
 # Properties on update
-class UserUpdateSchema(UserSchema):
+class UserUpdateSchema(UserBaseSchema):
     ...

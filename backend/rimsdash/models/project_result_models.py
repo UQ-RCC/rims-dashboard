@@ -3,8 +3,7 @@ from sqlalchemy.orm import relationship
 
 from rimsdash.db.base_class import Base
 
-class SystemModel(Base):
-    __tablename__ = 'rdsystem'
+class ProjectModel(Base):
+    #__tablename__ = 'project'
     id = Column(Integer, primary_key=True, index=True)
-    type = Column(String, primary_key=False, index=False, nullable=False)
-    name = Column(String, primary_key=False, index=False, nullable=False)
+    #users = relationship("UserProject", back_populates="project")

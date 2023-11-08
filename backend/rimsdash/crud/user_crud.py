@@ -2,9 +2,9 @@ from typing import Any, Dict, Optional, Union, List
 
 from sqlalchemy.orm import Session
 
-from backend.rimsdash.crud.base_crud import CRUDBase
-from backend.rimsdash.models.user_models import UserModel
-from backend.rimsdash.schemas.user_schema import UserCreateSchema, UserUpdateSchema
+from rimsdash.crud.base_crud import CRUDBase
+from rimsdash.models.user_models import UserModel
+from rimsdash.schemas.user_schema import UserCreateSchema, UserUpdateSchema
 
 class CRUDUser(CRUDBase[UserModel, UserCreateSchema, UserUpdateSchema]):
 
