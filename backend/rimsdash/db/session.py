@@ -17,9 +17,8 @@ SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
 print(SQLALCHEMY_DATABASE_URL)
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={}, echo=True
+    SQLALCHEMY_DATABASE_URL, connect_args={},
 )
-
     
 # stock alternative:
 #Base = declarative_base()

@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum, DateTime, Date, Time, Interval, ForeignKeyConstraint, null
 from sqlalchemy.orm import relationship
 
-from rimsdash.db.base_class import Base
+from .base_model import Base
 
 class ProjectModel(Base):
     __tablename__ = 'rdproject'

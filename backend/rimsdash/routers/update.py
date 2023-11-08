@@ -69,16 +69,9 @@ def update_projects(db: Session = Depends(rdb.get_db)):
         )
         crud.user.create(db, project_in)
 
-def run_sync(db: Session = Depends(rdb.get_db)):
+def run_sync():
     print("starting update")
 
-    update_systems(db)
-
-def initialise():
-    print("initialising")
-
-    db = rdb.get_db()    
-
-    rdb.initialise_db(db)
-
-    run_sync(db)        
+    with sessionmaker.context_session() as db:
+        update_systems(db)
+        return db
