@@ -49,6 +49,29 @@ def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetim
         raise Exception('Not found')
 
 
+def get_chartstrings() -> list[dict]:
+    """
+    requests chartstring info from RIMS API
+    """    
+    REPORT_NO=55  #user list
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            return response.json(strict=False)
+    else:
+        return response
+        raise Exception('Not found')
+
 def get_systems() -> list[dict]:
     """
     requests system ids from RIMS API

@@ -1,6 +1,7 @@
 import plotly
 import re
 
+from rimsdash.models import IStatus
 
 def str2bool(v: str):
   return v.lower() in ("yes", "True", "true", "t", "1")

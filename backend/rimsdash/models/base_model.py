@@ -1,5 +1,5 @@
 import typing
-import enum
+from enum import Enum
 
 from sqlalchemy.ext.declarative import as_declarative
 
@@ -37,3 +37,20 @@ class Base:
     def __tablename__(cls) -> str:
         return cls.__name__.lower()
     """
+
+
+class IStatus(Enum):
+    """
+    enum for indicator state values
+    """    
+    #in progress------- 
+    off = 'off'
+    incomplete = 'incomplete'
+    waiting = 'waiting'
+    ready = 'ready'
+    extended = 'extended'
+    disabled = 'disabled'
+    #error------------
+    warn = 'warn'
+    fail = 'fail'
+    na = 'na'
