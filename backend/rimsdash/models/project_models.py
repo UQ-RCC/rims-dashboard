@@ -6,12 +6,16 @@ from .base_model import Base
 class ProjectModel(Base):
     __tablename__ = 'rdproject'
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, primary_key=False, index=False, nullable=False)
-    type = Column(String, primary_key=False, index=False, nullable=False) 
+    title = Column(String, primary_key=False, index=False, nullable=False)    
     phase = Column(Integer, primary_key=False, index=False, nullable=False)
-    description = Column(String, primary_key=False, index=False, nullable=True)
-    qcollection = Column(String, primary_key=False, index=False, nullable=True)
+    active = Column(Boolean, primary_key=False, index=False, nullable=False, default=False)    
+    type = Column(String, primary_key=False, index=False, nullable=False) 
+    group = Column(String, primary_key=False, index=False, nullable=False) 
     coreid = Column(Integer, primary_key=False, index=False, nullable=False, default=2)
     bcode = Column(String, primary_key=False, index=False, nullable=True) 
-    active = Column(Boolean, primary_key=False, index=False, nullable=False, default=False)    
+    affiliation = Column(String, primary_key=False, index=False, nullable=True)    
+    description = Column(String, primary_key=False, index=False, nullable=True)
+    qcollection = Column(String, primary_key=False, index=False, nullable=True)
+    status = Column(String, primary_key=False, index=False, nullable=True)
+
     #users = relationship("UserProject", back_populates="project")

@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-import rimsdash.rims as rims
+import rimsdash.external as external
 import rimsdash.config as config
 
 

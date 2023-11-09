@@ -5,7 +5,7 @@ import calendar
 import pandas as pd
 import numpy as np
 
-import rimsdash.rims as rims
+import rimsdash.external as external
 import rimsdash.analytics as analytics
 
 BASE_DIR=os.path.dirname(os.path.realpath(os.path.dirname(__file__)))
@@ -27,7 +27,7 @@ def get_userdata_df(force=False):
     if os.path.isfile(file) and not force:
         df = pd.read_hdf(file, 'df')
     else:
-        data=rims.get_userlist()
+        data=external.get_userlist()
         df = pd.DataFrame.from_dict(data)
         print("--------dropping------")
         df = df.drop(columns=['phone'])
@@ -77,7 +77,7 @@ def get_projects_df():
         df = pd.read_hdf(file, 'df')
     else:
         #request from rims and save
-        data=rims.get_projects()
+        data=external.get_projects()
         df = pd.DataFrame.from_dict(data)
         df.to_hdf(file,key='df',mode='w')
 
@@ -95,7 +95,7 @@ def get_systems_df():
     if os.path.isfile(file):
         df = pd.read_hdf(file, 'df')
     else:
-        data=pumapi_wrapper(rims.get_systems())
+        data=pumapi_wrapper(external.get_systems())
 
         df = pd.DataFrame.from_dict(data)
         df.to_hdf(file,key='df',mode='w')
@@ -103,12 +103,12 @@ def get_systems_df():
     return df
 
 def query_user(uid: int):
-    result = rims.get_user_by_id(uid)
+    result = external.get_user_by_id(uid)
     return result
 
 def get_user_rights_df(login: str):
 
-    raw = rims.get_user_rights(login)
+    raw = external.get_user_rights(login)
 
     df = pd.DataFrame(raw.items(), columns=['systemid', 'access_level'])
 
@@ -116,7 +116,7 @@ def get_user_rights_df(login: str):
 
 def get_user_rights_dict(login: str):
 
-    raw = rims.get_user_rights(login)
+    raw = external.get_user_rights(login)
 
     return raw
 

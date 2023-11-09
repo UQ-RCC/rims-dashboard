@@ -7,11 +7,10 @@ from .userproject_schema import UserProjectBaseSchema
 class UserBaseSchema(BaseSchema):
     username: str
     name: str
-    userid: Optional[int] = None
+    userid: Optional[int]
     email: str
     group: str
     active: bool
-    projects: Optional[list[UserProjectBaseSchema]] = []
     class Config:
         orm_mode = True
 
@@ -26,3 +25,13 @@ class UserUpdateSchema(UserBaseSchema):
 
 class UserReceiveSchema(UserBaseSchema):
     ...
+
+
+class UserFullSchema(UserBaseSchema):
+    username: str
+    name: str
+    userid: Optional[int]
+    email: str
+    group: str
+    active: bool
+    projects: Optional[list[UserProjectBaseSchema]] = []

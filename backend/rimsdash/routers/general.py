@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 #from sqlalchemy.orm import Session
 
 import rimsdash.usergather as gather
-import rimsdash.rims as rims
+import rimsdash.external as external
 import rimsdash.collate as collate
 
 router = APIRouter()
@@ -43,7 +43,7 @@ async def api_getuserlist():
 @router.get("/userprojects")
 async def api_getuserprojects(login: str):
     
-    user_projects = rims.get_user_projects(login)
+    user_projects = external.get_user_projects(login)
     
     return user_projects
 

@@ -4,7 +4,7 @@ from flask_cors import CORS
 
 import sys
 import rimsdash.usergather as gather
-import rimsdash.rims as rims
+import rimsdash.external as external
 import rimsdash.collate as collate
 
 """Construct core Flask application with embedded Dash app."""
@@ -40,7 +40,7 @@ def api_getuserprojects():  #expects user_login
     else:
         return "Error: No login field provided. Please specify a login id."
     
-    user_projects = rims.get_user_projects(user_login)
+    user_projects = external.get_user_projects(user_login)
     
     return jsonify(user_projects)
 
@@ -205,7 +205,7 @@ def api_userbyemail(): #expects email
 def check_inputs():
     userlist=collate.populate_userdropdown()
     user_login='myusername'
-    user_projects = rims.get_user_projects(user_login)
+    user_projects = external.get_user_projects(user_login)
     #state_core, state_access, state_project = collate.dash_state(user_login)
     states = collate.dash_state(user_login)
     project_number=user_projects[0]

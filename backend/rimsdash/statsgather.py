@@ -5,7 +5,7 @@ import calendar
 import pandas as pd
 import numpy as np
 
-import rimsdash.rims as rims
+import rimsdash.external as external
 import rimsdash.analytics as analytics
 
 BASE_DIR=os.path.dirname(os.path.realpath(os.path.dirname(__file__)))
@@ -27,7 +27,7 @@ def get_dataframe(start, end):
     if os.path.isfile(file):
         df = pd.read_hdf(file, 'df')
     else:
-        data=rims.get_usage_per_project(start,end)
+        data=external.get_usage_per_project(start,end)
         df = pd.DataFrame.from_dict(data)
         df['date'] = pd.Timestamp(start)
         df.to_hdf(file,key='df',mode='w')

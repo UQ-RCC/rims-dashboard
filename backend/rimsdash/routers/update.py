@@ -6,7 +6,7 @@ from fastapi_utils.session import FastAPISessionMaker
 
 import rimsdash.config as config
 import rimsdash.db as rdb
-import rimsdash.rims as rims
+import rimsdash.external as external
 import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 
@@ -21,48 +21,113 @@ logger = logging.getLogger('rimsdash')
 
 sessionmaker = FastAPISessionMaker(SQLALCHEMY_DATABASE_URL)
 
-def update_systems(db: Session = Depends(rdb.get_db)):
+def sync_systems(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local systems DB to external RIMS DB
 
-    systems = rims.get_systems()
+    external data will overwrite any local conflicts
+    """
 
+    logger.info(f"getting system list from RIMS")
+    systems = external.rims.get_system_list()
+
+    logger.info(f"reading system list into DB")
     for system in systems:
 
         _row = crud.system.get(db, system['id'])
 
         if _row is None:
             logger.debug(f"creating {system['id']}")
-            system_in = schemas.SystemCreateSchema(**system,
-            )
+            system_in = schemas.SystemCreateSchema(**system)
 
             crud.system.create(db, system_in)
         else:
             logger.debug(f"updating {system['id']}")            
-            system_in = schemas.SystemUpdateSchema(**system
-            )
+            system_in = schemas.SystemCreateSchema(**system)
 
             crud.system.update(db, _row, system_in)
 
 
-def update_users(db: Session = Depends(rdb.get_db)):
-    users = rims.get_userlist()
+def sync_users(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local user DB to external RIMS DB
 
+    external data will overwrite any local conflicts
+    """
+
+    logger.info(f"getting user list from RIMS")
+    users = external.rims.get_user_list()
+
+    logger.info(f"reading user list into DB")
     for user in users:
-        user_in = schemas.UserCreateSchema(**user
-        )
-        crud.user.create(db, user_in)
-        
 
-def update_projects(db: Session = Depends(rdb.get_db)):
-    projects = rims.get_projects()
+        _row = crud.user.get(db, user['username'])
 
+        if _row is None:
+            logger.debug(f"creating {user['username']}")
+            user_in = schemas.UserCreateSchema(**user)
+
+            crud.user.create(db, user_in)
+        else:
+            logger.debug(f"updating {user['username']}")            
+            user_in = schemas.UserCreateSchema(**user)
+
+            crud.user.update(db, _row, user_in)
+
+
+
+def sync_projects(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local project DB to external RIMS DB
+
+    external data will overwrite any local conflicts
+    """
+
+    logger.info(f"getting project list from RIMS")
+    projects = external.rims.get_project_list()
+
+    logger.info(f"reading project list into DB")
     for project in projects:
-        project_in = schemas.UserCreateSchema(**project
-        )
-        crud.user.create(db, project_in)
+
+        _row = crud.project.get(db, project['id'])
+
+        if _row is None:
+            logger.debug(f"creating {project['id']}")
+            project_in = schemas.ProjectCreateSchema(**project)
+
+            crud.project.create(db, project_in)
+        else:
+            logger.debug(f"updating {project['id']}")            
+            project_in = schemas.ProjectCreateSchema(**project)
+
+            crud.project.update(db, _row, project_in)
+
+    logger.info(f"getting additional project details from RIMS")
+    project_details = external.rims.get_project_details()
+
+    logger.info(f"updating DB with additional project details")
+    for project in project_details:
+
+        _row = crud.project.get(db, project['id'])
+
+        if _row is None:
+            logger.error(f"project {project['id']} from details report not found in DB")
+            pass
+        else:
+            logger.debug(f"updating {project['id']}")   
+            project_in = schemas.ProjectInitDetailsSchema(**project)
+
+            crud.project.update(db, _row, project_in)
+
 
 def run_sync():
+    """
+    perform primary sync
+    """
     logger.info("starting DB update")
 
     with sessionmaker.context_session() as db:
-        update_systems(db)
+        sync_systems(db)
+        sync_users(db)
+        sync_projects(db)
         return db

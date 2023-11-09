@@ -4,7 +4,7 @@ from enum import Enum
 from dataclasses import dataclass, asdict, field
 
 
-import rimsdash.rims as rims
+import rimsdash.external as external
 import rimsdash.utils as utils
 import rimsdash.usergather as gather
 
@@ -86,7 +86,7 @@ def admin_status(login: str):
     result = { 'admin': False }
 
     try:
-        _returned = rims.rightcheck(login, sysid)
+        _returned = external.rightcheck(login, sysid)
         print(f"{_returned}")
 
         if _returned['admin'] == True:
@@ -210,7 +210,7 @@ def get_user_project_indicators(user_login):
 
     #project state
     #------------------
-    user_projects = rims.get_user_projects(user_login)
+    user_projects = external.get_user_projects(user_login)
 
     project_results = []
 
@@ -267,7 +267,7 @@ def state_from_user(user_login):
 
     #project state
     #------------------
-    user_projects = rims.get_user_projects(user_login)
+    user_projects = external.get_user_projects(user_login)
 
     project_results = []
 

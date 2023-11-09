@@ -10,7 +10,7 @@ import datetime
 import logging
 import rimsdash.config as config
 import rimsdash.utils as utils
-from rimsdash.schemas import SystemReceiveSchema
+from rimsdash.schemas import SystemReceiveSchema, UserReceiveSchema
 
 #from .translator import translate_projectsv2
 
@@ -76,13 +76,9 @@ def get_systems() -> list[dict]:
             for row in _csv_reader:
                 if(len(row) > 3):
                     _id = int(row[1])
-                    _system_type = row[2]
+                    _type = row[2]
                     _name = row[3]
-                    #validate via schema
-                    _schema = SystemReceiveSchema(id = _id, system_type = _system_type, name = _name)
-
-                    #back to dict for return
-                    result.append(_schema.to_dict())
+                    result.append({"id": _id, "type": _type, "name": _name })
             return result
     else:
         raise Exception('RIMS response not ok')
@@ -120,7 +116,7 @@ def get_pending_users():
         raise Exception('Not found')
 
 
-def get_userlist():
+def get_user_list() -> list[dict]:
     """
     requests user report from RIMS API
     returns list-of-dicts
@@ -142,6 +138,7 @@ def get_userlist():
             raise Exception('Not found')
         else:
             return response.json(strict=False)
+
     else:
         raise Exception('Not found')
 
@@ -170,6 +167,65 @@ def get_userdata_by_id(uid):
             return response.json(strict=False)
     else:
         raise Exception('Not found')
+
+def get_project_details(active_only = False) -> list[dict]:
+    """
+    request full project list incl basic details
+
+    returns list of dicts
+
+    additional: List of projects -> has description, bcode
+    """    
+   
+    REPORT_NO=645  #projectdetailsv2
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            result = response.json(strict=False)
+    else:
+        raise Exception('Not found')
+
+    return result
+    #translate.projectsv2(
+
+
+def get_project_list(active_only = False) -> list[dict]:
+    """
+    request full project list incl basic details
+
+    returns list of dicts
+    """    
+    logger.debug("Querying projects")
+
+    url = f"{BASE_URL}pumapi/"
+
+    if active_only:
+        payload=f"apikey={KEY}&action=getprojects&active=True&format=json"
+    else:
+        payload=f"apikey={KEY}&action=getprojects&format=json"
+
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    if response.ok:
+        if response.status_code == 204:
+            return []
+        else:
+            return response.json(strict=False)
+    else:
+        return []
+
 
 def rightcheck(login: str, sysid: int):
     """
@@ -201,67 +257,6 @@ def rightcheck(login: str, sysid: int):
                 return {}
     else:
         return {}
-
-
-
-def get_projects_details(active_only = False):
-    """
-    request full project list incl basic details
-
-    returns list of dicts
-
-    additional: List of projects -> has description, bcode
-    """    
-   
-    REPORT_NO=645  #projectdetailsv2
-    url=f"{BASE_URL}API2/"
-    return_format=f"json"
-    payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
-    headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-
-    response = requests.request("POST", url, headers=headers, data=payload)
-
-    if response.ok:
-        if response.status_code == 204:
-            raise Exception('Not found')
-        else:
-            result = response.json(strict=False)
-    else:
-        raise Exception('Not found')
-
-    return result
-    #translate.projectsv2(
-
-
-def get_projects(active_only = False):
-    """
-    request full project list incl basic details
-
-    returns list of dicts
-    """    
-    logger.debug("Querying projects")
-
-    url = f"{BASE_URL}pumapi/"
-
-    if active_only:
-        payload=f"apikey={KEY}&action=getprojects&active=True&format=json"
-    else:
-        payload=f"apikey={KEY}&action=getprojects&format=json"
-
-    headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    response = requests.request("POST", url, headers=headers, data=payload)
-    if response.ok:
-        if response.status_code == 204:
-            return []
-        else:
-            return response.json(strict=False)
-    else:
-        return []
-
 
 
 def get_user_rights(login: str):
