@@ -5,7 +5,8 @@ from .base_model import Base, IStatus
 
 class ProjectStateModel(Base):
     __tablename__ = 'rdprojectstate'
-    overall = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
+    id = Column(Integer, primary_key=True, index=True)    
+    ok = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     active = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     billing = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     ohs = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)

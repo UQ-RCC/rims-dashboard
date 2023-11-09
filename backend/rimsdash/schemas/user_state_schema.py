@@ -5,7 +5,8 @@ from .base_schema import BaseSchema
 from rimsdash.models import IStatus
 
 class UserStateBaseSchema(BaseSchema):
-    overall: IStatus = IStatus.off
+    username: str
+    ok: IStatus = IStatus.off
     active: IStatus = IStatus.off
     access_aibn: IStatus = IStatus.off
     access_hawken: IStatus = IStatus.off
@@ -14,3 +15,9 @@ class UserStateBaseSchema(BaseSchema):
 
     class Config:
         orm_mode = True
+
+class UserStateCreateSchema(UserStateBaseSchema):
+    ...
+
+class UserStateUpdateSchema(UserStateBaseSchema):
+    ...

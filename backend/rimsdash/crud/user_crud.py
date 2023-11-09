@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union, List
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -10,7 +10,7 @@ class CRUDUser(CRUDBase[UserModel, UserCreateSchema, UserUpdateSchema]):
 
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 5000
-    ) -> List[UserModel]:
+    ) -> list[UserModel]:
         """
         overwrite the get_multi function to order by username
         """
@@ -22,6 +22,9 @@ class CRUDUser(CRUDBase[UserModel, UserCreateSchema, UserUpdateSchema]):
         return db.query(UserModel).filter(UserModel.email == email).first()
 
     def get_by_userid(self, db: Session, *, userid: int) -> Optional[UserModel]:
-        return db.query(UserModel).filter(UserModel.userid == userid).first()
+        return db.query(UserModel).filter(UserModel.userid == userid).one()
+
+    def get_all(self, db: Session) -> Optional[UserModel]:
+        return db.query(UserModel).all()
 
 user = CRUDUser(UserModel)

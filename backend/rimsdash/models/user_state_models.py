@@ -5,7 +5,8 @@ from .base_model import Base, IStatus
 
 class UserStateModel(Base):
     __tablename__ = 'rduserstate'
-    overall = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
+    username = Column(String, primary_key=True, index=True)    
+    ok = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     active = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     access_aibn = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     access_hawken = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union, List
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -8,5 +8,11 @@ from rimsdash.schemas.system_schema import SystemCreateSchema, SystemUpdateSchem
 
 class CRUDSystem(CRUDBase[SystemModel, SystemCreateSchema, SystemUpdateSchema]):
     ...
+
+    def sub_search_type(self, db: Session, *, substring: str) -> Optional[list[SystemModel]]:
+        return db.query(SystemModel).filter(SystemModel.system_type.contains(substring)).all()
+
+    def sub_search_name(self, db: Session, *, substring: str) -> Optional[SystemModel]:
+        return db.query(SystemModel).filter(SystemModel.name.contains(substring)).all()
 
 system = CRUDSystem(SystemModel)

@@ -25,7 +25,7 @@ class Base:
         for column in self.__table__.columns:
                 __value = getattr(self, column.name)
 
-                if isinstance(__value, enum.Enum):
+                if isinstance(__value, Enum):
                     __value = __value.value
 
                 result[column.name] = __value

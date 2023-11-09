@@ -9,4 +9,7 @@ from rimsdash.schemas.project_schema import ProjectCreateSchema, ProjectUpdateSc
 class CRUDProject(CRUDBase[ProjectModel, ProjectCreateSchema, ProjectUpdateSchema]):
     ...
 
+    def get_all(self, db: Session) -> Optional[ProjectModel]:
+        return db.query(ProjectModel).all()
+
 project = CRUDProject(ProjectModel)

@@ -9,6 +9,7 @@ import rimsdash.db as rdb
 import rimsdash.external as external
 import rimsdash.schemas as schemas
 import rimsdash.crud as crud
+import rimsdash.collate as collate
 
 SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
                            f"{config.get('database', 'db_username')}:"
@@ -118,6 +119,29 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
             project_in = schemas.ProjectInitDetailsSchema(**project)
 
             crud.project.update(db, _row, project_in)
+
+def process_projects(db: Session = Depends(rdb.get_db)):
+    """
+    Calculate status for projects
+    """
+
+    projects = crud.project.get_multi(db)
+
+    for project in projects:
+        project_schema = schemas.ProjectFullSchema(**project.to_dict())
+
+        project_state = collate.logic.process_project(project_schema)
+
+        _row = crud.project_state.get(db, project.id)
+
+        #FUTURE: need to sort out create vs update, much simpler if can unify
+        if _row is None:
+            project_state = schemas.ProjectStateCreateSchema(**project_state.to_dict())
+            crud.project_state.create(db, project_state)
+        else:
+            project_state = schemas.ProjectStateUpdateSchema(**project_state.to_dict())
+            crud.project_state.update(db, _row, project_state)
+
 
 def get_session():
     with sessionmaker.context_session() as db:
