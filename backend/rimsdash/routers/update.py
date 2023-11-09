@@ -119,6 +119,9 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
 
             crud.project.update(db, _row, project_in)
 
+def get_session():
+    with sessionmaker.context_session() as db:
+        return db
 
 def run_sync():
     """
