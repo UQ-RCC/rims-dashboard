@@ -4,7 +4,7 @@ from rimsdash.models import AccessLevel
 
 from .base_schema import BaseSchema
 
-from .userproject_schema import UserProjectBaseSchema
+#from .userproject_schema import UserProjectBaseSchema
 
 AccessDict = Dict[int, AccessLevel]
 
@@ -29,7 +29,7 @@ class UserFullSchema(UserBaseSchema):
     active: bool
     admin: bool = False
     #rights: Optional[AccessDict] = {}
-    projects: Optional[list[UserProjectBaseSchema]] = []
+    #projects: Optional[list[UserProjectBaseSchema]] = []
 
 # Properties on creation
 class UserCreateSchema(UserBaseSchema):

@@ -3,6 +3,7 @@ from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import relationship
 
 from .base_model import Base
+from .system_user_rights_models import SystemUserRightsModel
 
 class UserModel(Base):
     __tablename__ = 'rduser'
@@ -13,6 +14,7 @@ class UserModel(Base):
     group = Column(String, primary_key=False, index=False, nullable=False)
     active = Column(Boolean, primary_key=False, index=False, nullable=False, default=False)
     admin = Column(Boolean, primary_key=False, index=False, nullable=True, default=False)
-    rights = Column(MutableDict.as_mutable(JSON), primary_key=False, index=False, nullable=True, default={})
+    #rights = Column(MutableDict.as_mutable(JSON), primary_key=False, index=False, nullable=True, default={})
+    #system_rights = relationship(SystemUserRightsModel, back_populates=SystemUserRightsModel.user)
 
     #projects = relationship("UserProject", back_populates="user")  

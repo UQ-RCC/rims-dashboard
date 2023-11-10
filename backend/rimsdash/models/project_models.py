@@ -17,5 +17,4 @@ class ProjectModel(Base):
     description = Column(String, primary_key=False, index=False, nullable=True)
     qcollection = Column(String, primary_key=False, index=False, nullable=True)
     status = Column(String, primary_key=False, index=False, nullable=True)
-
     #users = relationship("UserProject", back_populates="project")

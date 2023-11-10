@@ -71,10 +71,14 @@ def sync_users(db: Session = Depends(rdb.get_db)):
             crud.user.create(db, user_in)
         else:
             logger.debug(f"updating {user['username']}")            
-            user_in = schemas.UserCreateSchema(**user)
+            user_in = schemas.UserUpdateSchema(**user)
 
             crud.user.update(db, _row, user_in)
 
+def sync_user_rights(db: Session = Depends(rdb.get_db)):
+    logger.info(f"syncing user rights to RIMS")
+
+    users = crud.user.get_all(db)
 
 
 def sync_projects(db: Session = Depends(rdb.get_db)):
@@ -141,6 +145,12 @@ def process_projects(db: Session = Depends(rdb.get_db)):
         else:
             project_state = schemas.ProjectStateUpdateSchema(**project_state.to_dict())
             crud.project_state.update(db, _row, project_state)
+
+def process_users(db: Session = Depends(rdb.get_db)):
+    """
+    calculate status for users
+    """
+    pass
 
 
 def get_session():

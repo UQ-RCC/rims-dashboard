@@ -17,7 +17,7 @@ class Base:
     #id: typing.Any
     #__name__: str
 
-    def to_dict(self) -> dict:
+    def to_dict(self, literal: bool = False) -> dict:
         """
         return as dictionary
         """
@@ -25,7 +25,7 @@ class Base:
         for column in self.__table__.columns:
                 __value = getattr(self, column.name)
 
-                if isinstance(__value, Enum):
+                if literal and isinstance(__value, Enum):
                     __value = __value.value
 
                 result[column.name] = __value

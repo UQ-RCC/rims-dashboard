@@ -25,6 +25,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db.query(self.model).get(id)
             #get searches against the primary key, not necessarily called "id"
 
+    def get_all(self, db: Session) -> Optional[ModelType]:
+        return db.query(self.model).all()
+
     def get_multi(self, db: Session, *, skip: int = 0, limit: int = 5000) -> List[ModelType]:
         return (
             db.query(self.model).order_by(self.model.id).offset(skip).limit(limit).all()
@@ -50,7 +53,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_data = jsonable_encoder(db_obj)
         in_data = jsonable_encoder(obj_in)        
 
-        #iterate db fields, setting to matching in field
+        #iterate db fields, setting by input
         for field in db_data:
             if field in in_data:
                 setattr(db_obj, field, in_data[field])
