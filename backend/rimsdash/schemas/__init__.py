@@ -1,4 +1,4 @@
-from .user_schema import UserBaseSchema, UserCreateSchema, UserUpdateSchema, UserReceiveSchema, UserFullSchema
+from .user_schema import UserBaseSchema, UserCreateSchema, UserUpdateSchema, UserReceiveSchema, UserFullSchema, UserCreateRightsSchema
 from .project_schema import ProjectBaseSchema, ProjectCreateSchema, ProjectInitDetailsSchema, ProjectUpdateSchema, ProjectFullSchema
 from .system_schema import SystemBaseSchema, SystemCreateSchema, SystemUpdateSchema, SystemReceiveSchema
 from .user_state_schema import UserStateBaseSchema, UserStateCreateSchema, UserStateUpdateSchema

@@ -53,7 +53,7 @@ def get_chartstrings() -> list[dict]:
     """
     requests chartstring info from RIMS API
     """    
-    REPORT_NO=55  #user list
+    REPORT_NO=55
     url=f"{BASE_URL}API2/"
     return_format=f"json"
     payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
@@ -305,7 +305,7 @@ def get_user_rights(login: str):
             _system_rights_text = response.text.strip()
             _lines = _system_rights_text.split('\n')
             if not _lines == ['']:
-                _permissions = { str(int(_line.split(":")[1])):_line.split(":")[0] for _line in _lines } #int() strips remaining carriage return
+                _permissions = { int(_line.split(":")[1]):_line.split(":")[0] for _line in _lines } #int() strips remaining carriage return
             else:
                 return {}
             return _permissions

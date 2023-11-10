@@ -54,3 +54,12 @@ class IStatus(Enum):
     warn = 'warn'
     fail = 'fail'
     na = 'na'
+
+class AccessLevel(Enum):
+    """
+    enum for RIMS used rights
+    """    
+    deactivated = 'D'
+    novice = 'N'
+    autonomous = 'A'
+    superuser = 'S'

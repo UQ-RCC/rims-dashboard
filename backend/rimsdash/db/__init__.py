@@ -8,8 +8,20 @@ from .session import _get_fastapi_sessionmaker
 from typing import Iterator
 from sqlalchemy.orm import Session
 
-print("creating")
-Base.metadata.create_all(bind=engine)
+
+def drop_db(force = False):
+    """
+    drop the db
+    """
+    if force:
+        print("DROPPING DATABASE")
+        Base.metadata.drop_all(bind=engine)
+    
+    #NB: because our data is just a local cache/derivation from the external DB, don't really need to worry about migrations
+    #   to modify a table, just drop and recreate the whole thing
+
+def init_db():
+    Base.metadata.create_all(bind=engine)
 
 def get_db() -> Iterator[Session]:
     """ FastAPI dependency that provides a sqlalchemy session """
@@ -25,3 +37,6 @@ def get_db() -> Generator:
     finally:
         db.close()
 """    
+
+print("starting DB")
+init_db()
