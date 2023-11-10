@@ -3,6 +3,7 @@ from typing import Optional, TypedDict, Dict
 from rimsdash.models import AccessLevel
 
 from .base_schema import BaseSchema
+from .system_user_rights_schema import SystemUserRightsBaseSchema
 
 #from .userproject_schema import UserProjectBaseSchema
 
@@ -29,6 +30,7 @@ class UserFullSchema(UserBaseSchema):
     active: bool
     admin: bool = False
     #rights: Optional[AccessDict] = {}
+    system_rights: Optional[list[SystemUserRightsBaseSchema]]
     #projects: Optional[list[UserProjectBaseSchema]] = []
 
 # Properties on creation

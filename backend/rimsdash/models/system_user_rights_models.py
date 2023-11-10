@@ -3,8 +3,8 @@ from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import relationship
 
 from .base_model import Base, AccessLevel
-from .user_models import UserModel
-from .system_models import SystemModel
+#from .user_models import UserModel
+#from .system_models import SystemModel
 
 class SystemUserRightsModel(Base):
     """
@@ -14,8 +14,9 @@ class SystemUserRightsModel(Base):
     username = Column(String, ForeignKey('rduser.username'), primary_key=True)      #maybe use a direct reference here eg. User.username
     system_id = Column(Integer, ForeignKey('rdsystem.id'), primary_key=True)
     access_level = Column(Enum(AccessLevel), primary_key=False, index=False, nullable=False)
-    #user = relationship(UserModel, back_populates=UserModel.system_rights)
-    #system = relationship(SystemModel, back_populates=SystemModel.user_rights)
+    #   strings to avoid circular import - ie. UserModel.system_rights
+    user = relationship("UserModel", back_populates="system_rights")
+    system = relationship("SystemModel", back_populates="user_rights")
 
 
 """

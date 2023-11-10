@@ -25,7 +25,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db.query(self.model).get(id)
             #get searches against the primary key, not necessarily called "id"
 
-    def get_all(self, db: Session) -> Optional[ModelType]:
+    def get_all(self, db: Session) -> List[ModelType]:
         return db.query(self.model).all()
 
     def get_multi(self, db: Session, *, skip: int = 0, limit: int = 5000) -> List[ModelType]:
