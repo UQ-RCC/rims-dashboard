@@ -36,7 +36,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def create(self, db: Session, obj_in: CreateSchemaType):
 
         #encode the schema as dict
-        in_data = jsonable_encoder(obj_in)  
+        in_data = obj_in.to_dict()
         #      ALT: obj_in.dict(exclude_unset=True)
         
         #create a database object using model and the schema dict
@@ -50,8 +50,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def update(self, db: Session, db_obj: ModelType, obj_in: UpdateSchemaType):
      
-        db_data = jsonable_encoder(db_obj)
-        in_data = jsonable_encoder(obj_in)        
+        db_data = db_obj.to_dict()
+        in_data = obj_in.to_dict()
 
         #iterate db fields, setting by input
         for field in db_data:
