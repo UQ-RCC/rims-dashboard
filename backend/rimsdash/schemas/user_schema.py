@@ -1,13 +1,12 @@
-from typing import Optional, TypedDict, Dict
+from typing import Optional, TypedDict, Dict, ForwardRef
 
 from rimsdash.models import SystemRight
 
 from .base_schema import BaseSchema
-from .system_user_rights_schema import SystemUserRightsBaseSchema
 
-#from .userproject_schema import UserProjectBaseSchema
-
-AccessDict = Dict[int, SystemRight]
+#use forward refs for circular deps
+SystemUserRightsBaseSchema = ForwardRef('SystemUserRightsBaseSchema')
+ProjectUsersBaseSchema = ForwardRef('ProjectUsersBaseSchema')
 
 class UserBaseSchema(BaseSchema):
     username: str
@@ -29,9 +28,8 @@ class UserFullSchema(UserBaseSchema):
     group: str
     active: bool
     admin: bool = False
-    #rights: Optional[AccessDict] = {}
     system_rights: Optional[list[SystemUserRightsBaseSchema]]
-    #projects: Optional[list[UserProjectBaseSchema]] = []
+    projects: Optional[list[ProjectUsersBaseSchema]] = []
 
 # Properties on creation
 class UserCreateSchema(UserBaseSchema):
@@ -45,10 +43,8 @@ class UserUpdateSchema(UserBaseSchema):
 class UserReceiveSchema(UserBaseSchema):
     ...
 
-# Access rights only
-class UserCreateRightsSchema(BaseSchema):
-    username: str
-    rights: Optional[AccessDict] = {}
 
-    class Config:
-        orm_mode = True
+#import the circular deps and update forward
+from .system_user_rights_schema import SystemUserRightsBaseSchema
+from .projectusers_schema import ProjectUsersBaseSchema
+UserFullSchema.update_forward_refs()

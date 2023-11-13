@@ -6,3 +6,4 @@ from .user_state_crud import user_state
 from .project_state_crud import project_state
 
 from .system_user_rights_crud import system_user_rights
+from .projectusers_crud import projectusers_rights

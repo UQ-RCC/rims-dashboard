@@ -11,7 +11,7 @@ import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 import rimsdash.collate as collate
 
-from rimsdash.models import SystemRight
+from rimsdash.models import SystemRight, ProjectRight
 
 SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
                            f"{config.get('database', 'db_username')}:"
@@ -77,35 +77,6 @@ def sync_users(db: Session = Depends(rdb.get_db)):
 
             crud.user.update(db, __row, user_in)
 
-def sync_user_rights(db: Session = Depends(rdb.get_db)):
-    """
-    Sync local user rights DB to external RIMS DB
-
-    external data will overwrite any local conflicts
-    """
-    
-    logger.info(f"syncing user rights to RIMS")
-
-    users = crud.user.get_all(db)
-
-    for user in users:
-        print(user.username)
-        rights_dict = external.rims.queries.get_user_rights(user.username)
-
-        for key in rights_dict:
-            __schema = schemas.SystemUserRightsCreateSchema(username=user.username, system_id=key, status=SystemRight(rights_dict[key]))
-
-            __row = crud.system_user_rights.get(db, (user.username, key))
-            __system = crud.system.get(db, key)
-
-            if __system is not None:
-                if __row is None:
-                    crud.system_user_rights.create(db, __schema)
-                else:
-                    crud.system_user_rights.update(db, __row, __schema)
-            else:
-                logger.info(f"unrecognised rights for user {user.username} on system {key}")    
-
 
 def sync_projects(db: Session = Depends(rdb.get_db)):
     """
@@ -150,6 +121,84 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
 
             crud.project.update(db, _row, project_in)
 
+def sync_user_rights(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local user rights DB to external RIMS DB
+
+    external data will overwrite any local conflicts
+    """
+    
+    logger.info(f"syncing user rights to RIMS")
+
+    users = crud.user.get_all(db)
+    
+    #DEBUG
+    _cutoff = 99999
+    _counter = 0
+
+    for user in users:
+        if _counter >= _cutoff: #debug
+            break
+
+        print(user.username)
+        rights_dict = external.rims.queries.get_user_rights(user.username)
+
+        for key in rights_dict:
+            __schema = schemas.SystemUserRightsCreateSchema(username=user.username, system_id=key, status=SystemRight(rights_dict[key]))
+
+            __row = crud.system_user_rights.get(db, (user.username, key))
+            __system = crud.system.get(db, key)
+
+            #check system exists - report includes systems from other cores            
+            if __system is not None:
+
+                if __row is None:
+                    crud.system_user_rights.create(db, __schema)
+                else:
+                    crud.system_user_rights.update(db, __row, __schema)
+            else:
+                logger.info(f"unrecognised rights for user {user.username} on system {key}")    
+        
+        _counter+=1 #debug
+
+def sync_project_users(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local project users DB to external RIMS DB
+
+    external data will overwrite any local conflicts
+    """
+    
+    logger.info(f"syncing project users to RIMS")
+
+    projects = crud.project.get_all(db)
+
+    #DEBUG
+    _cutoff = 99999
+    _counter = 0
+
+    for project in projects:
+        if _counter >= _cutoff: #debug
+            break
+
+        print(project.id)
+        username_list = external.rims.queries.get_project_users(project.id)
+
+        for username in username_list:
+            __schema = schemas.ProjectUsersBaseSchema(username=username, project_id=project.id, status=ProjectRight("M"))
+
+            __row = crud.projectusers_rights.get(db, (username, project.id))
+            #__user = crud.user.get(db, key)
+
+            #if __system is not None:
+            if __row is None:
+                crud.projectusers_rights.create(db, __schema)
+            else:
+                crud.projectusers_rights.update(db, __row, __schema)
+            #else:
+            #    logger.info(f"unrecognised rights for user {username} on system {key}")    
+
+        _counter+=1 #debug
+
 def process_projects(db: Session = Depends(rdb.get_db)):
     """
     Calculate status for projects
@@ -158,9 +207,10 @@ def process_projects(db: Session = Depends(rdb.get_db)):
     projects = crud.project.get_all(db)
 
     for project in projects:
+        print(project.id)
         project_schema = schemas.ProjectFullSchema(**project.to_dict())
 
-        project_state = collate.logic.process_project(project_schema)
+        project_state = collate.process_project(project_schema)
 
         _row = crud.project_state.get(db, project.id)
 
@@ -176,8 +226,23 @@ def process_users(db: Session = Depends(rdb.get_db)):
     """
     calculate status for users
     """
-    pass
+    users = crud.user.get_all(db)
 
+    for user in users:
+        print(user.username)
+        user_schema = schemas.UserFullSchema(**user.to_dict())
+
+        user_state = collate.process_user(user_schema)
+
+        _row = crud.user_state.get(db, user.username)
+
+        #FUTURE: need to sort out create vs update, much simpler if can unify
+        if _row is None:
+            user_state = schemas.UserStateCreateSchema(**user_state.to_dict())
+            crud.user_state.create(db, user_state)
+        else:
+            user_state = schemas.UserStateUpdateSchema(**user_state.to_dict())
+            crud.user_state.update(db, _row, user_state)
 
 def get_session():
     with sessionmaker.context_session() as db:
@@ -190,7 +255,7 @@ def run_sync():
     logger.info("starting DB update")
 
     with sessionmaker.context_session() as db:
-        sync_systems(db)    #10 sec
+        sync_systems(db)    #0 min
         sync_users(db)      #1 min
         sync_projects(db)   #2 min
         return db
@@ -200,5 +265,15 @@ def run_extended_sync():
     perform extension sync with individual calls
     """
     with sessionmaker.context_session() as db:
-        sync_user_rights(db)    #20 min
+        sync_user_rights(db)    #15 min
+        sync_project_users(db)  #5 min
         return db
+
+def run_state_processing():
+    """
+    perform extension sync with individual calls
+    """
+    with sessionmaker.context_session() as db:
+        process_projects(db)
+        process_users(db)
+        return db    

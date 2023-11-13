@@ -1,11 +1,12 @@
-from typing import Optional
+from typing import Optional, ForwardRef
 
 from rimsdash.models import ProjectRight
 
 from .base_schema import BaseSchema
-from .user_schema import UserBaseSchema
-from .project_schema import ProjectBaseSchema
 
+#use forward refs for circular deps
+UserBaseSchema = ForwardRef('UserBaseSchema')
+ProjectBaseSchema = ForwardRef('ProjectBaseSchema')
 
 class ProjectUsersBaseSchema(BaseSchema):
     username: str
@@ -21,4 +22,10 @@ class ProjectUsersUpdateSchema(ProjectUsersBaseSchema):
 class ProjectUsersFullSchema(BaseSchema):
     ...
     user: UserBaseSchema = None
-    system: ProjectBaseSchema = None
+    project: ProjectBaseSchema = None
+
+#import the circular deps and update forward
+from .user_schema import UserBaseSchema
+from .project_schema import ProjectBaseSchema
+
+ProjectUsersFullSchema.update_forward_refs()

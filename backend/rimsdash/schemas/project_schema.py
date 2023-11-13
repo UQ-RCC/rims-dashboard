@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import Optional, ForwardRef
 
 from .base_schema import BaseSchema
 
-from .userproject_schema import UserProjectBaseSchema
+#use forward refs for circular deps
+ProjectUsersBaseSchema = ForwardRef('ProjectUsersBaseSchema')
 
 class ProjectBaseSchema(BaseSchema):
     id: int
@@ -42,5 +43,10 @@ class ProjectReceiveSchema(ProjectBaseSchema):
 class ProjectFullSchema(ProjectBaseSchema):
     qcollection: Optional[str] = None
     status: Optional[str] = None
-    users: Optional[list[UserProjectBaseSchema]] = []
+    users: Optional[list[ProjectUsersBaseSchema]] = []
     ...
+
+
+#import the circular deps and update forward
+from .projectusers_schema import ProjectUsersBaseSchema
+ProjectFullSchema.update_forward_refs()

@@ -1,7 +1,8 @@
-from rimsdash.models import IStatus, UserStateModel, ProjectStateModel
+from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
 from rimsdash.schemas import UserFullSchema, ProjectFullSchema, UserStateCreateSchema, ProjectStateCreateSchema
 
 import rimsdash.utils as utils
+
 
 #rims codes for each lab & access-level
 #NB: order MUST match
@@ -23,6 +24,7 @@ RIMS_LAB_NAMES_AH = [
 RIMS_LAB_TYPES = [
     "Z_HAWKEN LAB", "Z_AIBN LAB", "Z_CHEMISTRY LAB LEVEL 2", "Z_QBP LAB"
 ]
+RIGHTS_OK = [ SystemRight.novice, SystemRight.autonomous, SystemRight.superuser ]
 #extra prime: "QBP UQROCX LAB ACCESS 9AM": 163
 #extra AH: "QBP CRYO EM AFTER HOURS":85, "QBP UQROCX LAB ACCESS 24":164
 #extra types: [ "MASS SPEC LAB", "Z_CHEM ENG LAB", "Z_CHEMISTRY LAB LEVEL 7" ]
@@ -38,7 +40,46 @@ def process_user(user: UserFullSchema) -> UserStateCreateSchema:
     """
     generate status result from user data
     """    
-    pass
+    state = UserStateCreateSchema(username=user.username)
+
+    #access rights:
+    for _usersystem in user.system_rights:
+
+        if _usersystem.status in RIGHTS_OK:
+
+            #primetime
+            if _usersystem.system_id == RIMS_LAB_CODES_PRIME[0]:
+                state.access_hawken = IStatus.ready
+            elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[1]:
+                state.access_aibn = IStatus.ready
+            elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[2]:
+                state.access_chem = IStatus.ready        
+            elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[3]:
+                state.access_qbp = IStatus.ready
+            #after hours
+            elif _usersystem.system_id == RIMS_LAB_CODES_AH[0]:
+                state.access_hawken = IStatus.extended
+            elif _usersystem.system_id == RIMS_LAB_CODES_AH[1]:
+                state.access_aibn = IStatus.extended
+            elif _usersystem.system_id == RIMS_LAB_CODES_AH[2]:
+                state.access_chem = IStatus.extended        
+            elif _usersystem.system_id == RIMS_LAB_CODES_AH[3]:
+                state.access_qbp = IStatus.extended
+
+    if user.active == True:
+        state.active = IStatus.ready
+    
+    if state.active == IStatus.ready and any(
+            (labstate == IStatus.ready or labstate == IStatus.extended) for \
+            labstate in [ state.access_hawken, state.access_aibn, state.access_chem, state.access_qbp ]
+    ):
+        state.ok = IStatus.ready
+    else:
+        state.ok = IStatus.fail
+    
+    return state
+
+
 
 def process_project(project: ProjectFullSchema) -> ProjectStateCreateSchema:
     """

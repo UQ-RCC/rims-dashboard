@@ -23,4 +23,10 @@ class CRUDSystemUserRights(CRUDBase[SystemUserRightsModel, SystemUserRightsCreat
         db.commit()
         db.refresh(db_obj)
 
+    def get_by_user(self, db: Session, username: str):
+        return db.query(SystemUserRightsModel).filter(SystemUserRightsModel.username == username).all()
+
+    def get_by_system(self, db: Session, system_id: int):
+        return db.query(SystemUserRightsModel).filter(SystemUserRightsModel.system_id == system_id).all()
+
 system_user_rights = CRUDSystemUserRights(SystemUserRightsModel)

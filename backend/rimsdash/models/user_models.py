@@ -17,11 +17,18 @@ class UserModel(Base):
     #rights = Column(MutableDict.as_mutable(JSON), primary_key=False, index=False, nullable=True, default={})
     #   strings to avoid circular import - ie. SystemUserRightsModel.user    
     system_rights = relationship('SystemUserRightsModel', back_populates='user')
-
-    #projects = relationship("UserProject", back_populates="user")  
+    projects = relationship("ProjectUsersModel", back_populates="user")  
 
     def to_dict(self, literal: bool = False) -> dict:
-        result = Base.to_dict(literal=literal)
+
+        result = {}
+        for column in self.__table__.columns:
+                __value = getattr(self, column.name)
+
+                if literal and isinstance(__value, Enum):
+                    __value = __value.value
+
+                result[column.name] = __value
 
         rights_list = getattr(self, "system_rights")
 
@@ -33,3 +40,5 @@ class UserModel(Base):
                 rights_dict[right.system_id] = right.status.value
 
             result["system_rights"] = rights_dict
+
+        return result

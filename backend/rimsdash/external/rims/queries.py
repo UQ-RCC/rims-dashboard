@@ -339,6 +339,28 @@ def get_user_projects(login: str):
                 return result  
     return []
 
+def get_project_users(projectid: int):
+    """
+    returns list of all projects associated with user login
+    """
+
+    logger.debug("Querying systems")
+    url = f"{BASE_URL}pumapi/"
+
+    payload=f"apikey={KEY}&action=getprojectusers&projectid={projectid}&format=json"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    if response.ok:
+        if response.status_code == 204:
+            return []
+        else:
+                _text = response.text.strip()
+                _lines = _text.split('\r\n')
+                result = [ _line for _line in _lines ]  #int() strips remaining carriage return
+                return result  
+    return []
 
 
 
