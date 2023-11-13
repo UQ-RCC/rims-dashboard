@@ -15,7 +15,7 @@ class CRUDSystemUserRights(CRUDBase[SystemUserRightsModel, SystemUserRightsCreat
         db_obj = self.model(
             username = obj_in.username,
             system_id = obj_in.system_id,
-            access_level = obj_in.access_level
+            status = obj_in.status
         )
 
         #add that object and update

@@ -32,14 +32,14 @@ def collate_user(user_rights):
                 current_lab = get_rims_key(code)        
 
                 if int(key) == code:
-                    access_level = user_rights[key]
+                    status = user_rights[key]
 
-                    if access_level in ['N', 'A', 'S']:
+                    if status in ['N', 'A', 'S']:
                         user_state.assign_by_lab(current_lab, Istate.ready)
-                    elif access_level == 'D':
+                    elif status == 'D':
                         user_state.assign_by_lab(current_lab, Istate.disabled)
                     else:
-                        print(f'unexpected access {access_level} for lab: {i}, {code}')                
+                        print(f'unexpected access {status} for lab: {i}, {code}')                
                         user_state.assign_by_lab(current_lab, Istate.na)   
 
         if int(key) in RIMS_LAB_CODES_AH:
@@ -48,9 +48,9 @@ def collate_user(user_rights):
                 current_lab = get_rims_key(code)        
 
                 if int(key) == code:
-                    access_level = user_rights[key]
+                    status = user_rights[key]
 
-                    if access_level in ['N', 'A', 'S']:
+                    if status in ['N', 'A', 'S']:
                         user_state.assign_by_lab(current_lab, Istate.extended)
                     else:
                         pass               

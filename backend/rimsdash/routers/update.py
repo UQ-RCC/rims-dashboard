@@ -11,7 +11,7 @@ import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 import rimsdash.collate as collate
 
-from rimsdash.models import AccessLevel
+from rimsdash.models import SystemRight
 
 SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
                            f"{config.get('database', 'db_username')}:"
@@ -93,7 +93,7 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
         rights_dict = external.rims.queries.get_user_rights(user.username)
 
         for key in rights_dict:
-            __schema = schemas.SystemUserRightsCreateSchema(username=user.username, system_id=key, access_level=AccessLevel(rights_dict[key]))
+            __schema = schemas.SystemUserRightsCreateSchema(username=user.username, system_id=key, status=SystemRight(rights_dict[key]))
 
             __row = crud.system_user_rights.get(db, (user.username, key))
             __system = crud.system.get(db, key)

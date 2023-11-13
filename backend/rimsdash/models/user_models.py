@@ -30,6 +30,6 @@ class UserModel(Base):
         else:
             rights_dict = {}
             for right in rights_list:
-                rights_dict[right.system_id] = right.access_level.value
+                rights_dict[right.system_id] = right.status.value
 
             result["system_rights"] = rights_dict

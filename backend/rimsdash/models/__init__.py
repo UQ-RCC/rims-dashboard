@@ -1,4 +1,4 @@
-from .base_model import IStatus, AccessLevel
+from .base_model import IStatus, SystemRight, ProjectRight
 from .user_models import UserModel
 from .project_models import ProjectModel
 from .system_models import SystemModel

@@ -55,7 +55,7 @@ class IStatus(Enum):
     fail = 'fail'
     na = 'na'
 
-class AccessLevel(Enum):
+class SystemRight(Enum):
     """
     enum for RIMS used rights
     """    
@@ -63,3 +63,12 @@ class AccessLevel(Enum):
     novice = 'N'
     autonomous = 'A'
     superuser = 'S'
+
+
+class ProjectRight(Enum):
+    """
+    enum for RIMS used rights
+    """    
+    member = 'M'
+    owner = 'PO'
+    admin = 'PA'

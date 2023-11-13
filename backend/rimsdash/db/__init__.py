@@ -9,6 +9,13 @@ from typing import Iterator
 from sqlalchemy.orm import Session
 
 
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+def get_db() -> Iterator[Session]:
+    """ FastAPI dependency that provides a sqlalchemy session """
+    yield from _get_fastapi_sessionmaker().get_db()
+
 def drop_db(force = False):
     """
     drop the db
@@ -18,14 +25,7 @@ def drop_db(force = False):
         Base.metadata.drop_all(bind=engine)
     
     #NB: because our data is just a local cache/derivation from the external DB, don't really need to worry about migrations
-    #   to modify a table, just drop and recreate the whole thing
-
-def init_db():
-    Base.metadata.create_all(bind=engine)
-
-def get_db() -> Iterator[Session]:
-    """ FastAPI dependency that provides a sqlalchemy session """
-    yield from _get_fastapi_sessionmaker().get_db()
+    #   to modify a table, just drop and recreate it
 
 """
 #ALT:

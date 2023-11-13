@@ -1,13 +1,13 @@
 from typing import Optional, TypedDict, Dict
 
-from rimsdash.models import AccessLevel
+from rimsdash.models import SystemRight
 
 from .base_schema import BaseSchema
 from .system_user_rights_schema import SystemUserRightsBaseSchema
 
 #from .userproject_schema import UserProjectBaseSchema
 
-AccessDict = Dict[int, AccessLevel]
+AccessDict = Dict[int, SystemRight]
 
 class UserBaseSchema(BaseSchema):
     username: str

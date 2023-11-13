@@ -110,7 +110,7 @@ def get_user_rights_df(login: str):
 
     raw = external.get_user_rights(login)
 
-    df = pd.DataFrame(raw.items(), columns=['systemid', 'access_level'])
+    df = pd.DataFrame(raw.items(), columns=['systemid', 'status'])
 
     return df
 
