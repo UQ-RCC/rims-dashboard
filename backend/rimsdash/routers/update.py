@@ -32,7 +32,7 @@ def sync_systems(db: Session = Depends(rdb.get_db)):
     """
 
     logger.info(f"getting system list from RIMS")
-    systems = external.rims.get_system_list()
+    systems: list[dict] = external.rims.get_system_list()
 
     logger.info(f"reading system list into DB")
     for system in systems:
@@ -59,7 +59,7 @@ def sync_users(db: Session = Depends(rdb.get_db)):
     """
 
     logger.info(f"getting user list from RIMS")
-    users = external.rims.get_user_list()
+    users: list[dict] = external.rims.get_user_list()
 
     logger.info(f"reading user list into DB")
     for user in users:
@@ -86,7 +86,7 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
     """
 
     logger.info(f"getting project list from RIMS")
-    projects = external.rims.get_project_list()
+    projects: list[dict] = external.rims.get_project_list()
 
     logger.info(f"reading project list into DB")
     for project in projects:
@@ -105,7 +105,7 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
             crud.project.update(db, _row, project_in)
 
     logger.info(f"getting additional project details from RIMS")
-    project_details = external.rims.get_project_details()
+    project_details: list[dict] = external.rims.get_project_details()
 
     logger.info(f"updating DB with additional project details")
     for project in project_details:
@@ -208,7 +208,7 @@ def process_projects(db: Session = Depends(rdb.get_db)):
 
     for project in projects:
         print(project.id)
-        project_schema = schemas.ProjectFullSchema(**project.to_dict())
+        project_schema = schemas.ProjectFullSchema.validate(project)
 
         project_state = collate.process_project(project_schema)
 
@@ -216,10 +216,10 @@ def process_projects(db: Session = Depends(rdb.get_db)):
 
         #FUTURE: need to sort out create vs update, much simpler if can unify
         if _row is None:
-            project_state = schemas.ProjectStateCreateSchema(**project_state.to_dict())
+            project_state = schemas.ProjectStateCreateSchema.validate(project_state)
             crud.project_state.create(db, project_state)
         else:
-            project_state = schemas.ProjectStateUpdateSchema(**project_state.to_dict())
+            project_state = schemas.ProjectStateUpdateSchema.validate(project_state)
             crud.project_state.update(db, _row, project_state)
 
 def process_users(db: Session = Depends(rdb.get_db)):
@@ -230,7 +230,7 @@ def process_users(db: Session = Depends(rdb.get_db)):
 
     for user in users:
         print(user.username)
-        user_schema = schemas.UserFullSchema(**user.to_dict())
+        user_schema = schemas.UserFullSchema.validate(user)
 
         user_state = collate.process_user(user_schema)
 
@@ -238,10 +238,10 @@ def process_users(db: Session = Depends(rdb.get_db)):
 
         #FUTURE: need to sort out create vs update, much simpler if can unify
         if _row is None:
-            user_state = schemas.UserStateCreateSchema(**user_state.to_dict())
+            user_state = schemas.UserStateCreateSchema.validate(user_state)
             crud.user_state.create(db, user_state)
         else:
-            user_state = schemas.UserStateUpdateSchema(**user_state.to_dict())
+            user_state = schemas.UserStateUpdateSchema.validate(user_state)
             crud.user_state.update(db, _row, user_state)
 
 def get_session():

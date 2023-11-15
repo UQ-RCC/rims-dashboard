@@ -13,6 +13,10 @@ class ProjectUsersBaseSchema(BaseSchema):
     project_id: int
     status: ProjectRight  
 
+    class Config:
+        orm_mode = True
+
+
 class ProjectUsersCreateSchema(ProjectUsersBaseSchema):
     ...
 

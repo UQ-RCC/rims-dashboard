@@ -19,6 +19,7 @@ class SystemUserRightsModel(Base):
     system = relationship("SystemModel", back_populates="user_rights")
 
 
+
 """
 to use:
     junction = session.query(JunctionTable).filter_by(table1_id=table1_id, table2_id=table2_id).first()
