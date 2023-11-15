@@ -85,7 +85,7 @@ def process_project(project: ProjectFullSchema) -> ProjectStateCreateSchema:
     """
     generate status result from project data
     """
-    state = ProjectStateCreateSchema(id = project.id)
+    state = ProjectStateCreateSchema(project_id = project.id)
 
     try:
         if project.phase == 0:

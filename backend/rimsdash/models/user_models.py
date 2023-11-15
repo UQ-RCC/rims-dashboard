@@ -17,9 +17,14 @@ class UserModel(Base):
     #rights = Column(MutableDict.as_mutable(JSON), primary_key=False, index=False, nullable=True, default={})
     #   strings to avoid circular import - ie. SystemUserRightsModel.user    
     system_rights = relationship('SystemUserRightsModel', back_populates='user')
-    projects = relationship("ProjectUsersModel", back_populates="user")  
+    project_rights = relationship("ProjectUsersModel", back_populates="user")  
+    user_state = relationship("UserStateModel", back_populates="user")
 
     def to_dict(self, literal: bool = False) -> dict:
+
+        """
+        deprecated, use Pydantic schema .json() instead
+        """
 
         result = {}
         for column in self.__table__.columns:

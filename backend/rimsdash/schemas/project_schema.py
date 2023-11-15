@@ -4,6 +4,7 @@ from .base_schema import BaseSchema
 
 #use forward refs for circular deps
 ProjectUsersBaseSchema = ForwardRef('ProjectUsersBaseSchema')
+ProjectStateBaseSchema = ForwardRef('ProjectStateBaseSchema')
 
 class ProjectBaseSchema(BaseSchema):
     id: int
@@ -43,10 +44,12 @@ class ProjectReceiveSchema(ProjectBaseSchema):
 class ProjectFullSchema(ProjectBaseSchema):
     qcollection: Optional[str] = None
     status: Optional[str] = None
-    users: Optional[list[ProjectUsersBaseSchema]] = []
+    user_rights: Optional[list[ProjectUsersBaseSchema]]
+    project_state: Optional[list[ProjectStateBaseSchema]]
     ...
 
 
 #import the circular deps and update forward
 from .projectusers_schema import ProjectUsersBaseSchema
+from .project_state_schema import ProjectStateBaseSchema
 ProjectFullSchema.update_forward_refs()

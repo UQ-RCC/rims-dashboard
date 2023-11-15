@@ -7,6 +7,7 @@ from .base_schema import BaseSchema
 #use forward refs for circular deps
 SystemUserRightsBaseSchema = ForwardRef('SystemUserRightsBaseSchema')
 ProjectUsersBaseSchema = ForwardRef('ProjectUsersBaseSchema')
+UserStateBaseSchema = ForwardRef('UserStateBaseSchema')
 
 class UserBaseSchema(BaseSchema):
     username: str
@@ -29,7 +30,8 @@ class UserFullSchema(UserBaseSchema):
     active: bool
     admin: bool = False
     system_rights: Optional[list[SystemUserRightsBaseSchema]]
-    projects: Optional[list[ProjectUsersBaseSchema]] = []
+    project_rights: Optional[list[ProjectUsersBaseSchema]]
+    user_state: Optional[list[UserStateBaseSchema]]
 
 # Properties on creation
 class UserCreateSchema(UserBaseSchema):
@@ -47,4 +49,5 @@ class UserReceiveSchema(UserBaseSchema):
 #import the circular deps and update forward
 from .system_user_rights_schema import SystemUserRightsBaseSchema
 from .projectusers_schema import ProjectUsersBaseSchema
+from .user_state_schema import UserStateBaseSchema
 UserFullSchema.update_forward_refs()

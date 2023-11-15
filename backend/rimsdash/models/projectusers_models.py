@@ -11,8 +11,8 @@ class ProjectUsersModel(Base):
     username = Column(String, ForeignKey('rduser.username'), primary_key=True)
     project_id = Column(Integer, ForeignKey('rdproject.id'), primary_key=True)
     status = Column(Enum(ProjectRight), primary_key=False, index=False, nullable=False)
-    user = relationship("UserModel", back_populates="projects")
-    project = relationship("ProjectModel", back_populates="users")
+    user = relationship("UserModel", back_populates="project_rights")
+    project = relationship("ProjectModel", back_populates="user_rights")
 
 
 """
