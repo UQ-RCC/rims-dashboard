@@ -21,3 +21,9 @@ class UserStateCreateSchema(UserStateBaseSchema):
 
 class UserStateUpdateSchema(UserStateBaseSchema):
     ...
+
+class UserStateTerminalSchema(UserStateBaseSchema):
+    """
+    No onward references, terminates recursion
+    """    
+    ...

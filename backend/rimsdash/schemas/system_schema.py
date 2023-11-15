@@ -20,3 +20,11 @@ class SystemUpdateSchema(SystemBaseSchema):
 # Properties on update
 class SystemReceiveSchema(SystemBaseSchema):
     ...
+
+#export schema
+class SystemTerminalSchema(SystemBaseSchema):
+    """
+    No references, terminates recursion
+    """ 
+    ...
+    

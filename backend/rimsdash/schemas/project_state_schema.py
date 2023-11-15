@@ -21,3 +21,9 @@ class ProjectStateCreateSchema(ProjectStateBaseSchema):
 
 class ProjectStateUpdateSchema(ProjectStateBaseSchema):
     ...
+
+class ProjectStateTerminalSchema(ProjectStateBaseSchema):
+    """
+    No onward references, terminates recursion
+    """
+    ...
