@@ -5,10 +5,17 @@ from rimsdash.models import ProjectRight
 from .base_schema import BaseSchema
 
 #use forward refs for circular deps
-UserTerminatingSchema = ForwardRef('UserTerminatingSchema')
-ProjectTerminatingSchema = ForwardRef('ProjectTerminatingSchema')
-UserTerminalSchema = ForwardRef('UserTerminalSchema')
-ProjectTerminalSchema = ForwardRef('ProjectTerminalSchema')
+
+UserOutSchema = ForwardRef('UserOutSchema')
+UserOutInfoSchema = ForwardRef('UserOutInfoSchema')
+UserOutWithStateSchema = ForwardRef('UserOutWithStateSchema')
+
+ProjectOutSchema = ForwardRef('ProjectOutSchema')
+ProjectOutInfoSchema = ForwardRef('ProjectOutInfoSchema')
+ProjectOutRefsSchema = ForwardRef('ProjectOutRefsSchema')
+ProjectOutWithStateSchema = ForwardRef('ProjectOutWithStateSchema')
+
+ProjectOutRefsFromUserSchema = ForwardRef('ProjectOutRefsFromUserSchema')
 
 class ProjectUsersBaseSchema(BaseSchema):
     username: str
@@ -27,56 +34,77 @@ class ProjectUsersUpdateSchema(ProjectUsersBaseSchema):
 
 class ProjectUsersFullSchema(ProjectUsersBaseSchema):
     ...
-    user: UserTerminatingSchema = None
-    project: ProjectTerminatingSchema = None
+    user: UserOutSchema = None
+    project: ProjectOutSchema = None
 
 
+
+#--------------------
 #export schema
-class ProjectUsersTerminalSchema(ProjectUsersBaseSchema):
+class ProjectUsersOutSchema(ProjectUsersBaseSchema):
     """
     No references, terminates recursion
     """    
     ...
 
-class ProjectUsersTerminatingSchema(ProjectUsersBaseSchema):
+class ProjectUsersOutFromProjectSchema(ProjectUsersBaseSchema):
     """
-    References terminal schema only
-    """     
+    Include linked users with states
+    """    
     ...
-    user: UserTerminalSchema = None
-    project: ProjectTerminalSchema = None
+    user: UserOutWithStateSchema = None
 
-if False:
-    class ProjectUsersPreTerminatingSchema(ProjectUsersBaseSchema):
-        """
-        References terminating schema only
-        """     
-        ...
-        user: UserTerminatingSchema = None
-        project: ProjectTerminatingSchema = None
+class ProjectUsersOutFromUserSchema(ProjectUsersBaseSchema):
+    """
+    Include linked projects with states
+    """    
+    ...    
+    project: ProjectOutWithStateSchema = None
 
-    
-class ProjectUsersTerminatingFromProjectSchema(ProjectUsersBaseSchema):
+
+
+
+
+
+class ProjectUsersOutInfoSchema(ProjectUsersBaseSchema):
+    """
+    No references, terminates recursion
+    """    
+    ...    
+    user: UserOutSchema = None
+    project: ProjectOutSchema = None
+
+
+class ProjectUsersOutRefsFromProjectSchema(ProjectUsersBaseSchema):
     """
     References terminating schema only
     """     
     ...
-    user: UserTerminatingSchema = None
+    user: UserOutInfoSchema = None
 
-class ProjectUsersTerminatingFromUserSchema(ProjectUsersBaseSchema):
+
+#recursion-handling
+class ProjectUsersOutRefsFromUserSchema(ProjectUsersBaseSchema):
     """
     References terminating schema only
     """
     ...
-    project: ProjectTerminatingSchema = None
+    project: ProjectOutRefsSchema = None
+
+
+
+
 
 
 #import the circular deps and update forward
-from .user_schema import UserTerminatingSchema, UserTerminalSchema
-from .project_schema import ProjectTerminatingSchema, ProjectTerminalSchema
+from .user_schema import UserOutSchema, UserOutInfoSchema, UserOutWithStateSchema
+from .project_schema import ProjectOutSchema, ProjectOutInfoSchema, ProjectOutRefsSchema, ProjectOutWithStateSchema
 
 #update local schema with refs
 ProjectUsersFullSchema.update_forward_refs()
-ProjectUsersTerminatingSchema.update_forward_refs()
-ProjectUsersTerminatingFromProjectSchema.update_forward_refs()
-ProjectUsersTerminatingFromUserSchema.update_forward_refs()
+ProjectUsersOutInfoSchema.update_forward_refs()
+ProjectUsersOutRefsFromProjectSchema.update_forward_refs()
+ProjectUsersOutRefsFromUserSchema.update_forward_refs()
+
+ProjectUsersOutFromUserSchema.update_forward_refs()
+ProjectUsersOutFromProjectSchema.update_forward_refs()

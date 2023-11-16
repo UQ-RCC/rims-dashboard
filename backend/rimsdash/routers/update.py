@@ -164,18 +164,18 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
         rights_dict = rims.queries.get_user_rights(user.username)
 
         for key in rights_dict:
-            __schema = schemas.SystemUserRightsCreateSchema(username=user.username, system_id=key, status=SystemRight(rights_dict[key]))
+            __schema = schemas.SystemUserCreateSchema(username=user.username, system_id=key, status=SystemRight(rights_dict[key]))
 
-            __row = crud.system_user_rights.get(db, (user.username, key))
+            __row = crud.systemuser.get(db, (user.username, key))
             __system = crud.system.get(db, key)
 
             #check system exists - report includes systems from other cores            
             if __system is not None:
 
                 if __row is None:
-                    crud.system_user_rights.create(db, __schema)
+                    crud.systemuser.create(db, __schema)
                 else:
-                    crud.system_user_rights.update(db, __row, __schema)
+                    crud.systemuser.update(db, __row, __schema)
             else:
                 logger.info(f"unrecognised rights for user {user.username} on system {key}")    
         

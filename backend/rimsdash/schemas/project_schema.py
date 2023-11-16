@@ -3,11 +3,13 @@ from typing import Optional, ForwardRef
 from .base_schema import BaseSchema
 
 #use forward refs for circular deps
-ProjectStateTerminalSchema = ForwardRef('ProjectStateTerminalSchema')
 
-ProjectUsersTerminalSchema = ForwardRef('ProjectUsersTerminalSchema')
-ProjectUsersTerminatingSchema = ForwardRef('ProjectUsersTerminatingSchema')
-ProjectUsersTerminatingFromProjectSchema = ForwardRef('ProjectUsersTerminatingFromProjectSchema')
+ProjectStateOutSchema=ForwardRef('ProjectStateOutSchema')
+ProjectUsersOutSchema=ForwardRef('ProjectUsersOutSchema')
+ProjectUsersOutFromProjectSchema=ForwardRef('ProjectUsersOutFromProjectSchema')
+ProjectUsersOutRefsFromProjectSchema=ForwardRef('ProjectUsersOutRefsFromProjectSchema')
+ProjectUsersOutInfoSchema=ForwardRef('ProjectUsersOutInfoSchema')
+
 
 class ProjectBaseSchema(BaseSchema):
     id: int
@@ -28,8 +30,8 @@ class ProjectBaseSchema(BaseSchema):
 class ProjectFullSchema(ProjectBaseSchema):
     qcollection: Optional[str] = None
     status: Optional[str] = None
-    project_state: Optional[list[ProjectStateTerminalSchema]]
-    user_rights: Optional[list[ProjectUsersTerminatingSchema]]
+    project_state: Optional[list[ProjectStateOutSchema]]
+    user_rights: Optional[list[ProjectUsersOutSchema]]
     ...
 
 
@@ -55,42 +57,118 @@ class ProjectReceiveSchema(ProjectBaseSchema):
 
 
 
-#export schema
-class ProjectTerminalSchema(ProjectBaseSchema):
+#NEW export schema
+class ProjectOutSchema(ProjectBaseSchema):
     """
-    No references, terminates recursion
+    base export, no references
     """    
     ...
-    id: int
     qcollection: str = None
     status: str = None
 
-class ProjectTerminatingSchema(ProjectBaseSchema):
+class ProjectOutWithStateSchema(ProjectOutSchema):
     """
-    References terminal schema only
-    """ 
-    ...
-    qcollection: Optional[str] = None
-    status: Optional[str] = None
-    project_state: Optional[list[ProjectStateTerminalSchema]]    
-    user_rights: Optional[list[ProjectUsersTerminalSchema]]    
 
-class ProjectPreTerminatingSchema(ProjectBaseSchema):
+    FUTURE: consider merging this with ProjectOutSchema 
+        and creating ProjectNoRefs for ProjectStateSchema only
     """
-    References terminating schema only
+    ...
+    project_state: Optional[list[ProjectStateOutSchema]]
+
+
+class ProjectOutInfoSchema(ProjectOutSchema):
+    """
+    UNUSED
     """ 
     ...
-    qcollection: Optional[str] = None
-    status: Optional[str] = None
-    project_state: Optional[list[ProjectStateTerminalSchema]]    
-    user_rights: Optional[list[ProjectUsersTerminatingFromProjectSchema]]
+    project_state: Optional[list[ProjectStateOutSchema]]    
+    user_rights: Optional[list[ProjectUsersOutSchema]]
+
+
+class ProjectOutRefsSchema(ProjectOutSchema):
+    """
+    include users and user state
+    """ 
+    ...
+    project_state: Optional[list[ProjectStateOutSchema]]    
+    user_rights: Optional[list[ProjectUsersOutFromProjectSchema]]  
+
+
+class ProjectOutExtendedRefsSchema(ProjectOutSchema):
+    """
+    UNUSED
+    """ 
+    ...
+    project_state: Optional[list[ProjectStateOutSchema]]    
+    user_rights: Optional[list[ProjectUsersOutRefsFromProjectSchema]]
+
+
+#recursion-handling
+class ProjectOutRefsFromUserSchema(ProjectOutSchema):
+    """
+    UNUSED
+    """
+    project_state: Optional[list[ProjectStateOutSchema]]
+    user_rights: Optional[list[ProjectUsersOutInfoSchema]]
+
 
 
 
 #import the circular deps and update forward
-from .projectusers_schema import ProjectUsersTerminalSchema, ProjectUsersTerminatingSchema, ProjectUsersTerminatingFromProjectSchema
-from .project_state_schema import ProjectStateTerminalSchema
+from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersOutInfoSchema, ProjectUsersOutRefsFromProjectSchema, ProjectUsersOutFromProjectSchema
+from .project_state_schema import ProjectStateOutSchema
+
 
 ProjectFullSchema.update_forward_refs()
-ProjectTerminatingSchema.update_forward_refs()
-ProjectPreTerminatingSchema.update_forward_refs()
+
+ProjectOutWithStateSchema.update_forward_refs()
+
+
+ProjectOutInfoSchema.update_forward_refs()
+ProjectOutRefsSchema.update_forward_refs()
+ProjectOutExtendedRefsSchema.update_forward_refs()
+ProjectOutRefsFromUserSchema.update_forward_refs()
+
+"""
+
+PROJECT TABLE:
+
+seach by: user
+
+project
+	*local
+	state
+	projectuser
+		user
+			*local
+			state
+
+
+search by: project user
+
+user
+	*local
+	state
+	projectuser
+		project
+			*local
+			state
+	systemuser
+		system
+			*local
+
+
+
+user_state
+	*local
+	user
+		*local
+		state
+		projectuser
+			project
+				*local
+				state
+		systemuser
+			system
+				*local
+"""

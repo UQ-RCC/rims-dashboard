@@ -1,8 +1,13 @@
-from typing import Optional
+from typing import Optional, ForwardRef
 
 from .base_schema import BaseSchema
 
 from rimsdash.models import IStatus
+
+
+ProjectOutSchema=ForwardRef('ProjectOutSchema')
+ProjectOutInfoSchema=ForwardRef('ProjectOutInfoSchema')
+
 
 class ProjectStateBaseSchema(BaseSchema):
     project_id: int
@@ -22,8 +27,26 @@ class ProjectStateCreateSchema(ProjectStateBaseSchema):
 class ProjectStateUpdateSchema(ProjectStateBaseSchema):
     ...
 
-class ProjectStateTerminalSchema(ProjectStateBaseSchema):
+
+class ProjectStateOutSchema(ProjectStateBaseSchema):
     """
     No onward references, terminates recursion
     """
     ...
+
+class ProjectStateOutInfoSchema(ProjectStateBaseSchema):
+    """
+    No onward references, terminates recursion
+    """
+    project: ProjectOutSchema
+
+
+class ProjectStateOutFullRefsSchema(ProjectStateBaseSchema):
+    """
+    No onward references, terminates recursion
+    """
+    project: ProjectOutInfoSchema
+
+
+ProjectStateOutInfoSchema.update_forward_refs()
+ProjectStateOutFullRefsSchema.update_forward_refs()

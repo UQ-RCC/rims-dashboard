@@ -5,11 +5,15 @@ from rimsdash.models import SystemRight
 from .base_schema import BaseSchema
 
 #use forward refs for circular deps
-SystemUserRightsTerminalSchema = ForwardRef('SystemUserRightsTerminalSchema')
-UserStateTerminalSchema = ForwardRef('UserStateTerminalSchema')
-ProjectUsersTerminalSchema = ForwardRef('ProjectUsersTerminalSchema')
-ProjectUsersTerminatingSchema = ForwardRef('ProjectUsersTerminatingSchema')
-ProjectUsersTerminatingFromUserSchema = ForwardRef('ProjectUsersTerminatingFromUserSchema')
+
+#NEW
+UserStateOutSchema=ForwardRef('UserStateOutSchema')
+ProjectUsersOutSchema=ForwardRef('ProjectUsersOutSchema')
+ProjectUsersOutFromUserSchema=ForwardRef('ProjectUsersOutFromUserSchema')
+ProjectUsersOutInfoSchema=ForwardRef('ProjectUsersOutInfoSchema')
+ProjectUsersOutRefsFromUserSchema=ForwardRef('ProjectUsersOutRefsFromUserSchema')
+SystemUserOutSchema=ForwardRef('SystemUserOutSchema')
+SystemUserOutInfoSchema=ForwardRef('SystemUserOutInfoSchema')
 
 class UserBaseSchema(BaseSchema):
     username: str
@@ -26,9 +30,9 @@ class UserBaseSchema(BaseSchema):
 class UserFullSchema(UserBaseSchema):
     ...
     admin: Optional[bool]
-    user_state: Optional[list[UserStateTerminalSchema]]
-    system_rights: Optional[list[SystemUserRightsTerminalSchema]]
-    project_rights: Optional[list[ProjectUsersTerminatingSchema]]
+    user_state: Optional[list[UserStateOutSchema]]
+    system_rights: Optional[list[SystemUserOutSchema]]
+    project_rights: Optional[list[ProjectUsersOutInfoSchema]]
 
 
 # Properties on creation
@@ -50,34 +54,6 @@ class UserUpdateAdminSchema(BaseSchema):
 class UserReceiveSchema(UserBaseSchema):
     ...
 
-#export schema
-
-class UserTerminalSchema(UserBaseSchema):
-    """
-    References terminal schema only
-    """
-    ...
-    admin: bool = False
-
-class UserTerminatingSchema(UserBaseSchema):
-    """
-    References terminal schema only
-    """    
-    ...
-    admin: bool = False
-    user_state: Optional[list[UserStateTerminalSchema]]
-    system_rights: Optional[list[SystemUserRightsTerminalSchema]]
-    project_rights: Optional[list[ProjectUsersTerminalSchema]]
-
-class UserPreTerminatingSchema(UserBaseSchema):
-    """
-    References terminating schema only
-    """    
-    ...
-    admin: bool = False
-    user_state: Optional[list[UserStateTerminalSchema]]
-    system_rights: Optional[list[SystemUserRightsTerminalSchema]]
-    project_rights: Optional[list[ProjectUsersTerminatingFromUserSchema]]
 
 # return schema
 
@@ -88,16 +64,67 @@ class UserReturnAdminSchema(BaseSchema):
         orm_mode = True
 
 
+#export schema NEW
+
+class UserOutSchema(UserBaseSchema):
+    """
+    base export, no references
+    """ 
+    ...
+    admin: bool = False
+
+
+class UserOutWithStateSchema(UserOutSchema):
+    """
+
+    FUTURE: consider merging this with ProjectOutSchema 
+        and creating ProjectNoRefs for ProjectStateSchema only
+    """
+    ...
+    user_state: Optional[list[UserStateOutSchema]]
+
+
+class UserOutInfoSchema(UserOutSchema):
+    """
+    UNUSED
+    """
+    ...
+    user_state: Optional[list[UserStateOutSchema]]
+    system_rights: Optional[list[SystemUserOutSchema]]
+    project_rights: Optional[list[ProjectUsersOutSchema]]
+
+class UserOutRefsSchema(UserOutSchema):
+    """
+    include projects w/ state, and systems
+    """
+    ...
+    user_state: Optional[list[UserStateOutSchema]]
+    system_rights: Optional[list[SystemUserOutInfoSchema]]
+    project_rights: Optional[list[ProjectUsersOutFromUserSchema]]
+
+
+class UserOutExtendedRefsSchema(UserOutSchema):
+    """
+    UNUSED
+    """
+    ...
+    user_state: Optional[list[UserStateOutSchema]]
+    system_rights: Optional[list[SystemUserOutInfoSchema]]
+    project_rights: Optional[list[ProjectUsersOutInfoSchema]]
+
+
+
 #import the circular deps and update forward
-from .system_user_rights_schema import SystemUserRightsTerminalSchema
-from .projectusers_schema import ProjectUsersTerminalSchema, ProjectUsersTerminatingSchema, ProjectUsersTerminatingFromUserSchema
-from .user_state_schema import UserStateTerminalSchema
+from .systemuser_schema import SystemUserOutSchema, SystemUserOutInfoSchema
+from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersOutInfoSchema, ProjectUsersOutFromUserSchema
+from .user_state_schema import UserStateOutSchema
 
 #update local schema with refs
 UserFullSchema.update_forward_refs()
-UserTerminatingSchema.update_forward_refs()
-UserPreTerminatingSchema.update_forward_refs()
-
+UserOutWithStateSchema.update_forward_refs()
+UserOutInfoSchema.update_forward_refs()
+UserOutRefsSchema.update_forward_refs()
+UserOutExtendedRefsSchema.update_forward_refs()
 
 
 """

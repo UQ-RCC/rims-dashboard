@@ -4,4 +4,4 @@ from .project_models import ProjectModel
 from .system_models import SystemModel
 from .project_state_models import ProjectStateModel
 from .user_state_models import UserStateModel
-from .system_user_rights_models import SystemUserRightsModel
+from .systemuser_models import SystemUserModel

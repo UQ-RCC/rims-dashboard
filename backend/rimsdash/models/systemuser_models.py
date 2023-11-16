@@ -6,7 +6,7 @@ from .base_model import Base, SystemRight
 from .user_models import UserModel
 from .system_models import SystemModel
 
-class SystemUserRightsModel(Base):
+class SystemUserModel(Base):
     """
     junction table linking user + system with rights level
     """
