@@ -1,6 +1,7 @@
 import rimsdash.external.rims.queries as queries
 import rimsdash.external.rims.translate as translate
 
+import rimsdash.config as config
 
 def get_system_list() -> list[dict]:
     _rims_system_data = queries.get_systems()
@@ -35,4 +36,15 @@ def get_project_details() -> list[dict]:
     return project_details
 
 
+def get_admin_status(username: str) -> bool:
+
+    _system_to_check = config.get('ppms','system_for_admin_check') 
+
+    result = False
+
+    _rights_dict = queries.get_admin_rights(username, _system_to_check)
+
+    result = translate.validate_admin_check(_rights_dict)
+    
+    return result
 

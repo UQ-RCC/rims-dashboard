@@ -25,7 +25,7 @@ class UserBaseSchema(BaseSchema):
 #complete DB schema with all fields
 class UserFullSchema(UserBaseSchema):
     ...
-    admin: bool = False
+    admin: Optional[bool]
     user_state: Optional[list[UserStateTerminalSchema]]
     system_rights: Optional[list[SystemUserRightsTerminalSchema]]
     project_rights: Optional[list[ProjectUsersTerminatingSchema]]
@@ -39,6 +39,13 @@ class UserCreateSchema(UserBaseSchema):
 # Properties on update
 class UserUpdateSchema(UserBaseSchema):
     ...
+
+# Properties on update
+class UserUpdateAdminSchema(BaseSchema):
+    admin: Optional[bool]
+
+    class Config:
+        orm_mode = True
 
 class UserReceiveSchema(UserBaseSchema):
     ...
@@ -72,6 +79,14 @@ class UserPreTerminatingSchema(UserBaseSchema):
     system_rights: Optional[list[SystemUserRightsTerminalSchema]]
     project_rights: Optional[list[ProjectUsersTerminatingFromUserSchema]]
 
+# return schema
+
+class UserReturnAdminSchema(BaseSchema):
+    admin: bool = False
+
+    class Config:
+        orm_mode = True
+
 
 #import the circular deps and update forward
 from .system_user_rights_schema import SystemUserRightsTerminalSchema
@@ -82,3 +97,59 @@ from .user_state_schema import UserStateTerminalSchema
 UserFullSchema.update_forward_refs()
 UserTerminatingSchema.update_forward_refs()
 UserPreTerminatingSchema.update_forward_refs()
+
+
+
+"""
+MOCK 
+
+Info only
+
+Info + State
+
+Info + State + project rights
+
+Info + State + project rights + project info
+
+---------------------
+
+UserData
+	#eg. user info
+	
+UserDataWithRefs
+	#eg. user info
+	#	+ user-project-rights*
+	#	+ user-system-rights*    
+	#	+ user-state*
+
+UserDataWithExtendedRefs
+	#eg. user info
+	#	+ user-project-rights
+	#		+ project info*
+	#	+ user-system-rights
+    #       + system info*
+	#	+ user-state*
+
+UserDataWithFullRefs
+	#	+ user-project-rights
+	#		+ project info
+	#			+ project-user-rights
+	#				+user info*
+	#			+ project-state*
+	#	+ user-system-rights
+    #       + system info*    
+	#	+ user-state*
+
+
+UserStateExport
+    # user_state
+    #   + user
+    #	    + user-project-rights
+    #		    + project info
+    #			    + project-user-rights
+    #				    +user info*
+    #       		+ project-state*
+    
+    
+
+"""

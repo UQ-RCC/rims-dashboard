@@ -6,23 +6,25 @@ from fastapi_utils.session import FastAPISessionMaker
 
 import rimsdash.config as config
 import rimsdash.db as rdb
-import rimsdash.external as external
+import rimsdash.external.rims as rims
 import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 import rimsdash.collate as collate
 
 from rimsdash.models import SystemRight, ProjectRight
 
+"""
 SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
                            f"{config.get('database', 'db_username')}:"
                            f"{config.get('database', 'db_password')}@"
                            f"{config.get('database', 'host')}:"
                            f"{config.get('database', 'port')}/"
                            f"{config.get('database', 'db_name')}")
+"""
 
 logger = logging.getLogger('rimsdash')
 
-sessionmaker = FastAPISessionMaker(SQLALCHEMY_DATABASE_URL)
+#sessionmaker = FastAPISessionMaker(SQLALCHEMY_DATABASE_URL)
 
 def sync_systems(db: Session = Depends(rdb.get_db)):
     """
@@ -32,7 +34,7 @@ def sync_systems(db: Session = Depends(rdb.get_db)):
     """
 
     logger.info(f"getting system list from RIMS")
-    systems: list[dict] = external.rims.get_system_list()
+    systems: list[dict] = rims.get_system_list()
 
     logger.info(f"reading system list into DB")
     for system in systems:
@@ -59,7 +61,7 @@ def sync_users(db: Session = Depends(rdb.get_db)):
     """
 
     logger.info(f"getting user list from RIMS")
-    users: list[dict] = external.rims.get_user_list()
+    users: list[dict] = rims.get_user_list()
 
     logger.info(f"reading user list into DB")
     for user in users:
@@ -78,6 +80,24 @@ def sync_users(db: Session = Depends(rdb.get_db)):
             crud.user.update(db, __row, user_in)
 
 
+def sync_user_admin(db: Session = Depends(rdb.get_db), skip_existing: bool = False):
+    """
+    Sync admin status in DB to external RIMS DB
+    """
+    for __row in crud.user.get_all(db):
+        if __row is not None:
+            if skip_existing and __row.admin is not None:
+                pass
+            else:
+                print(__row.username)
+                __admin = rims.get_admin_status(__row.username)
+
+                user_admin_in = schemas.user_schema.UserUpdateAdminSchema(admin=__admin)
+
+                crud.user.update(db, __row, user_admin_in)
+
+
+
 def sync_projects(db: Session = Depends(rdb.get_db)):
     """
     Sync local project DB to external RIMS DB
@@ -86,7 +106,7 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
     """
 
     logger.info(f"getting project list from RIMS")
-    projects: list[dict] = external.rims.get_project_list()
+    projects: list[dict] = rims.get_project_list()
 
     logger.info(f"reading project list into DB")
     for project in projects:
@@ -105,7 +125,7 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
             crud.project.update(db, _row, project_in)
 
     logger.info(f"getting additional project details from RIMS")
-    project_details: list[dict] = external.rims.get_project_details()
+    project_details: list[dict] = rims.get_project_details()
 
     logger.info(f"updating DB with additional project details")
     for project in project_details:
@@ -141,7 +161,7 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
             break
 
         print(user.username)
-        rights_dict = external.rims.queries.get_user_rights(user.username)
+        rights_dict = rims.queries.get_user_rights(user.username)
 
         for key in rights_dict:
             __schema = schemas.SystemUserRightsCreateSchema(username=user.username, system_id=key, status=SystemRight(rights_dict[key]))
@@ -160,6 +180,10 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
                 logger.info(f"unrecognised rights for user {user.username} on system {key}")    
         
         _counter+=1 #debug
+
+
+
+
 
 def sync_project_users(db: Session = Depends(rdb.get_db)):
     """
@@ -181,7 +205,7 @@ def sync_project_users(db: Session = Depends(rdb.get_db)):
             break
 
         print(project.id)
-        username_list = external.rims.queries.get_project_users(project.id)
+        username_list = rims.queries.get_project_users(project.id)
 
         for username in username_list:
             __schema = schemas.ProjectUsersBaseSchema(username=username, project_id=project.id, status=ProjectRight("M"))
@@ -244,36 +268,29 @@ def process_users(db: Session = Depends(rdb.get_db)):
             user_state = schemas.UserStateUpdateSchema.validate(user_state)
             crud.user_state.update(db, _row, user_state)
 
-def get_session():
-    with sessionmaker.context_session() as db:
-        return db
-
 def run_sync():
     """
     perform primary sync
     """
     logger.info("starting DB update")
 
-    with sessionmaker.context_session() as db:
+    with rdb.sessionmaker.context_session() as db:
         sync_systems(db)    #0 min
         sync_users(db)      #1 min
         sync_projects(db)   #2 min
-        return db
 
 def run_extended_sync():
     """
     perform extension sync with individual calls
     """
-    with sessionmaker.context_session() as db:
+    with rdb.sessionmaker.context_session() as db:
         sync_user_rights(db)    #15 min
         sync_project_users(db)  #5 min
-        return db
 
 def run_state_processing():
     """
     perform extension sync with individual calls
     """
-    with sessionmaker.context_session() as db:
+    with rdb.sessionmaker.context_session() as db:
         process_projects(db)
-        process_users(db)
-        return db    
+        process_users(db) 

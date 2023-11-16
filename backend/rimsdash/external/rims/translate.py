@@ -69,6 +69,21 @@ def validate_project_list(rims_project_list: list[dict]) -> list[dict]:
     
     return result
 
+def validate_admin_check(rights_dict: dict) -> bool:
+    result = False
+
+    try:
+        if rights_dict['rights']=='OK' and rights_dict['admin']==True:
+            result = True
+    
+        _schema = schemas.user_schema.UserUpdateAdminSchema(admin=result)
+
+    except:
+        return False
+    
+    finally:
+        return result
+
 def validate_project_details(rims_project_details: list[dict]) -> list[dict]:
     """
     validate return from projectdetailsv2 report 

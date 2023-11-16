@@ -13,7 +13,7 @@ class UserModel(Base):
     email = Column(String, primary_key=False, index=False, nullable=False)
     group = Column(String, primary_key=False, index=False, nullable=False)
     active = Column(Boolean, primary_key=False, index=False, nullable=False, default=False)
-    admin = Column(Boolean, primary_key=False, index=False, nullable=True, default=False)
+    admin = Column(Boolean, primary_key=False, index=False, nullable=True)
     #rights = Column(MutableDict.as_mutable(JSON), primary_key=False, index=False, nullable=True, default={})
     #   strings to avoid circular import - ie. SystemUserRightsModel.user    
     system_rights = relationship('SystemUserRightsModel', back_populates='user')

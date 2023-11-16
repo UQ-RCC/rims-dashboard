@@ -250,7 +250,7 @@ def get_project_list(active_only = False) -> list[dict]:
         return []
 
 
-def rightcheck(login: str, sysid: int):
+def get_admin_rights(login: str, sysid: int):
     """
     checks user's rights on a system
     field returns "ADM" if user is an admin 

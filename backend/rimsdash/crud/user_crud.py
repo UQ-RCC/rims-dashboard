@@ -24,7 +24,11 @@ class CRUDUser(CRUDBase[UserModel, UserCreateSchema, UserUpdateSchema]):
     def get_by_userid(self, db: Session, *, userid: int) -> Optional[UserModel]:
         return db.query(UserModel).filter(UserModel.userid == userid).one()
 
-    def get_all(self, db: Session) -> Optional[UserModel]:
+    def get_all(self, db: Session) -> Optional[list[UserModel]]:
         return db.query(UserModel).all()
+    
+    def get_admins(self, db: Session, *, admin_status: bool = True) -> Optional[list[UserModel]]:
+        return db.query(UserModel).filter(UserModel.admin == admin_status).all()
+
 
 user = CRUDUser(UserModel)

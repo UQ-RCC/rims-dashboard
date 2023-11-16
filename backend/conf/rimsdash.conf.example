@@ -16,6 +16,7 @@ ppms_url=https://rims.uq.edu.au/
 api2_key=xxxxxx
 timezone=Australia/Brisbane
 core_id=2
+system_for_admin_check=1
 
 [visualisation]
 min_hours=250
