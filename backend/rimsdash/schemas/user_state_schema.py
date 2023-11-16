@@ -6,7 +6,6 @@ from rimsdash.models import IStatus
 
 
 UserOutSchema=ForwardRef('UserOutSchema')
-UserOutInfoSchema=ForwardRef('UserOutInfoSchema')
 
 class UserStateBaseSchema(BaseSchema):
     username: str
@@ -42,15 +41,8 @@ class UserStateOutInfoSchema(UserStateBaseSchema):
     user: UserOutSchema
 
 
-class ProjectStateExportFullRefsSchema(UserStateBaseSchema):
-    """
-    No onward references, terminates recursion
-    """
-    user: UserOutInfoSchema
 
 
-
-from .user_schema import UserOutSchema, UserOutInfoSchema
+from .user_schema import UserOutSchema
 
 UserStateOutInfoSchema.update_forward_refs()
-ProjectStateExportFullRefsSchema.update_forward_refs()

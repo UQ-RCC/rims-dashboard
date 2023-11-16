@@ -8,12 +8,10 @@ from .base_schema import BaseSchema
 
 #NEW
 UserStateOutSchema=ForwardRef('UserStateOutSchema')
-ProjectUsersOutSchema=ForwardRef('ProjectUsersOutSchema')
 ProjectUsersOutFromUserSchema=ForwardRef('ProjectUsersOutFromUserSchema')
-ProjectUsersOutInfoSchema=ForwardRef('ProjectUsersOutInfoSchema')
-ProjectUsersOutRefsFromUserSchema=ForwardRef('ProjectUsersOutRefsFromUserSchema')
-SystemUserOutSchema=ForwardRef('SystemUserOutSchema')
 SystemUserOutInfoSchema=ForwardRef('SystemUserOutInfoSchema')
+SystemUserOutSchema = ForwardRef('SystemUserOutSchema')
+ProjectUsersOutSchema = ForwardRef('ProjectUsersOutSchema')
 
 class UserBaseSchema(BaseSchema):
     username: str
@@ -32,7 +30,7 @@ class UserFullSchema(UserBaseSchema):
     admin: Optional[bool]
     user_state: Optional[list[UserStateOutSchema]]
     system_rights: Optional[list[SystemUserOutSchema]]
-    project_rights: Optional[list[ProjectUsersOutInfoSchema]]
+    project_rights: Optional[list[ProjectUsersOutSchema]]
 
 
 # Properties on creation
@@ -64,7 +62,10 @@ class UserReturnAdminSchema(BaseSchema):
         orm_mode = True
 
 
-#export schema NEW
+#export schema
+#---------------
+#   naming convention:  
+#       out > info > refs > extended > full
 
 class UserOutSchema(UserBaseSchema):
     """
@@ -84,15 +85,6 @@ class UserOutWithStateSchema(UserOutSchema):
     user_state: Optional[list[UserStateOutSchema]]
 
 
-class UserOutInfoSchema(UserOutSchema):
-    """
-    UNUSED
-    """
-    ...
-    user_state: Optional[list[UserStateOutSchema]]
-    system_rights: Optional[list[SystemUserOutSchema]]
-    project_rights: Optional[list[ProjectUsersOutSchema]]
-
 class UserOutRefsSchema(UserOutSchema):
     """
     include projects w/ state, and systems
@@ -103,28 +95,17 @@ class UserOutRefsSchema(UserOutSchema):
     project_rights: Optional[list[ProjectUsersOutFromUserSchema]]
 
 
-class UserOutExtendedRefsSchema(UserOutSchema):
-    """
-    UNUSED
-    """
-    ...
-    user_state: Optional[list[UserStateOutSchema]]
-    system_rights: Optional[list[SystemUserOutInfoSchema]]
-    project_rights: Optional[list[ProjectUsersOutInfoSchema]]
-
-
 
 #import the circular deps and update forward
 from .systemuser_schema import SystemUserOutSchema, SystemUserOutInfoSchema
-from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersOutInfoSchema, ProjectUsersOutFromUserSchema
+from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersOutFromUserSchema
 from .user_state_schema import UserStateOutSchema
 
 #update local schema with refs
 UserFullSchema.update_forward_refs()
 UserOutWithStateSchema.update_forward_refs()
-UserOutInfoSchema.update_forward_refs()
 UserOutRefsSchema.update_forward_refs()
-UserOutExtendedRefsSchema.update_forward_refs()
+
 
 
 """

@@ -3,7 +3,6 @@ from typing import Optional, ForwardRef
 from .base_schema import BaseSchema
 
 SystemUserOutSchema = ForwardRef('SystemUserOutSchema')
-SystemUserOutRefsFromSystemSchema = ForwardRef('SystemUserOutRefsFromSystemSchema')
 
 class SystemBaseSchema(BaseSchema):
     id: int
@@ -25,15 +24,17 @@ class SystemReceiveSchema(SystemBaseSchema):
     ...
 
 
-
 #export schema
+#---------------
+#   naming convention:  
+#       out > info > refs > extended > full
+
 class SystemOutSchema(SystemBaseSchema):
     """
     No references, terminates recursion
     """ 
     ...
 
-#export schema
 class SystemOutInfoSchema(SystemBaseSchema):
     """
     No references, terminates recursion
@@ -41,17 +42,8 @@ class SystemOutInfoSchema(SystemBaseSchema):
     ...
     system_rights: Optional[list[SystemUserOutSchema]]
 
-#export schema
-class SystemOutRefsSchema(SystemBaseSchema):
-    """
-    No references, terminates recursion
-    """ 
-    ...
-    system_rights: Optional[list[SystemUserOutRefsFromSystemSchema]]
 
 
-
-from .systemuser_schema import SystemUserOutSchema, SystemUserOutRefsFromSystemSchema
+from .systemuser_schema import SystemUserOutSchema
 
 SystemOutInfoSchema.update_forward_refs()
-SystemOutRefsSchema.update_forward_refs()

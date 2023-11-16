@@ -8,7 +8,6 @@ from .base_schema import BaseSchema
 
 UserOutSchema = ForwardRef('UserOutSchema')
 SystemOutSchema = ForwardRef('SystemOutSchema')
-SystemOutInfoSchema = ForwardRef('SystemOutInfoSchema')
 
 class SystemUserBaseSchema(BaseSchema):
     username: str
@@ -32,6 +31,10 @@ class SystemUserUpdateSchema(SystemUserBaseSchema):
 
 
 #export schema
+#---------------
+#   naming convention:  
+#       out > info > refs > extended > full
+
 class SystemUserOutSchema(SystemUserBaseSchema):
     ...
 
@@ -40,24 +43,13 @@ class SystemUserOutInfoSchema(SystemUserBaseSchema):
     system: SystemOutSchema = None
     user: UserOutSchema = None
 
-class SystemUserOutRefsFromUserSchema(SystemUserBaseSchema):
-    """
 
-    """    
-    system: SystemOutInfoSchema = None
-
-class SystemUserOutRefsFromSystemSchema(SystemUserBaseSchema):
-    """
-
-    """    
-    user: SystemOutInfoSchema = None
 
 
 #import the circular deps and update forward
 from .user_schema import UserOutSchema
-from .system_schema import SystemOutSchema, SystemOutInfoSchema
+from .system_schema import SystemOutSchema
 
 SystemUserOutInfoSchema.update_forward_refs()
-SystemUserOutRefsFromUserSchema.update_forward_refs()
-SystemUserOutRefsFromSystemSchema.update_forward_refs()
+
 
