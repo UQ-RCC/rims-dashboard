@@ -101,7 +101,28 @@ ProjectOutRefsSchema.update_forward_refs()
 
 PROJECT TABLE:
 
-seach by: user
+search by: user
+
+
+project_for_table
+    id
+    title
+    group
+    *projectuser
+        *user
+            username
+            name
+    *state
+   
+
+
+
+
+
+
+
+
+
 
 project
 	*local

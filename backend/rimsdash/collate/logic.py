@@ -36,6 +36,35 @@ def get_rims_key(code: int):
     raise ValueError(f"code {code} not found in lab code lists")
 
 
+def recursive():
+    """
+    for project in projects:
+        __user_ok = IState.off
+
+        if project.type == "Fee for service":
+            __user_ok = IState.ok
+        else:
+            __found_user = False         
+
+            for user in project_users
+                if user.admin == False:
+                    __found_user = True
+                    if user.user_state.ok == IState.ok
+                        __user_ok = True
+            
+            if not __found_user:
+                for user in project_users:
+                    if lower(user.name) in lower(project.title) :
+                        __found_user = True
+                        if user.user_state.ok == IState.ok
+                            __user_ok = True                                   
+            
+            if not __found_user:        
+                logger.warn("No user found for project {project.id}")
+
+        project.project_state.user_ok = __user_ok
+    """
+
 def process_user(user: UserFullSchema) -> UserStateCreateSchema:
     """
     generate status result from user data
