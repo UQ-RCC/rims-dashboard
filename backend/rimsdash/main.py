@@ -9,6 +9,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 #from rimsdash.routers import general
 from rimsdash.routers import navbar
+from rimsdash.routers import projects
 import rimsdash.config as config
 
 
@@ -52,6 +53,14 @@ app.include_router(
     tags=['navbar'],
     responses={404: {"description": "Not found"}},
 )
+
+app.include_router(
+    projects.router,
+    prefix="/rapi/v1",
+    tags=['projects'],
+    responses={404: {"description": "Not found"}},
+)
+
 
 logger.info("App started")
 

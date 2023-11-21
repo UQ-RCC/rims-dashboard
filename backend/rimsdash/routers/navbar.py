@@ -15,34 +15,33 @@ logger = logging.getLogger('rimsdash')
 
 
 @router.get("/checkbackend")
-async def api_checkbackend(db: Session = Depends(rdb.get_db)) -> dict:
+async def api_checkbackend(db: Session = Depends(rdb.get_db)):
 
     result = { 'ok': True }
 
     return result
 
+
 @router.get("/userfromemail", response_model=schemas.user_schema.UserOutSchema)
-async def api_userbyemail(email: str, db: Session = Depends(rdb.get_db)) -> dict:
-
-
+async def api_userbyemail(email: str, db: Session = Depends(rdb.get_db)):
 
     __user = crud.user.get_by_email(db, email=email) 
 
     result = schemas.user_schema.UserOutSchema.validate(__user)
 
-    return result.json()
+    return result
 
-@router.get("/checkadminbyemail")
-async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db)) -> dict:
+@router.get("/checkadminbyemail", response_model=schemas.user_schema.UserReturnAdminSchema)
+async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db)):
 
     __user = crud.user.get_by_email(db, email=email) 
 
     result = schemas.user_schema.UserReturnAdminSchema.validate(__user)
 
-    return result.json()
+    return result
 
 @router.get("/getadminlist")
-async def api_adminslist(db: Session = Depends(rdb.get_db)) -> list[dict]:
+async def api_adminslist(db: Session = Depends(rdb.get_db)) -> str:
     """
     return list of admin users
 

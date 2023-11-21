@@ -9,12 +9,34 @@ export default {
         return data
     },
 
+    async getUserByEmail(email) {
+        let payload = {
+            'email': email
+        }
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userfromemail`, { params: payload } )
+        return data
+    },    
+
+    async checkEmailIsAdmin(email) {
+        let payload = {
+            'email': email
+        }        
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkadminbyemail`, { params: payload } )
+        return data
+    },
+
+    async getAllProjectsWithStates() {        
+
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithstates` )
+        return data
+    },
+
+}
+/*
     async getUserList() {
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userlist`)
         return data
     },
-}
-/*
 
     async getUserState(user_login) {        
         let payload = {
@@ -32,7 +54,7 @@ export default {
         return data
     },
 
-    async getAllProjectStates() {        
+    async getAllProjectsWithStates() {        
 
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectstates` )
         return data

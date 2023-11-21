@@ -96,8 +96,6 @@
 
     Vue.use(VueLogger)
 
-    Vue.$log.info("Navbar start")
-
     export default {
         components:{
         },
@@ -113,7 +111,7 @@
             },
             has_dashboard_access: function() {
                 return this.$keycloak.hasRealmRole("dashboard")
-            },     
+            },
         },
         methods: {
             signout: function(){
@@ -126,20 +124,19 @@
         },
 
         mounted: async function() {
-            Vue.$log.info("NB mounted");
         },
 
-
         created: async function() {
-            Vue.$log.info("NB checking backend connection:");
-            const backend_ok = await RimsdashAPI.checkBackend()
-            Vue.$log.info("NB backend connection:" + backend_ok);
 
-            Vue.$log.info("NB retrieving userdata:" + this.$keycloak.idTokenParsed.email);
+            const backend_ok = await RimsdashAPI.checkBackend()
+            Vue.$log.info("NB backend connection OK: " + backend_ok.ok);      
+
+            Vue.$log.info("NB retrieving userdata: " + this.$keycloak.idTokenParsed.email);
             const user_response = await RimsdashAPI.getUserByEmail(this.$keycloak.idTokenParsed.email)
             this.user_data = user_response
+            Vue.$log.info("NB got userdata: " + user_response.email);
 
-            Vue.$log.info("NB retrieving admin:" + this.$keycloak.idTokenParsed.email);            
+            Vue.$log.info("NB retrieving admin: " + this.$keycloak.idTokenParsed.email);            
             const admin_response = await RimsdashAPI.checkEmailIsAdmin(this.$keycloak.idTokenParsed.email)
             this.has_rims_admin = admin_response.admin
             Vue.$log.info("NB has admin: " + this.has_rims_admin)            
@@ -147,7 +144,7 @@
         
 
     }
-    Vue.$log.info("Navbar end")
+
 </script>
 
 <style>
