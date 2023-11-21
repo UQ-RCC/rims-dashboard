@@ -7,7 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from logging.handlers import TimedRotatingFileHandler
 
-from rimsdash.routers import general
+#from rimsdash.routers import general
+from rimsdash.routers import navbar
 import rimsdash.config as config
 
 
@@ -38,10 +39,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#app.include_router(
+#    general.router,
+#    prefix="/rapi/v1",
+#    tags=['general'],
+#    responses={404: {"description": "Not found"}},
+#)
+
 app.include_router(
-    general.router,
+    navbar.router,
     prefix="/rapi/v1",
-    tags=['general'],
+    tags=['navbar'],
     responses={404: {"description": "Not found"}},
 )
 

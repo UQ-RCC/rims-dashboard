@@ -137,11 +137,11 @@
         },
         created: async function() {
             //retrieve values to populate dropdown
-            Vue.$log.info("initalising")
+            Vue.$log.info("U1 initalising")
             this.userlist = await this.refreshDropdownValues()
             this.default_user_state = await this.retrieveDefaultUserState()
             this.default_project_states = await this.retrieveDefaultUserProjectStates()
-            Vue.$log.info("initalised")              
+            Vue.$log.info("U1 initalised")              
         }
 
     } 

@@ -13,8 +13,18 @@ import rimsdash.schemas as schemas
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
+
+@router.get("/checkbackend")
+async def api_checkbackend(db: Session = Depends(rdb.get_db)) -> dict:
+
+    result = { 'ok': True }
+
+    return result
+
 @router.get("/userfromemail", response_model=schemas.user_schema.UserOutSchema)
 async def api_userbyemail(email: str, db: Session = Depends(rdb.get_db)) -> dict:
+
+
 
     __user = crud.user.get_by_email(db, email=email) 
 

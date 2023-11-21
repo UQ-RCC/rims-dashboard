@@ -6,8 +6,12 @@
 </template>
 
 <script>
-    // import Vue from 'vue'
-    
+    import Vue from 'vue'
+    import VueLogger from 'vuejs-logger'    
+
+    Vue.use(VueLogger)
+
+    Vue.$log.info("Home init")
 
     export default {
         name: 'Home',
@@ -16,9 +20,12 @@
             }
         },
         methods: {
-            
+            mounted: function() {
+                Vue.$log.info("App mounted");
+            }
         },
 
-
     }
+
+    Vue.$log.info("Home end init")
 </script>

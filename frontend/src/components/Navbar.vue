@@ -96,6 +96,8 @@
 
     Vue.use(VueLogger)
 
+    Vue.$log.info("Navbar start")
+
     export default {
         components:{
         },
@@ -123,7 +125,16 @@
             },               
         },
 
+        mounted: async function() {
+            Vue.$log.info("NB mounted");
+        },
+
+
         created: async function() {
+            Vue.$log.info("NB checking backend connection:");
+            const backend_ok = await RimsdashAPI.checkBackend()
+            Vue.$log.info("NB backend connection:" + backend_ok);
+
             Vue.$log.info("NB retrieving userdata:" + this.$keycloak.idTokenParsed.email);
             const user_response = await RimsdashAPI.getUserByEmail(this.$keycloak.idTokenParsed.email)
             this.user_data = user_response
@@ -136,6 +147,7 @@
         
 
     }
+    Vue.$log.info("Navbar end")
 </script>
 
 <style>

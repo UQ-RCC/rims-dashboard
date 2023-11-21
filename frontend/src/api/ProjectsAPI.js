@@ -1,8 +1,10 @@
 //import request from '@/utils/request'
-import axios from 'axios'
-import Vue from 'vue'
+//import axios from 'axios'
+//import Vue from 'vue'
 
 export default {
+}
+/*
     async getUserList() {
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userlist`)
         return data
@@ -17,3 +19,4 @@ export default {
     },
 
 }
+*/

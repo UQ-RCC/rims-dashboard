@@ -3,10 +3,18 @@ import axios from 'axios'
 import Vue from 'vue'
 
 export default {
+
+    async checkBackend() {
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkbackend`)
+        return data
+    },
+
     async getUserList() {
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userlist`)
         return data
     },
+}
+/*
 
     async getUserState(user_login) {        
         let payload = {
@@ -89,3 +97,4 @@ export default {
     },        
 
 }
+*/

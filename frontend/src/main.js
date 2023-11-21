@@ -18,7 +18,7 @@ import axios from 'axios'
 Vue.use(VueLogger)
 Vue.use(VueCookies)
 Vue.use(Notifications)
-Vue.$log.info("Initialising")
+Vue.$log.info("MJS Initialising")
 
 let config = null
 
@@ -27,6 +27,8 @@ const loadConfigAndStart = async () => {
     try {
         //assign config file and data
         config = await axios.get(process.env.BASE_URL + 'config.json')
+        Vue.$log.info("MJS config check: " + config.data.backend)
+
         let Config = config.data
         Vue.prototype.$Config = Config
   
@@ -56,8 +58,8 @@ const loadConfigAndStart = async () => {
                 // if auth good
                 
                 //log authentication
-                //Vue.$log.info("Authenticated")
-                //Vue.$log.info(keycloak)
+                Vue.$log.info("MJS Authenticated: " + keycloak.idTokenParsed.email)
+                
                 Vue.notify({
                 group: 'sysnotif',
                 type: 'warn',
@@ -70,17 +72,20 @@ const loadConfigAndStart = async () => {
                 //adding to prototype makes $keycloak available
                 //   as this.$keycloak in all Views
 
+                Vue.$log.info("MJS Starting app")
                 //start the app
                 new Vue({
                 router,
                 vuetify,
                 render: h => h(App),
                 }).$mount('#app')
+                Vue.$log.info("MJS Started app")                
             }
         }).catch(() => {
             //if error during auth
-            //Vue.$log.error("Authenticated Failed")
+            Vue.$log.error("Authenticated Failed")
             // display message and return to ipp
+
             Vue.notify({
                 group: 'sysnotif',
                 type: 'error',
@@ -88,7 +93,6 @@ const loadConfigAndStart = async () => {
                 text: 'Problem with authentication! move back to home!'
             })
             // window.location.href = Config.signoutUrl
-        
         });
         
         // when token expired
@@ -96,13 +100,13 @@ const loadConfigAndStart = async () => {
           // update
           keycloak.updateToken(Config.keycloak.minValidity).then(function(refreshed) {
               if (refreshed) {
-                //Vue.$log.info('Token refreshed' + refreshed)
+                Vue.$log.info('Token refreshed' + refreshed)
               } else {
-                //Vue.$log.info('Token not refreshed, valid for '
-                //  + Math.round(keycloak.tokenParsed.exp + keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds')
+                Vue.$log.info('Token not refreshed, valid for '
+                  + Math.round(keycloak.tokenParsed.exp + keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds')
               }
             }).catch(function() {
-                //Vue.$log.error(">>> Cannot refresh token")
+                Vue.$log.error(">>> Cannot refresh token")
                 Vue.notify({
                   group: 'sysnotif',
                   type: 'error',
@@ -116,6 +120,9 @@ const loadConfigAndStart = async () => {
     } catch (err) {
         console.error(err);
     }
-  }
-  loadConfigAndStart()
+}
+
+Vue.$log.info("MJS pre-config")
+loadConfigAndStart()
+Vue.$log.info("MJS post-config")
 
