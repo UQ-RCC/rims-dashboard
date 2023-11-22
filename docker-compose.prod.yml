@@ -1,51 +1,75 @@
 version: '3.10'
 
+#----------------------
+#----------------------
 services:
 
+  frontend:
+  #----------------------     
+    build: ./frontend
+
+    command: nginx -g "daemon off;"
+    
+    ports:
+    - 80:80
+    
+    depends_on:
+      backend:
+        condition: service_healthy
+
+
   backend: 
+  #----------------------
     build:  ./backend
-    command: gunicorn --bind 0.0.0.0:5000 rimsdash.manager:app
-    volumes:
-      - ./backend/:/app/         
+
+    command: uvicorn rimsdash.main:app --host 0.0.0.0 --port 5000
+
     expose:
     - 5000
+
     env_file:
       - ./.env.prod
+
     healthcheck:
       test: curl --fail http://localhost:5000/ || exit 1
       interval: 5s
       timeout: 5s
       retries: 3
       start_period: 5s      
- #   depends_on:
- #     - db
 
-  #db:
-  #  image: postgres:13
-  #  volumes:
-  #    - .postgres_data_prod:/var/lib/postgresql/data/
-  #  env_file:
-  #    - ./.env.prod.db
-  #  environment:
-  #    - POSTGRES_USER_FILE=/run/secrets/db_user
-  #    - POSTGRES_PASSWORD_FILE=/run/secrets/db_root_password
-  #    - POSTGRES_DB=rimsdash_db_prod
-  
-  frontend:
-    build: ./frontend
-   # command: nginx -g "daemon off;"
-    ports:
-    - 80:80
     depends_on:
-      backend:
-        condition: service_healthy
+      - db
 
+  db:
+  #----------------------
+    image: postgres:12
+
+    volumes:
+      - .rdb_postgres_data:/var/lib/postgresql/data/
+    
+    env_file:
+      - ./.env.prod.db
+    
+    environment:
+      - POSTGRES_USER_FILE=/run/secrets/db_user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_root_password
+      - POSTGRES_DB_FILE=/run/secrets/db_name
+  
+#----------------------
+#----------------------
 secrets:
   db_user: 
     file: .secrets/db_user.txt
   db_root_password: 
     file: .secrets/db_root_password.txt
+  db_name: 
+    file: .secrets/db_name.txt
 
+#----------------------
+#----------------------
+volumes:
+  rdb_postgres_data:
+    driver: local
 
-#volumes:
-#  .postgres_data_prod:
+#----------------------
+#----------------------
