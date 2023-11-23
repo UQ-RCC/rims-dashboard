@@ -78,21 +78,92 @@
                     </td>                                                           
                     <td>
                         <StatusIndicatorLocal :status="item.project_state[0].phase" :pulse="false"/>
-                    </td>   
+                    </td>            
                     <td>
-                        <v-btn @click="expand(!isExpanded); retrieveProjectDetails(item.id)">Details</v-btn>
-                    </td>                                    
+                        <v-btn @click="expand(!isExpanded)">Details</v-btn>
+                    </td>                                               
                 </tr> 
             </template> 
             
             <template v-slot:expanded-item="{ item }">
-                <td>Expanded Content {{ item.id }} {{ this.expanded_data.status }}</td>
+                <v-container>
+                    <v-col>
+                        <v-row>
+                            <h5>{{ item.title }}</h5>
+                        </v-row>                            
+                        <v-row>                        
+                            <h6>{{ item.description }}</h6>
+                        </v-row>
+                    </v-col>
+                    <v-col>
+                        <v-data-table
+                        :headers="usersTableHeaders"
+                        :items="item.user_rights"
+                        item-key="userright.username"
+                        class="elevation-1"
+                        :items-per-page="10"
+                        :sort-by="['userright.username']"
+                        height="500px" width="70%"
+                        >
+                            <template v-slot:item="{ item }">
+                                <tr>
+                                    <td>{{ item.user.name }}</td>
+                                    <td>{{ item.user.username }}</td>
+                                    <td>
+                                        <StatusIndicatorLocal :status="item.user.user_state[0].ok" :pulse="false"/>
+                                    </td>
+                                    <td>
+                                        <StatusIndicatorLocal :status="item.user.user_state[0].active" :pulse="false"/>
+                                    </td>   
+                                    <td>
+                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_aibn" :pulse="false"/>
+                                    </td>  
+                                    <td>
+                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_hawken" :pulse="false"/>
+                                    </td>   
+                                    <td>
+                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_chem" :pulse="false"/>
+                                    </td>                                                           
+                                    <td>
+                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_qbp" :pulse="false"/>
+                                    </td>
+                                </tr>
+                            </template>
+                        </v-data-table>
+                    </v-col>                    
+                </v-container>
             </template>
         </v-data-table>
     </div>
 </template>
 
 <!--
+                        <tr v-for="userright in item.user_rights" :key="userright.username">
+                            <td>{{ userright.user.username }}</td>
+                            <td>{{ userright.user.name }}</td>
+                            <td>
+                                <StatusIndicatorLocal :status="userright.user.user_state[0].ok" :pulse="false"/>
+                            </td>
+                            <td>
+                                <StatusIndicatorLocal :status="userright.user.user_state[0].ok" :pulse="false"/>
+                            </td>
+                            <td>
+                                <StatusIndicatorLocal :status="userright.user.user_state[0].active" :pulse="false"/>
+                            </td>   
+                            <td>
+                                <StatusIndicatorLocal :status="userright.user.user_state[0].access_aibn" :pulse="false"/>
+                            </td>  
+                            <td>
+                                <StatusIndicatorLocal :status="userright.user.user_state[0].access_hawken" :pulse="false"/>
+                            </td>   
+                            <td>
+                                <StatusIndicatorLocal :status="userright.user.user_state[0].access_chem" :pulse="false"/>
+                            </td>                                                           
+                            <td>
+                                <StatusIndicatorLocal :status="userright.user.user_state[0].access_qbp" :pulse="false"/>
+                            </td>                            
+                        </tr>
+
     <template v-slot:body="{ items }">
         <tr>v-for="item in items" :key="item.id"
 
@@ -140,7 +211,18 @@
                     { text: 'OHS', value: 'ohs', width: '4%' },  
                     { text: 'RDM', value: 'rdm', width: '4%' },                                                                      
                     { text: 'Phase', value: 'phase', width: '4%' },
-                    { text: '', value: '', width: '10%' }
+                    { text: '', value: '', width: '10%' },                    
+                ],
+
+                usersTableHeaders: [
+                    { text: 'Username', value: 'username', width: '5%' },
+                    { text: 'Name', value: 'name', width: '30%' },                                     
+                    { text: 'OK', value: 'ok', width: '5%' },                     
+                    { text: 'Active', value: 'active', width: '5%' },  
+                    { text: 'AIBN', value: 'aibn', width: '5%' },  
+                    { text: 'Hawken', value: 'hawken', width: '5%' },  
+                    { text: 'Chem', value: 'chem', width: '5%' },                                                                      
+                    { text: 'QBP', value: 'qbp', width: '5%' }
                 ],
 
                 numberRules: [
@@ -210,7 +292,7 @@
 
                 //retrieve values to populate dropdown
                 try {
-                    __projects = await RimsdashAPI.getAllProjectsWithStates()
+                    __projects = await RimsdashAPI.getAllProjectsWithFullStates()
                 } catch (error) {
                     Vue.$log.info("API call FAILED")                       
                 }             
