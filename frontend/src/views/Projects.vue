@@ -52,6 +52,9 @@
                 :sort-by="['id']"
                 :sort-desc="[false, true]"
                 height="600px" width="100%"
+                show-expand
+                single-expand
+                :expanded.sync="expanded"
         >            
             <template v-slot:body="{ items }">
                  <tr v-for="item in items" :key="item.id">
@@ -77,7 +80,11 @@
                         <StatusIndicatorLocal :status="item.project_state[0].phase" :pulse="false"/>
                     </td>                   
                 </tr> 
-            </template>        
+            </template> 
+            
+            <template v-slot:expanded-item="{ headers, item }">
+                <td :colspan="headers.length">"Expanded Content" {{ item.id }}</td>
+            </template>
         </v-data-table>
     </div>
 </template>
@@ -121,7 +128,7 @@
                     { text: 'Active', value: '', width: '4%' },  
                     { text: 'Billing', value: '', width: '4%' },  
                     { text: 'OHS', value: '', width: '4%' },  
-                    { text: 'RDM', value: '', width: '4%' },                                                                                  
+                    { text: 'RDM', value: '', width: '4%' },                                                                      
                     { text: 'Phase', value: '', width: '4%' },                     
                 ],
 
@@ -199,7 +206,21 @@
                 Vue.$log.info("first project title:  "  + __projects[0].title)  
                 return __projects
             },            
-            
+
+            async retrieveProjectDetails(project_id) {
+                console.log("retrieving project details for " + project_id);
+
+                let project_details = {}
+
+                try {
+                    project_details = await RimsdashAPI.getProjectDetails(project_id)
+                } catch (error) {
+                    Vue.$log.info("API call getProjectDetails FAILED")                       
+                }             
+                Vue.$log.info("retrieved details:  "  + project_details.id)  
+                return project_details
+            },
+
             caseCompare(a, b) {
                 return typeof a === 'string' && typeof b === 'string'
                     ? a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0

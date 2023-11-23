@@ -95,6 +95,21 @@ class UserOutRefsSchema(UserOutSchema):
     project_rights: Optional[list[ProjectUsersOutFromUserSchema]]
 
 
+#Minimum for table
+class UserMinOutSchema(BaseSchema):
+    """
+    base with admin, no email
+    """
+    username: str
+    name: str
+    userid: int
+    group: str
+    active: bool
+    admin: bool = False
+
+    class Config:
+        orm_mode = True
+
 
 #import the circular deps and update forward
 from .systemuser_schema import SystemUserOutSchema, SystemUserOutInfoSchema

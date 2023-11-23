@@ -31,6 +31,15 @@ export default {
         return data
     },
 
+    async getProjectDetails(project_id) {
+        let payload = {
+            'project_id': project_id
+        }
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectdetailwithusers`, { params: payload } )
+        return data
+    },
+
+
 }
 /*
     async getUserList() {

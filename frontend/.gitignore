@@ -34,3 +34,7 @@ coverage
 public/config.json.prod
 node_modules/
 dist/
+
+#modified by yarn build, leave unchanged
+public/index.html   
+

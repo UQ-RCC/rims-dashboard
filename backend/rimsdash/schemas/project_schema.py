@@ -6,6 +6,7 @@ from .base_schema import BaseSchema
 
 ProjectStateOutSchema=ForwardRef('ProjectStateOutSchema')
 ProjectUsersOutSchema=ForwardRef('ProjectUsersOutSchema')
+ProjectUsersOutUserMin=ForwardRef('ProjectUsersOutUserMin')
 ProjectUsersOutFromProjectSchema=ForwardRef('ProjectUsersOutFromProjectSchema')
 
 
@@ -60,6 +61,7 @@ class ProjectReceiveSchema(ProjectBaseSchema):
 #   naming convention:  
 #       out > info > refs > extended > full
 
+
 class ProjectOutSchema(ProjectBaseSchema):
     """
     base export, no references
@@ -85,16 +87,37 @@ class ProjectOutRefsSchema(ProjectOutSchema):
     project_state: Optional[list[ProjectStateOutSchema]]    
     user_rights: Optional[list[ProjectUsersOutFromProjectSchema]]  
 
+#Minimum for table
+class ProjectMinOutSchema(BaseSchema):
+    id: int
+    title: str
+    group: str
+    coreid: int = 2
+    affiliation: str = None
+
+    class Config:
+        orm_mode = True
+
+
+class ProjectOutRefsMinSchema(ProjectMinOutSchema):
+    """
+
+    """
+    ...
+    project_state: Optional[list[ProjectStateOutSchema]]
+    user_rights: Optional[list[ProjectUsersOutUserMin]]     
+
 
 
 #import the circular deps and update forward
-from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersOutFromProjectSchema
+from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersOutFromProjectSchema, ProjectUsersOutUserMin
 from .project_state_schema import ProjectStateOutSchema
 
 
 ProjectFullSchema.update_forward_refs()
 ProjectOutWithStateSchema.update_forward_refs()
 ProjectOutRefsSchema.update_forward_refs()
+ProjectOutRefsMinSchema.update_forward_refs()
 
 
 """

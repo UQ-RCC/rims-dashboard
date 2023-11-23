@@ -7,6 +7,7 @@ from .base_schema import BaseSchema
 #use forward refs for circular deps
 
 UserOutSchema = ForwardRef('UserOutSchema')
+UserMinOutSchema = ForwardRef('UserMinOutSchema')
 UserOutWithStateSchema = ForwardRef('UserOutWithStateSchema')
 
 ProjectOutSchema = ForwardRef('ProjectOutSchema')
@@ -61,10 +62,18 @@ class ProjectUsersOutFromUserSchema(ProjectUsersBaseSchema):
     project: ProjectOutWithStateSchema = None
 
 
+class ProjectUsersOutUserMin(ProjectUsersBaseSchema):
+    """
+    Include linked users with minimum info
+    """    
+    ...
+    user: UserMinOutSchema = None
+
+
 
 
 #import the circular deps and update forward
-from .user_schema import UserOutSchema, UserOutWithStateSchema
+from .user_schema import UserOutSchema, UserOutWithStateSchema, UserMinOutSchema
 from .project_schema import ProjectOutSchema, ProjectOutWithStateSchema
 
 #update local schema with refs
@@ -72,3 +81,4 @@ ProjectUsersFullSchema.update_forward_refs()
 
 ProjectUsersOutFromUserSchema.update_forward_refs()
 ProjectUsersOutFromProjectSchema.update_forward_refs()
+ProjectUsersOutUserMin.update_forward_refs()
