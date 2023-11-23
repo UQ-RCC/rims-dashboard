@@ -17,7 +17,6 @@ services:
       backend:
         condition: service_healthy
 
-
   backend: 
   #----------------------
     build:  ./backend
@@ -27,18 +26,16 @@ services:
     expose:
     - 5000
 
-    env_file:
-      - ./.env.prod
-
     healthcheck:
-      test: curl --fail http://localhost:5000/ || exit 1
+      test: curl --fail http://localhost:5000/rapi/v1/ready || exit 1
       interval: 5s
       timeout: 5s
       retries: 3
       start_period: 5s      
 
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
   #----------------------
@@ -47,28 +44,36 @@ services:
     volumes:
       - .rdb_postgres_data:/var/lib/postgresql/data/
     
-    env_file:
-      - ./.env.prod.db
-    
     environment:
       - POSTGRES_USER_FILE=/run/secrets/db_user
       - POSTGRES_PASSWORD_FILE=/run/secrets/db_root_password
       - POSTGRES_DB_FILE=/run/secrets/db_name
-  
+    secrets:
+      - db_user
+      - db_name
+      - db_root_password
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+        #note: attempts to connect as root and throws error in log, seems to still work
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 #----------------------
 #----------------------
 secrets:
   db_user: 
     file: .secrets/db_user.txt
-  db_root_password: 
-    file: .secrets/db_root_password.txt
   db_name: 
     file: .secrets/db_name.txt
+  db_root_password: 
+    file: .secrets/db_root_password.txt    
 
 #----------------------
 #----------------------
 volumes:
-  rdb_postgres_data:
+  rdb_postgres_data_prod:
     driver: local
 
 #----------------------

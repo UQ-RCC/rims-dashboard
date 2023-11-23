@@ -5,7 +5,7 @@ import Vue from 'vue'
 export default {
 
     async checkBackend() {
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkbackend`)
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/ready`)
         return data
     },
 

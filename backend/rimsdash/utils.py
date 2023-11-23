@@ -1,4 +1,3 @@
-import plotly
 import re
 
 from rimsdash.models import IStatus

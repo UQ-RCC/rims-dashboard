@@ -14,8 +14,8 @@ router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
 
-@router.get("/checkbackend")
-async def api_checkbackend(db: Session = Depends(rdb.get_db)):
+@router.get("/ready")
+async def api_ready(db: Session = Depends(rdb.get_db)):
 
     result = { 'ok': True }
 
