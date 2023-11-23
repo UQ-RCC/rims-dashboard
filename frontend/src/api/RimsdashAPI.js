@@ -25,11 +25,18 @@ export default {
         return data
     },
 
-    async getAllProjectsWithStates() {        
+    async getAllProjectsWithStates() {
 
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithstates` )
         return data
     },
+
+    async getAllProjectsWithFullStates() {
+
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithfullstates` )
+        return data
+    },
+
 
     async getProjectDetails(project_id) {
         let payload = {

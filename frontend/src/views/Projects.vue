@@ -47,7 +47,6 @@
                 :items="projects"
                 item-key="id"
                 class="elevation-1"
-                multi-sort
                 :items-per-page="15"
                 :sort-by="['id']"
                 :sort-desc="[false, true]"
@@ -55,9 +54,10 @@
                 show-expand
                 single-expand
                 :expanded.sync="expanded"
-        >            
-            <template v-slot:body="{ items }">
-                 <tr v-for="item in items" :key="item.id">
+        >
+            <template v-slot:item="{ item, expand, isExpanded }">
+                 <tr>
+                    <td></td>
                     <td>{{ item.id }}</td>
                     <td class="truncate">{{ item.title }}</td>   
                     <td class="truncate">{{ item.group }}</td>
@@ -78,18 +78,24 @@
                     </td>                                                           
                     <td>
                         <StatusIndicatorLocal :status="item.project_state[0].phase" :pulse="false"/>
-                    </td>                   
+                    </td>   
+                    <td>
+                        <v-btn @click="expand(!isExpanded); retrieveProjectDetails(item.id)">Details</v-btn>
+                    </td>                                    
                 </tr> 
             </template> 
             
-            <template v-slot:expanded-item="{ headers, item }">
-                <td :colspan="headers.length">"Expanded Content" {{ item.id }}</td>
+            <template v-slot:expanded-item="{ item }">
+                <td>Expanded Content {{ item.id }} {{ this.expanded_data.status }}</td>
             </template>
         </v-data-table>
     </div>
 </template>
 
 <!--
+    <template v-slot:body="{ items }">
+        <tr>v-for="item in items" :key="item.id"
+
     search field clear button
     https://stackoverflow.com/questions/2803532/how-do-i-put-a-clear-button-inside-my-html-text-input-box-like-the-iphone-does
     maybe just use v-autocomplete or v-search?
@@ -112,6 +118,10 @@
         data() {
             return {
 
+                expanded: [],
+                expanded_data: {},
+                singleExpand: true,
+
                 loading: false,
 
                 projects: [],
@@ -121,15 +131,16 @@
                 filteredGroup: null,
 
                 projectsTableHeaders: [
-                    { text: 'Id', value: 'id', width: '4%' },
-                    { text: 'Title', value: 'title', width: '20%' },                    
+                    { text: 'Id', value: 'id', width: '5%' },
+                    { text: 'Title', value: 'title', width: '30%' },                    
                     { text: 'Group', value: 'group', width: '10%' },                 
-                    { text: 'OK', value: '', width: '4%' },                     
-                    { text: 'Active', value: '', width: '4%' },  
-                    { text: 'Billing', value: '', width: '4%' },  
-                    { text: 'OHS', value: '', width: '4%' },  
-                    { text: 'RDM', value: '', width: '4%' },                                                                      
-                    { text: 'Phase', value: '', width: '4%' },                     
+                    { text: 'OK', value: 'ok', width: '4%' },                     
+                    { text: 'Active', value: 'active', width: '4%' },  
+                    { text: 'Billing', value: 'billing', width: '4%' },  
+                    { text: 'OHS', value: 'ohs', width: '4%' },  
+                    { text: 'RDM', value: 'rdm', width: '4%' },                                                                      
+                    { text: 'Phase', value: 'phase', width: '4%' },
+                    { text: '', value: '', width: '10%' }
                 ],
 
                 numberRules: [
@@ -217,8 +228,10 @@
                 } catch (error) {
                     Vue.$log.info("API call getProjectDetails FAILED")                       
                 }             
-                Vue.$log.info("retrieved details:  "  + project_details.id)  
-                return project_details
+                
+                this.expanded_data = project_details
+
+                Vue.$log.info("retrieved details:  "  + this.expanded_data.status)                  
             },
 
             caseCompare(a, b) {

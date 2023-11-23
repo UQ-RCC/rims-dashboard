@@ -26,6 +26,18 @@ async def api_getallprojectswithstates(db: Session = Depends(rdb.get_db)):
 
     return result
 
+@router.get("/allprojectswithfullstates", response_model=list[schemas.project_schema.ProjectOutRefsSchema])
+async def api_getallprojectswithfullstates(db: Session = Depends(rdb.get_db)): 
+
+    result = []
+
+    __projects = crud.project.get_all(db)
+
+    for project in __projects:
+        result.append(schemas.project_schema.ProjectOutRefsSchema.validate(project))
+
+    return result
+
 
 @router.get("/projectdetailwithusers", response_model=schemas.project_schema.ProjectOutRefsSchema)
 async def api_projectdetailwithusers(project_id: int, db: Session = Depends(rdb.get_db)): 
