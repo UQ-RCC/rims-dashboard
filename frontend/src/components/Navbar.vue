@@ -54,20 +54,6 @@
                     <v-list-item-title class="ml-n5">Home</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item to="/user">
-                    <v-list-item-icon>
-                        <v-icon>mdi-account</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title class="ml-n5">My account</v-list-item-title>
-                </v-list-item>
-
-                <v-list-item to="/users" v-if="this.has_rims_admin || this.has_dashboard_access">
-                    <v-list-item-icon>
-                        <v-icon>mdi-account-group</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title class="ml-n5">Users</v-list-item-title>
-                </v-list-item>
-
                 <v-list-item to="/projects" v-if="this.has_rims_admin || this.has_dashboard_access">
                     <v-list-item-icon>
                         <v-icon>mdi-poll-box</v-icon>

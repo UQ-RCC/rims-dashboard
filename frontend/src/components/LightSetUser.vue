@@ -1,3 +1,7 @@
+<!---
+DEPRECATED
+-->
+
 <template>
     <v-row>     
         <v-col cols="2">

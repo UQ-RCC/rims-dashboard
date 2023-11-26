@@ -1,3 +1,7 @@
+<!---
+DEPRECATED
+-->
+
 <template>
     <div id="lightcell">  
         <p class="text-caption" style="text-align:center">{{this.cell_label}}</p>
