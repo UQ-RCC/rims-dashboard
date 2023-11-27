@@ -86,7 +86,7 @@
             </template> 
             
             <template v-slot:expanded-item="{ item }">
-                <v-container>
+                <v-layout>
                     <v-col>
                         <v-row>
                             <h5>{{ item.title }}</h5>
@@ -131,7 +131,7 @@
                             </template>
                         </v-data-table>
                     </v-col>                    
-                </v-container>
+                </v-layout>
             </template>
         </v-data-table>
     </div>
