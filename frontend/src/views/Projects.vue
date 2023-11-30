@@ -9,7 +9,7 @@
         ></v-progress-linear>
         <v-card-title>
             <v-row>
-                <v-col cols="12" sm="6" md="3">
+                <v-col cols="2">
                     <v-text-field
                         v-model="filteredId"
                         append-icon="mdi-magnify"
@@ -20,7 +20,7 @@
                         :rules="numberRules"
                     ></v-text-field>
                 </v-col> 
-                <v-col cols="20" sm="8" md="5">
+                <v-col cols="4">
                     <v-text-field
                         v-model="filteredTitle"
                         append-icon="mdi-magnify"
@@ -30,7 +30,7 @@
                         @keydown.enter.prevent="filterByTitle"
                     ></v-text-field>
                 </v-col>              
-                <v-col cols="12" sm="6" md="3">
+                <v-col cols="2">
                     <v-text-field
                         v-model="filteredGroup"
                         append-icon="mdi-magnify"
@@ -39,7 +39,17 @@
                         hide-details
                         @keydown.enter.prevent="filterByGroup"
                     ></v-text-field>
-                </v-col>                        
+                </v-col>
+                <v-col cols="2">
+                    <v-text-field
+                        v-model="filteredFullName"
+                        append-icon="mdi-magnify"
+                        label="Search By User"
+                        single-line
+                        hide-details
+                        @keydown.enter.prevent="filterByFullName"
+                    ></v-text-field>
+                </v-col>                            
             </v-row>                    
         </v-card-title>
         <v-data-table
@@ -217,6 +227,7 @@
                 filteredId: null,
                 filteredTitle: null,
                 filteredGroup: null,
+                filteredFullName: null,
 
                 projectsTableHeaders: [
                     { text: 'Id', value: 'id', width: '5%', sortable: false },
@@ -264,7 +275,8 @@
                 this.projects = []
                 if (this.filteredId){
                     this.filteredTitle = null
-                    this.filteredGroup = null                    
+                    this.filteredGroup = null
+                    this.filteredFullName = null                                 
                     this.projectsFull.forEach(aproj => {
                     if(aproj.id === parseInt(this.filteredId))
                         this.projects = [aproj]
@@ -279,6 +291,7 @@
                 if (this.filteredTitle){
                     this.filteredId = null
                     this.filteredGroup = null
+                    this.filteredFullName = null                    
                     this.projectsFull.forEach(aproj => {
                     if(aproj.title.toLowerCase().includes(this.filteredTitle.toLowerCase()) )
                         this.projects.push(aproj)
@@ -293,6 +306,7 @@
                 if (this.filteredGroup){
                     this.filteredId = null
                     this.filteredTitle = null
+                    this.filteredFullName = null                    
                     this.projectsFull.forEach(aproj => {
                         if(aproj.group.toLowerCase().includes(this.filteredGroup.toLowerCase()) )
                             this.projects.push(aproj)
@@ -301,6 +315,28 @@
                     this.projects = this.projectsFull
                 }
             },
+
+            async filterByFullName(){
+                this.projects = []
+
+                if (this.filteredFullName){
+                    Vue.$log.info("filtering by fullname " + this.filteredFullName)                     
+                    this.filteredId = null
+                    this.filteredTitle = null
+                    this.filteredGroup = null
+                    this.projectsFull.forEach(aproj => {
+                        if(aproj.user_rights.some(item => item.user.name.toLowerCase().includes(this.filteredFullName.toLowerCase()))                        )
+                            this.projects.push(aproj)
+                    })
+                } else {
+                    this.projects = this.projectsFull
+                }
+            },
+
+            userFilter(items, search) {
+                return items.filter(user_rights => user_rights.some(item => item.user.name.toLowerCase().indexOf(search.toLowerCase())) !== -1)
+            },
+
 
             async retrieveAllProjects() {
                 console.log("retrieving project states");
@@ -340,7 +376,9 @@
 
             itemRowBackground: function (item) {
                 return item.user.admin == false ? 'style-row-user' : 'style-row-admin'
-            }
+            },
+
+
         },
         mounted: async function() {
             Vue.$log.info("P waiting")
