@@ -21,7 +21,7 @@ def run_extended_sync():
     with rdb.sessionmaker.context_session() as db:
         processing.sync_user_rights(db)    #15 min
         processing.sync_project_users(db)  #5 min
-        processing.sync_user_admin(db, skip_existing = True)
+        processing.sync_user_admin(db, skip_existing = False)
 
 def run_state_processing():
     """

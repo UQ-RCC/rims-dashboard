@@ -6,7 +6,8 @@ from datetime import datetime
 from .base_model import Base
 
 
-class SyncType(Enum):
+class SyncStatus(Enum):
+    none = 'none'
     minor = 'minor'
     full = 'full'
     report_only = 'report_only' 
@@ -14,7 +15,7 @@ class SyncType(Enum):
 class SyncModel(Base):
     __tablename__ = 'rdsync'
     id = Column(Integer, primary_key=True, index=True)
-    sync_type = Column(Enum(SyncType), nullable=True) 
+    sync_type = Column(Enum(SyncStatus), nullable=False, default=SyncStatus.none) 
     start_time = Column(DateTime, nullable=True)
     end_time = Column(DateTime, nullable=True)    
     complete = Column(Boolean, default=False)

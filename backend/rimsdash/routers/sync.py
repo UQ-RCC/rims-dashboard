@@ -16,6 +16,7 @@ logger = logging.getLogger('rimsdash')
 def sync_daily() -> None:
     logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
     with rdb.sessionmaker.context_session() as db:
+        curent_time = 1
         processing.sync_systems(db)
         processing.sync_users(db)
         processing.sync_projects(db)

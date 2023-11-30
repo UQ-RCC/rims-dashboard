@@ -267,3 +267,25 @@ def process_users(db: Session = Depends(rdb.get_db)):
         else:
             user_state = schemas.UserStateUpdateSchema.validate(user_state)
             crud.user_state.update(db, _row, user_state)
+
+
+def log_sync(db: Session = Depends(rdb.get_db)):
+    pass
+
+
+def primary_sync(db: Session = Depends(rdb.get_db)):
+        
+        log_sync(db)
+        logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
+        sync_systems(db)
+        sync_users(db)
+        sync_projects(db)
+        sync_user_rights(db)
+        sync_project_users(db)
+        sync_user_admin(db, skip_existing = False)
+        logger.info(">>>>>>>>>>>> Finished syncing to RIMS") 
+
+        logger.info(">>>>>>>>>>>> Begin calculating states")
+        process_projects(db)
+        process_users(db)
+        logger.info(">>>>>>>>>>>> Finished calculating states")     
