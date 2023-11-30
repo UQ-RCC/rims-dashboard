@@ -1,5 +1,5 @@
 <template>
-    <div>        
+    <v-card>        
         <v-progress-linear
             color="primary accent-4"
             indeterminate
@@ -7,7 +7,7 @@
             height="4"
             :active="loading"
         ></v-progress-linear>
-        <div>
+        <v-card-title>
             <v-row>
                 <v-col cols="12" sm="6" md="3">
                     <v-text-field
@@ -41,7 +41,7 @@
                     ></v-text-field>
                 </v-col>                        
             </v-row>                    
-        </div>
+        </v-card-title>
         <v-data-table
                 :headers="projectsTableHeaders"
                 :items="projects"
@@ -49,21 +49,18 @@
                 class="elevation-1"
                 :items-per-page="15"
                 :sort-by="['id']"
-                :sort-desc="[false, true]"
-                height="600px" width="100%"
+                :sort-desc="[true]"
+                height="auto" width="100%"
                 show-expand
-                single-expand
                 :expanded.sync="expanded"
+                :footer-props="{ itemsPerPageOptions: [15, 30, 50, 100, -1] }"
         >
             <template v-slot:item="{ item, expand, isExpanded }">
-                 <tr>
+                 <tr @click="expand(!isExpanded)">
                     <td></td>
                     <td>{{ item.id }}</td>
                     <td class="truncate">{{ item.title }}</td>   
                     <td class="truncate">{{ item.group }}</td>
-                    <td>
-                        <StatusIndicatorLocal :status="item.project_state[0].ok" :pulse="false"/>
-                    </td>
                     <td>
                         <StatusIndicatorLocal :status="item.project_state[0].active" :pulse="false"/>
                     </td>   
@@ -78,92 +75,112 @@
                     </td>                                                           
                     <td>
                         <StatusIndicatorLocal :status="item.project_state[0].phase" :pulse="false"/>
-                    </td>            
+                    </td>
                     <td>
-                        <v-btn @click="expand(!isExpanded)">Details</v-btn>
-                    </td>                                               
+                        <StatusIndicatorLocal :status="item.project_state[0].ok" :pulse="false"/>
+                    </td>                    
                 </tr> 
             </template> 
             
-            <template v-slot:expanded-item="{ item }">
-                <v-layout>
-                    <v-col>
-                        <v-row>
-                            <h5>{{ item.title }}</h5>
-                        </v-row>                            
-                        <v-row>                        
-                            <h6>{{ item.description }}</h6>
-                        </v-row>
-                    </v-col>
-                    <v-col>
-                        <v-data-table
-                        :headers="usersTableHeaders"
-                        :items="item.user_rights"
-                        item-key="userright.username"
-                        class="elevation-1"
-                        :items-per-page="10"
-                        :sort-by="['userright.username']"
-                        height="500px" width="70%"
-                        >
-                            <template v-slot:item="{ item }">
-                                <tr>
-                                    <td>{{ item.user.name }}</td>
-                                    <td>{{ item.user.username }}</td>
-                                    <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].ok" :pulse="false"/>
-                                    </td>
-                                    <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].active" :pulse="false"/>
-                                    </td>   
-                                    <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_aibn" :pulse="false"/>
-                                    </td>  
-                                    <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_hawken" :pulse="false"/>
-                                    </td>   
-                                    <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_chem" :pulse="false"/>
-                                    </td>                                                           
-                                    <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_qbp" :pulse="false"/>
-                                    </td>
-                                </tr>
-                            </template>
-                        </v-data-table>
-                    </v-col>                    
-                </v-layout>
+            <template v-slot:expanded-item="{ item, headers }">
+                <td :colspan="headers.length">
+                    <v-card class="style-expanded-table-card" style="font-size:0.8em">
+                        <div class="mx-6">
+                            <v-row>
+                                <v-col cols="6">
+                                    <v-card class="mx-2 my-4">
+                                        <v-card-title class="style-expanded-card-title">Project details</v-card-title> 
+                                        <v-card-text class="style-expanded-table-text">
+                                            <div>
+                                                <strong>Title</strong>:  {{ item.title }}
+                                            </div>
+                                            <div>
+                                                <strong>Group</strong>:  {{ item.group }}
+                                            </div>
+                                            <div>
+                                                <strong>Type</strong>:  {{ item.type }}
+                                            </div>
+                                            <div>
+                                                <strong>Bcode</strong>:  {{ item.bcode }}
+                                            </div>
+                                            <div>
+                                                <strong>Affiliation</strong>:  {{ item.affiliation }}
+                                            </div>
+                                            <div>
+                                                <strong>RDM</strong>:  {{ item.qcollection }}
+                                            </div>
+                                            <div>
+                                                <strong>Phase</strong>:  {{ item.phase }}
+                                            </div>
+                                            <div>
+                                                <strong>Status</strong>:  {{ item.status }}
+                                            </div>
+                                        </v-card-text>
+                                    </v-card>
+                                    <v-card class="mx-2 my-4">
+                                        <v-card-title class="style-expanded-card-title">Description</v-card-title>
+                                        <v-card-text>
+                                            <div>
+                                                {{ item.description }}
+                                            </div>
+                                        </v-card-text>
+                                    </v-card>
+                                </v-col>
+                                <v-col cols="6">
+                                    <v-card class="mx-2 my-4">
+                                        <v-card-title class="style-expanded-card-title">Users</v-card-title>                                    
+                                        <v-data-table    
+                                        :headers="usersTableHeaders"
+                                        :items="item.user_rights"
+                                        item-key="userright.username"
+                                        class="elevation-1"
+                                        :items-per-page="10"
+                                        :sort-by="['userright.admin','userright.username']"
+                                        height="300px" width="50%"
+                                        hide-default-footer
+                                        >
+                                            <template v-slot:item="{ item }">
+                                                <tr :class="itemRowBackground(item)">
+                                                    <td>{{ item.user.name }}</td>
+                                                    <td>{{ item.user.username }}</td>
+                                                    <td>
+                                                        <StatusIndicatorLocal :status="item.user.user_state[0].active" :pulse="false"/>
+                                                    </td>   
+                                                    <td>
+                                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_aibn" :pulse="false"/>
+                                                    </td>  
+                                                    <td>
+                                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_hawken" :pulse="false"/>
+                                                    </td>   
+                                                    <td>
+                                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_chem" :pulse="false"/>
+                                                    </td>                                                           
+                                                    <td>
+                                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_qbp" :pulse="false"/>
+                                                    </td>
+                                                    <td>
+                                                        <StatusIndicatorLocal :status="item.user.user_state[0].ok" :pulse="false"/>
+                                                    </td>                                                    
+                                                </tr>
+                                            </template>
+                                        </v-data-table>
+                                    </v-card>
+                                </v-col>                    
+                            </v-row>
+                        </div>
+                    </v-card>
+                </td>
             </template>
+
+
         </v-data-table>
-    </div>
+    </v-card>
 </template>
 
-<!--
-                        <tr v-for="userright in item.user_rights" :key="userright.username">
-                            <td>{{ userright.user.username }}</td>
-                            <td>{{ userright.user.name }}</td>
-                            <td>
-                                <StatusIndicatorLocal :status="userright.user.user_state[0].ok" :pulse="false"/>
-                            </td>
-                            <td>
-                                <StatusIndicatorLocal :status="userright.user.user_state[0].ok" :pulse="false"/>
-                            </td>
-                            <td>
-                                <StatusIndicatorLocal :status="userright.user.user_state[0].active" :pulse="false"/>
-                            </td>   
-                            <td>
-                                <StatusIndicatorLocal :status="userright.user.user_state[0].access_aibn" :pulse="false"/>
-                            </td>  
-                            <td>
-                                <StatusIndicatorLocal :status="userright.user.user_state[0].access_hawken" :pulse="false"/>
-                            </td>   
-                            <td>
-                                <StatusIndicatorLocal :status="userright.user.user_state[0].access_chem" :pulse="false"/>
-                            </td>                                                           
-                            <td>
-                                <StatusIndicatorLocal :status="userright.user.user_state[0].access_qbp" :pulse="false"/>
-                            </td>                            
-                        </tr>
 
+
+
+<!--
     <template v-slot:body="{ items }">
         <tr>v-for="item in items" :key="item.id"
 
@@ -202,27 +219,26 @@
                 filteredGroup: null,
 
                 projectsTableHeaders: [
-                    { text: 'Id', value: 'id', width: '5%' },
-                    { text: 'Title', value: 'title', width: '30%' },                    
-                    { text: 'Group', value: 'group', width: '10%' },                 
-                    { text: 'OK', value: 'ok', width: '4%' },                     
-                    { text: 'Active', value: 'active', width: '4%' },  
-                    { text: 'Billing', value: 'billing', width: '4%' },  
-                    { text: 'OHS', value: 'ohs', width: '4%' },  
-                    { text: 'RDM', value: 'rdm', width: '4%' },                                                                      
-                    { text: 'Phase', value: 'phase', width: '4%' },
-                    { text: '', value: '', width: '10%' },                    
+                    { text: 'Id', value: 'id', width: '5%', sortable: false },
+                    { text: 'Title', value: 'title', width: '30%', sortable: false },
+                    { text: 'Group', value: 'group', width: '10%', sortable: false },
+                    { text: 'Active', value: 'active', width: '7%', sortable: false },
+                    { text: 'Billing', value: 'billing', width: '7%', sortable: false },
+                    { text: 'OHS', value: 'ohs', width: '7%', sortable: false },
+                    { text: 'RDM', value: 'rdm', width: '7%', sortable: false },
+                    { text: 'Phase', value: 'phase', width: '7%', sortable: false },
+                    { text: 'OK', value: 'ok', width: '7%', sortable: false },                    
                 ],
 
                 usersTableHeaders: [
-                    { text: 'Username', value: 'username', width: '5%' },
-                    { text: 'Name', value: 'name', width: '30%' },                                     
-                    { text: 'OK', value: 'ok', width: '5%' },                     
-                    { text: 'Active', value: 'active', width: '5%' },  
-                    { text: 'AIBN', value: 'aibn', width: '5%' },  
-                    { text: 'Hawken', value: 'hawken', width: '5%' },  
-                    { text: 'Chem', value: 'chem', width: '5%' },                                                                      
-                    { text: 'QBP', value: 'qbp', width: '5%' }
+                    { text: 'Name', value: 'name', width: '25%' },
+                    { text: 'Username', value: 'username', width: '8%' },
+                    { text: 'Active', value: 'active', width: '8%', sortable: false },
+                    { text: 'AIBN', value: 'aibn', width: '8%', sortable: false },
+                    { text: 'Hawken', value: 'hawken', width: '8%', sortable: false },
+                    { text: 'Chem', value: 'chem', width: '8%', sortable: false },
+                    { text: 'QBP', value: 'qbp', width: '8%', sortable: false },
+                    { text: 'OK', value: 'ok', width: '8%', sortable: false },                    
                 ],
 
                 numberRules: [
@@ -321,6 +337,10 @@
                     ? a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0
                     : a === b;
            },
+
+            itemRowBackground: function (item) {
+                return item.user.admin == false ? 'style-row-user' : 'style-row-admin'
+            }
         },
         mounted: async function() {
             Vue.$log.info("P waiting")
@@ -353,5 +373,34 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
+
+    .style-row-user {
+        background: rgb(255,255,255) !important;
+    }
+    .style-row-user:hover {
+        background: rgb(250,240,250) !important;
+    }    
+
+    .style-row-admin {
+        background: rgb(230,230,230) !important;        
+    }
+    .style-row-admin:hover {
+        background: rgb(225,220,225) !important;        
+
+    }    
+
+    .style-expanded-table-card {
+        background: rgb(238,238,238) !important;        
+
+    } 
+
+    .style-expanded-card-text {
+        line-height: 0.8em;
+    }
+
+    .style-expanded-card-title {
+        line-height: 0.9em;
+    }    
 
 </style>
