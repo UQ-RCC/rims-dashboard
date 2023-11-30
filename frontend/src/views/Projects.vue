@@ -111,6 +111,9 @@
                                                 <strong>Type</strong>:  {{ item.type }}
                                             </div>
                                             <div>
+                                                <strong>Active</strong>:  {{ item.active }}
+                                            </div>                                            
+                                            <div>
                                                 <strong>Bcode</strong>:  {{ item.bcode }}
                                             </div>
                                             <div>

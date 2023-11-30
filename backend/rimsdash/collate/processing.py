@@ -9,7 +9,7 @@ import rimsdash.db as rdb
 import rimsdash.external.rims as rims
 import rimsdash.schemas as schemas
 import rimsdash.crud as crud
-import rimsdash.collate as collate
+import rimsdash.collate.logic as logic
 
 from rimsdash.models import SystemRight, ProjectRight
 
@@ -234,7 +234,7 @@ def process_projects(db: Session = Depends(rdb.get_db)):
         print(project.id)
         project_schema = schemas.ProjectFullSchema.validate(project)
 
-        project_state = collate.process_project(project_schema)
+        project_state = logic.process_project(project_schema)
 
         _row = crud.project_state.get(db, project.id)
 
@@ -256,7 +256,7 @@ def process_users(db: Session = Depends(rdb.get_db)):
         print(user.username)
         user_schema = schemas.UserFullSchema.validate(user)
 
-        user_state = collate.process_user(user_schema)
+        user_state = logic.process_user(user_schema)
 
         _row = crud.user_state.get(db, user.username)
 
@@ -267,30 +267,3 @@ def process_users(db: Session = Depends(rdb.get_db)):
         else:
             user_state = schemas.UserStateUpdateSchema.validate(user_state)
             crud.user_state.update(db, _row, user_state)
-
-def run_sync():
-    """
-    perform primary sync
-    """
-    logger.info("starting DB update")
-
-    with rdb.sessionmaker.context_session() as db:
-        sync_systems(db)    #0 min
-        sync_users(db)      #1 min
-        sync_projects(db)   #2 min
-
-def run_extended_sync():
-    """
-    perform extension sync with individual calls
-    """
-    with rdb.sessionmaker.context_session() as db:
-        sync_user_rights(db)    #15 min
-        sync_project_users(db)  #5 min
-
-def run_state_processing():
-    """
-    perform extension sync with individual calls
-    """
-    with rdb.sessionmaker.context_session() as db:
-        process_projects(db)
-        process_users(db) 
