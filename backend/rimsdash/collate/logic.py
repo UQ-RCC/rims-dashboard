@@ -64,6 +64,7 @@ def recursive():
 
         project.project_state.user_ok = __user_ok
     """
+    pass
 
 def process_user(user: UserFullSchema) -> UserStateCreateSchema:
     """
@@ -122,9 +123,11 @@ def process_project(project: ProjectFullSchema) -> ProjectStateCreateSchema:
         elif project.phase == 1:
             state.phase = IStatus.waiting
         elif project.phase == 2:
-            state.phase = IStatus.ready
+            state.phase = IStatus.waiting
         elif project.phase == 3:
-            state.phase = IStatus.disabled
+            state.phase = IStatus.ready
+        elif project.phase == 4:
+            state.phase = IStatus.disabled            
         else:
             state.phase = IStatus.fail
 
@@ -144,8 +147,8 @@ def process_project(project: ProjectFullSchema) -> ProjectStateCreateSchema:
         state.ohs = state.phase    #TO-DO
 
         #if has an RDM assigned
-        if project.qcollection is not None:
-            state.rdm = IStatus.ready    #TO-DO
+        if project.qcollection is not None and not project.qcollection == '':
+            state.rdm = IStatus.ready    
         else:
             state.rdm = IStatus.disabled
 

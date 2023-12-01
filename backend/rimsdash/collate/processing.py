@@ -258,8 +258,24 @@ def process_users(db: Session = Depends(rdb.get_db)):
             crud.user_state.update(db, _row, user_state)
 
 
+
+def calc_states(db):
+    """
+    recalculate states only
+    """
+    logger.info(">>>>>>>>>>>> Begin calculating states")
+    process_projects(db)
+    process_users(db)
+    logger.info(">>>>>>>>>>>> Finished calculating states")
+
+
 def primary_sync(db: Session = Depends(rdb.get_db), force=False):
-        
+        """
+        perform full sync
+
+        WARNING: many RIMS API calls (6k+)
+            to be reduced by new reports when available
+        """
         sync_frequency = int(config.get('sync', 'full_sync_frequency'))
 
         try:
@@ -267,7 +283,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
         except:
             __last = None
 
-        if force or __last is None or (datetime.datetime.now() - __last.start_time  < datetime.timedelta(days=sync_frequency)):
+        if force or __last is None or (datetime.datetime.now() - __last.start_time  > datetime.timedelta(days=sync_frequency)):
             logger.info(">>>>>>>>>>>> Begin full sync")
             __start_schema = schemas.sync_schema.SyncCreateSchema(sync_type=SyncType.full)
             __current = crud.sync.create(db, __start_schema)

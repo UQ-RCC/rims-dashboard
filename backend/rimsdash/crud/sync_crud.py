@@ -13,6 +13,6 @@ class CRUDSync(CRUDBase[SyncModel, SyncCreateSchema, SyncCompleteSchema]):
         return db.query(SyncModel).order_by(desc(SyncModel.start_time)).first()
 
     def get_latest_completion(self, db: Session) -> Optional[SyncModel]:
-        return db.query(SyncModel).filter(SyncModel.complete == True).all().order_by(desc(SyncModel.end_time)).first()
+        return db.query(SyncModel).filter(SyncModel.complete == True).order_by(desc(SyncModel.end_time)).first()
 
 sync = CRUDSync(SyncModel)
