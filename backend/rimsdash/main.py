@@ -14,16 +14,22 @@ import rimsdash.config as config
 
 
 #logging setup
-logger = logging.getLogger('rimsdash')
-logger.setLevel(logging.DEBUG)
+log_level = logging.DEBUG
 
+logger = logging.getLogger('rimsdash')
+logger.setLevel(log_level)
 log_file = config.get('logging', 'log_file', default = "/var/log/rimsdash/rimsdash.log")
+
 #   create the directory if it is missing
 os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+#filehandler
 fh = TimedRotatingFileHandler(log_file, when='midnight',backupCount=7)
-fh.setLevel(logging.DEBUG)
+fh.setLevel(log_level)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
+
+#add handlers
 logger.addHandler(fh)
 logging.getLogger("uvicorn.access").addHandler(fh)
 logging.getLogger("uvicorn").addHandler(fh)

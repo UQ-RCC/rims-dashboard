@@ -61,12 +61,12 @@ def sync_users(db: Session = Depends(rdb.get_db)):
         __row = crud.user.get(db, user['username'])
 
         if __row is None:
-            logger.debug(f"creating {user['username']}")
+            logger.debug(f"creating user {user['username']}")
             user_in = schemas.UserCreateSchema(**user)
 
             crud.user.create(db, user_in)
         else:
-            logger.debug(f"updating {user['username']}")            
+            logger.debug(f"updating user {user['username']}")            
             user_in = schemas.UserUpdateSchema(**user)
 
             crud.user.update(db, __row, user_in)
@@ -76,12 +76,13 @@ def sync_user_admin(db: Session = Depends(rdb.get_db), skip_existing: bool = Fal
     """
     Sync admin status in DB to external RIMS DB
     """
+    logger.info(f"Syncing admin status")
     for __row in crud.user.get_all(db):
         if __row is not None:
             if skip_existing and __row.admin is not None:
                 pass
             else:
-                print(__row.username)
+                logger.debug(f"admin sync: {__row.username}")
                 __admin = rims.get_admin_status(__row.username)
 
                 user_admin_in = schemas.user_schema.UserUpdateAdminSchema(admin=__admin)
@@ -106,12 +107,12 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
         _row = crud.project.get(db, project['id'])
 
         if _row is None:
-            logger.debug(f"creating {project['id']}")
+            logger.debug(f"creating project {project['id']}")
             project_in = schemas.ProjectCreateSchema(**project)
 
             crud.project.create(db, project_in)
         else:
-            logger.debug(f"updating {project['id']}")            
+            logger.debug(f"updating project {project['id']}")            
             project_in = schemas.ProjectCreateSchema(**project)
 
             crud.project.update(db, _row, project_in)
@@ -125,10 +126,10 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
         _row = crud.project.get(db, project['id'])
 
         if _row is None:
-            logger.error(f"project {project['id']} from details report not found in DB")
+            logger.warn(f"Project {project['id']} found in RIMS details report but not present in DB. Project ignored.")
             pass
         else:
-            logger.debug(f"updating {project['id']}")   
+            logger.debug(f"Updating project {project['id']}")   
             project_in = schemas.ProjectInitDetailsSchema(**project)
 
             crud.project.update(db, _row, project_in)
@@ -140,7 +141,7 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
     external data will overwrite any local conflicts
     """
     
-    logger.info(f"syncing user rights to RIMS")
+    logger.info(f"Syncing user rights to RIMS")
 
     users = crud.user.get_all(db)
     
@@ -152,7 +153,7 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
         if _counter >= _cutoff: #debug
             break
 
-        print(user.username)
+        logger.debug(f"sync rights {user.username}")
         rights_dict = rims.queries.get_user_rights(user.username)
 
         for key in rights_dict:
@@ -169,7 +170,7 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
                 else:
                     crud.systemuser.update(db, __row, __schema)
             else:
-                logger.info(f"unrecognised rights for user {user.username} on system {key}")    
+                logger.debug(f"unrecognised rights for user {user.username} on system {key}")    
         
         _counter+=1 #debug
 
@@ -196,23 +197,19 @@ def sync_project_users(db: Session = Depends(rdb.get_db)):
         if _counter >= _cutoff: #debug
             break
 
-        print(project.id)
+        logger.debug(f"sync project users {project.id}")
         username_list = rims.queries.get_project_users(project.id)
 
         for username in username_list:
             __schema = schemas.ProjectUsersBaseSchema(username=username, project_id=project.id, status=ProjectRight("M"))
 
             __row = crud.projectusers_rights.get(db, (username, project.id))
-            #__user = crud.user.get(db, key)
 
-            #if __system is not None:
             if __row is None:
                 crud.projectusers_rights.create(db, __schema)
             else:
                 crud.projectusers_rights.update(db, __row, __schema)
-            #else:
-            #    logger.info(f"unrecognised rights for user {username} on system {key}")    
-
+ 
         _counter+=1 #debug
 
 def process_projects(db: Session = Depends(rdb.get_db)):
@@ -223,7 +220,7 @@ def process_projects(db: Session = Depends(rdb.get_db)):
     projects = crud.project.get_all(db)
 
     for project in projects:
-        print(project.id)
+        logger.debug(f"project state: {project.id}")
         project_schema = schemas.ProjectFullSchema.validate(project)
 
         project_state = logic.process_project(project_schema)
@@ -245,7 +242,7 @@ def process_users(db: Session = Depends(rdb.get_db)):
     users = crud.user.get_all(db)
 
     for user in users:
-        print(user.username)
+        logger.debug(f"user state: {user.username}")
         user_schema = schemas.UserFullSchema.validate(user)
 
         user_state = logic.process_user(user_schema)
@@ -273,7 +270,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
         if force or __last is None or (datetime.datetime.now() - __last.start_time  < datetime.timedelta(days=sync_frequency)):
             logger.info(">>>>>>>>>>>> Begin full sync")
             __start_schema = schemas.sync_schema.SyncCreateSchema(sync_type=SyncType.full)
-            __current = crud.sync.create(db, __start_schema)            
+            __current = crud.sync.create(db, __start_schema)
 
             try:
                 logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
@@ -282,8 +279,8 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
                 sync_projects(db)
                 sync_user_rights(db)
                 sync_project_users(db)
-                sync_user_admin(db, skip_existing = False)
-                logger.info(">>>>>>>>>>>> Finished syncing to RIMS") 
+                sync_user_admin(db, skip_existing = True)
+                logger.info(">>>>>>>>>>>> Finished syncing to RIMS")
 
                 logger.info(">>>>>>>>>>>> Begin calculating states")
                 process_projects(db)

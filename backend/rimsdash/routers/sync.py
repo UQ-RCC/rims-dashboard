@@ -14,7 +14,7 @@ logger = logging.getLogger('rimsdash')
 @router.on_event("startup")
 @repeat_every(seconds=60 * 60 * 24, wait_first=False, logger=logger)
 def sync_daily() -> None:
-    
+
     #if not rdb.exists():
     if True:        
         logger.info(">>>>>>>>>>>>Initialising DB")
@@ -25,7 +25,6 @@ def sync_daily() -> None:
     logger.info(">>>>>>>>>>>>Sync event triggered")
     with rdb.sessionmaker.context_session() as db:
             processing.primary_sync(db, force=False)
-             
 
 
 

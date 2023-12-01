@@ -76,7 +76,6 @@ def get_systems() -> list[dict]:
     """
     requests system ids from RIMS API
     """        
-    logger.debug("Querying systems")
     url = f"{BASE_URL}pumapi/"
     coreid=f"{config.get('ppms', 'core_id')}"
     key=f"{config.get('ppms', 'api2_key')}"
@@ -289,7 +288,6 @@ def get_user_rights(login: str):
     returns dict
     """
 
-    logger.debug("Querying systems")
     url = f"{BASE_URL}pumapi/"
 
     payload=f"apikey={KEY}&action=getuserrights&login={login}&format=json"
@@ -318,7 +316,6 @@ def get_user_projects(login: str):
     returns list of all projects associated with user login
     """
 
-    logger.debug("Querying systems")
     url = f"{BASE_URL}pumapi/"
 
     payload=f"apikey={KEY}&action=getuserprojects&login={login}&format=json"
@@ -344,7 +341,6 @@ def get_project_users(projectid: int):
     returns list of all projects associated with user login
     """
 
-    logger.debug("Querying systems")
     url = f"{BASE_URL}pumapi/"
 
     payload=f"apikey={KEY}&action=getprojectusers&projectid={projectid}&format=json"
@@ -408,7 +404,7 @@ def pts_get_ppms_user_by_id(uid:int, coreid:int):
 
 
 def pts_get_system_rights(systemid: int):
-    logger.debug("Querying systems")
+
     url = f"{config.get('ppms', 'ppms_url')}pumapi/"
     key=f"{config.get('ppms', 'api2_key')}"
 
