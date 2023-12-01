@@ -72,3 +72,13 @@ class ProjectRight(Enum):
     member = 'M'
     owner = 'PO'
     admin = 'PA'
+
+
+class SyncType(Enum):
+    """
+    enum for sync types
+    """
+    none = 'none'
+    minor = 'minor'
+    full = 'full'
+    report_only = 'report_only' 

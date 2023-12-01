@@ -14,21 +14,17 @@ logger = logging.getLogger('rimsdash')
 @router.on_event("startup")
 @repeat_every(seconds=60 * 60 * 24, wait_first=False, logger=logger)
 def sync_daily() -> None:
-    logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
-    with rdb.sessionmaker.context_session() as db:
-        curent_time = 1
-        processing.sync_systems(db)
-        processing.sync_users(db)
-        processing.sync_projects(db)
-        processing.sync_user_rights(db)
-        processing.sync_project_users(db)
-        processing.sync_user_admin(db, skip_existing = True)
-        logger.info(">>>>>>>>>>>> Finished syncing to RIMS") 
+    
+    #if not rdb.exists():
+    if True:        
+        logger.info(">>>>>>>>>>>>Initialising DB")
+        rdb.init_db()
+    else:
+        logger.info(">>>>>>>>>>>>DB already initialised")
 
-        logger.info(">>>>>>>>>>>> Begin calculating states")
-        processing.process_projects(db)
-        processing.process_users(db)
-        logger.info(">>>>>>>>>>>> Finished calculating states")        
+    logger.info(">>>>>>>>>>>>Sync event triggered")
+    with rdb.sessionmaker.context_session() as db:
+            processing.primary_sync(db, force=False)
              
 
 

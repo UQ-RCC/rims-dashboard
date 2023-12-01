@@ -9,6 +9,13 @@ from typing import Iterator
 from sqlalchemy.orm import Session
 
 
+def exists() -> bool:
+    """
+    simple check for user table to determine if DB has been created
+    """
+    with engine.connect() as connection:
+        return engine.dialect.has_table(connection, 'rduser')
+
 def init_db():
     Base.metadata.create_all(bind=engine)
 

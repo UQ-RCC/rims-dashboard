@@ -8,8 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from logging.handlers import TimedRotatingFileHandler
 
 #from rimsdash.routers import general
-from rimsdash.routers import navbar
-from rimsdash.routers import projects
+from rimsdash.routers import navbar, projects, sync
+
 import rimsdash.config as config
 
 
@@ -40,13 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#app.include_router(
-#    general.router,
-#    prefix="/rapi/v1",
-#    tags=['general'],
-#    responses={404: {"description": "Not found"}},
-#)
-
+#api routers
 app.include_router(
     navbar.router,
     prefix="/rapi/v1",
@@ -60,6 +54,16 @@ app.include_router(
     tags=['projects'],
     responses={404: {"description": "Not found"}},
 )
+
+
+# automatic tasks
+if (bool(config.get('sync', 'automatic_sync', default = False)) == True):
+    logger.info("Automatic syncing on")
+    app.include_router(
+        sync.router
+    )
+else:
+    logger.info("Automatic syncing off")
 
 
 logger.info("App started")

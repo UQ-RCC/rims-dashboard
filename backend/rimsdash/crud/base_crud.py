@@ -47,6 +47,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.commit()
         db.refresh(db_obj)
 
+        return db_obj
+
 
     def update(self, db: Session, db_obj: ModelType, obj_in: UpdateSchemaType):
      
@@ -61,6 +63,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
+
+        return db_obj
 
     def delete(self, db: Session, id: int):
         obj = db.query(self.model).get(id)

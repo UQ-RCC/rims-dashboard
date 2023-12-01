@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
@@ -11,16 +12,7 @@ import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 import rimsdash.collate.logic as logic
 
-from rimsdash.models import SystemRight, ProjectRight
-
-"""
-SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
-                           f"{config.get('database', 'db_username')}:"
-                           f"{config.get('database', 'db_password')}@"
-                           f"{config.get('database', 'host')}:"
-                           f"{config.get('database', 'port')}/"
-                           f"{config.get('database', 'db_name')}")
-"""
+from rimsdash.models import SystemRight, ProjectRight, SyncType
 
 logger = logging.getLogger('rimsdash')
 
@@ -269,23 +261,41 @@ def process_users(db: Session = Depends(rdb.get_db)):
             crud.user_state.update(db, _row, user_state)
 
 
-def log_sync(db: Session = Depends(rdb.get_db)):
-    pass
-
-
-def primary_sync(db: Session = Depends(rdb.get_db)):
+def primary_sync(db: Session = Depends(rdb.get_db), force=False):
         
-        log_sync(db)
-        logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
-        sync_systems(db)
-        sync_users(db)
-        sync_projects(db)
-        sync_user_rights(db)
-        sync_project_users(db)
-        sync_user_admin(db, skip_existing = False)
-        logger.info(">>>>>>>>>>>> Finished syncing to RIMS") 
+        sync_frequency = int(config.get('sync', 'full_sync_frequency'))
 
-        logger.info(">>>>>>>>>>>> Begin calculating states")
-        process_projects(db)
-        process_users(db)
-        logger.info(">>>>>>>>>>>> Finished calculating states")     
+        try:
+            __last = crud.sync.get_latest_completion(db)
+        except:
+            __last = None
+
+        if force or __last is None or (datetime.datetime.now() - __last.start_time  < datetime.timedelta(days=sync_frequency)):
+            logger.info(">>>>>>>>>>>> Begin full sync")
+            __start_schema = schemas.sync_schema.SyncCreateSchema(sync_type=SyncType.full)
+            __current = crud.sync.create(db, __start_schema)            
+
+            try:
+                logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
+                sync_systems(db)
+                sync_users(db)
+                sync_projects(db)
+                sync_user_rights(db)
+                sync_project_users(db)
+                sync_user_admin(db, skip_existing = False)
+                logger.info(">>>>>>>>>>>> Finished syncing to RIMS") 
+
+                logger.info(">>>>>>>>>>>> Begin calculating states")
+                process_projects(db)
+                process_users(db)
+                logger.info(">>>>>>>>>>>> Finished calculating states")
+                __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type)
+                __updated = crud.sync.update(db, __current, __complete_schema)
+                logger.info(">>>>>>>>>>>> Completed full sync")
+            except:
+                logger.error("!!!!! ERROR: Sync not completed")
+                __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type, complete=False)
+                __updated = crud.sync.update(db, __current, __complete_schema)
+        else:
+            logger.warn(">>>>>>>>>>>> Sync not attempted, time difference less than sync frequency")
+
