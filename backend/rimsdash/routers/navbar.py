@@ -43,7 +43,7 @@ async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db)):
 
 
 @router.get("/checkwhitelistbyemail", response_model=schemas.WhitelistSchema)
-async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db)):
+async def api_checkwhitelistbyemail(email: str, db: Session = Depends(rdb.get_db)):
     """
     check if user is in config whitelist
 
