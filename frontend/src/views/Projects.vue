@@ -269,9 +269,8 @@
                 //this.projects = await ProjectAPI.getProjects()
                 this.loading = false       
                 this.projects = this.projectsFull
-                Vue.$log.info("P refresh complete...")                                         
-                Vue.$log.info(this.projects)  
-                Vue.$log.info(this.projects[0].title)                 
+                Vue.$log.info("P refresh complete...")
+                Vue.$log.info(this.projects[0])
             },
 
             async filterById(){
