@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 #import rimsdash.db as rdb
 #from sqlalchemy.orm import Session
 
+import rimsdash.config as config
 import rimsdash.db as rdb
 import rimsdash.crud as crud
 import rimsdash.schemas as schemas
@@ -39,6 +40,28 @@ async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db)):
     result = schemas.user_schema.UserReturnAdminSchema.validate(__user)
 
     return result
+
+
+@router.get("/checkwhitelistbyemail", response_model=schemas.user_schema.UserReturnAdminSchema)
+async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db)):
+    """
+    check if user is in config whitelist
+
+    accepts if email found, or whitelist is empty
+    """
+    __user = crud.user.get_by_email(db, email=email) 
+
+    whitelist=config.get("manual","whitelist")
+    whitelist=whitelist.replace(' ', '')
+    whitelist=whitelist.split(',')
+
+    status=(__user.email in whitelist or whitelist=='' or whitelist is None)
+
+    result = schemas.WhitelistSchema(email=__user.email, whitelist=status)
+    
+    return result
+
+
 
 @router.get("/getadminlist")
 async def api_adminslist(db: Session = Depends(rdb.get_db)) -> str:

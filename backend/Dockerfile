@@ -3,7 +3,6 @@ WORKDIR /app
 
 #set up the container
 RUN apt-get update && apt-get -y install \
-    git \
     vim \    
     gcc
 

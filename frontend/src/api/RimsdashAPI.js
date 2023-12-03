@@ -25,6 +25,14 @@ export default {
         return data
     },
 
+    async checkEmailIsInWhitelist(email) {
+        let payload = {
+            'email': email
+        }        
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkwhitelistbyemail`, { params: payload } )
+        return data
+    },
+
     async getAllProjectsWithStates() {
 
         const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithstates` )

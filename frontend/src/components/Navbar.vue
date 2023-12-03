@@ -54,7 +54,7 @@
                     <v-list-item-title class="ml-n5">Home</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item to="/projects" v-if="this.has_rims_admin || this.has_dashboard_access">
+                <v-list-item to="/projects" v-if="this.has_access">
                     <v-list-item-icon>
                         <v-icon>mdi-poll-box</v-icon>
                     </v-list-item-icon>
@@ -88,6 +88,7 @@
         data: () => ({
             drawer: true,
             has_rims_admin: false,
+            whitelist: false,
         }),
 
         computed: {
@@ -106,7 +107,16 @@
             },
             toggleDrawer(){
                 this.drawer = !this.drawer
-            },               
+            },
+
+            has_access(){
+                if ( ( this.has_rims_admin && this.whitelist ) || this.has_dashboard_access ) {
+                    return true
+                }
+                else {
+                    return false
+                }
+            }
         },
 
         mounted: async function() {
@@ -125,7 +135,12 @@
             Vue.$log.info("NB retrieving admin: " + this.$keycloak.idTokenParsed.email);            
             const admin_response = await RimsdashAPI.checkEmailIsAdmin(this.$keycloak.idTokenParsed.email)
             this.has_rims_admin = admin_response.admin
-            Vue.$log.info("NB has admin: " + this.has_rims_admin)            
+            Vue.$log.info("NB has admin: " + this.has_rims_admin)
+            
+            Vue.$log.info("NB checking whitelist: " + this.$keycloak.idTokenParsed.email);            
+            const whitelist_response = await RimsdashAPI.checkEmailIsInWhitelist(this.$keycloak.idTokenParsed.email)
+            this.whitelist = whitelist_response.whitelist
+            Vue.$log.info("NB in whitelist: " + this.whitelist)
         },
         
 

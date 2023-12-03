@@ -6,3 +6,4 @@ from .project_state_schema import ProjectStateBaseSchema, ProjectStateCreateSche
 from .systemuser_schema import SystemUserBaseSchema, SystemUserCreateSchema, SystemUserUpdateSchema
 from .projectusers_schema import ProjectUsersBaseSchema, ProjectUsersCreateSchema, ProjectUsersUpdateSchema, ProjectUsersFullSchema
 from .sync_schema import SyncBaseSchema, SyncCreateSchema, SyncCompleteSchema
+from .util_schema import WhitelistSchema
