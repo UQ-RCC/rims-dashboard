@@ -48,3 +48,11 @@ def get_admin_status(username: str) -> bool:
     
     return result
 
+
+def get_project_accounts() -> list[dict]:
+
+    __account_data = queries.get_chartstring_data()
+
+    result = translate.validate_account_list(__account_data)
+
+    return result

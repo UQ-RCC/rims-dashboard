@@ -25,6 +25,8 @@ class ProjectBaseSchema(BaseSchema):
     class Config:
         orm_mode = True
 
+
+
 #complete DB schema with all fields
 class ProjectFullSchema(ProjectBaseSchema):
     qcollection: Optional[str] = None
@@ -53,6 +55,18 @@ class ProjectUpdateSchema(ProjectBaseSchema):
 
 class ProjectReceiveSchema(ProjectBaseSchema):
     ...    
+
+
+# Secondary receive
+
+class ProjectFromAccountSchema(BaseSchema):
+    id: int
+    title: str
+    active: bool = False           
+    group: str
+
+    class Config:
+        orm_mode = True    
 
 
 

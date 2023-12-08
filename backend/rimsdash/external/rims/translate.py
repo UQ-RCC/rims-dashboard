@@ -1,4 +1,9 @@
+import re 
+import logging
+
 import rimsdash.schemas as schemas
+
+logger = logging.getLogger('rimsdash')
 
 def validate_systems(rims_system_data: list[dict]) -> list[dict]:
     """
@@ -134,3 +139,99 @@ def validate_project_details(rims_project_details: list[dict]) -> list[dict]:
     'UQRDM Collection #': ''},
     """
 
+
+def rims_link_extract_key(input: str, prefix: str) -> str:
+    """
+    get the key from a RIMS report hyperlink, by prefix
+    """
+    # Use a regular expression to match the pattern
+    pattern = f"{prefix}=([^\]]+)"
+    match = re.search(pattern, input)
+    if match:
+        return match.group(1)
+    else:
+        return ''    
+    
+def rims_link_extract_value(input: str) -> str:
+    """
+    get the value from a RIMS report hyperlink 
+    """
+    match = re.search(r"\(([^)]+)\)", input)
+    if match:
+        return match.group(1)
+    else:
+        return ''
+
+
+def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
+    """
+    validate return from #56 accounts report 
+
+    NB: accounts do not have ids yet as this is a primary key created by rimsdash
+
+    NB: this is a complex join table, need to validate elements against account, project and projectaccount
+    """
+
+    result = []
+
+    for acc in rims_account_data:
+
+        #read the validity field and get as bool
+        __valid = acc['Project Account Valid'] == 'YES'
+
+        __valid
+
+        #validate the project info
+        #   skip if failed
+        #   warn if failed on valid projaccount
+        try:
+            __project_schema = schemas.project_schema.ProjectFromAccountSchema(
+                id = acc['Project ID'],
+                title = rims_link_extract_value(acc['Project Name']),
+                active = acc['Project Active'] == 'Active',
+                group = acc['Group PI']
+            )
+            project_dict = __project_schema.dict()
+
+        except:
+            if __valid:
+                logger.warn(f"project read failed for valid projaccount {acc['Project ID']}, {acc['Project Account']}, {acc['Group PI']}")
+            continue
+    
+        #validate the account info
+        #   ( use a dummy id )       
+        try:
+            __account_schema = schemas.account_schema.AccountReceiveSchema(
+                id = -1,
+                bcode = rims_link_extract_key(acc['Project Account'], 'bcode'),
+            )
+            account_dict = __account_schema.dict()
+
+        except:
+            if __valid:                          
+                logger.warn(f"account read failed for valid projaccount {acc['Project ID']}, {acc['Project Account']}, {acc['Group PI']}")
+            continue
+
+        #validate the join and validity
+        __join_schema = schemas.projectaccount_schema.ProjectAccountReceiveSchema(
+            account_id = account_dict['id'],
+            project_id = project_dict['id'],
+            valid = __valid,
+        )
+        projectaccount = __join_schema.dict()
+
+        #rename the pid key to avoid conflicts later
+        project_dict['project_id'] = project_dict['id']   
+
+        #drop the original project id and the dummy account ids
+        del project_dict['id']
+        del account_dict['id']
+        del projectaccount['account_id']
+
+        #merge in the account and project dicts
+        projectaccount.update(account_dict)
+        projectaccount.update(project_dict)
+        
+        result.append(projectaccount)
+
+    return result

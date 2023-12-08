@@ -17,6 +17,7 @@ def exists() -> bool:
         return engine.dialect.has_table(connection, 'rduser')
 
 def init_db():
+    print("Initialising DB")    
     Base.metadata.create_all(bind=engine)
 
 def get_db() -> Iterator[Session]:
