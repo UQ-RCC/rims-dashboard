@@ -167,8 +167,6 @@ def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
     """
     validate return from #56 accounts report 
 
-    NB: accounts do not have ids yet as this is a primary key created by rimsdash
-
     NB: this is a complex join table, need to validate elements against account, project and projectaccount
     """
 
@@ -198,11 +196,9 @@ def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
                 logger.warn(f"project read failed for valid projaccount {acc['Project ID']}, {acc['Project Account']}, {acc['Group PI']}")
             continue
     
-        #validate the account info
-        #   ( use a dummy id )       
+        #validate the account info  
         try:
             __account_schema = schemas.account_schema.AccountReceiveSchema(
-                id = -1,
                 bcode = rims_link_extract_key(acc['Project Account'], 'bcode'),
             )
             account_dict = __account_schema.dict()
@@ -214,23 +210,19 @@ def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
 
         #validate the join and validity
         __join_schema = schemas.projectaccount_schema.ProjectAccountReceiveSchema(
-            account_id = account_dict['id'],
+            bcode = account_dict['bcode'],
             project_id = project_dict['id'],
             valid = __valid,
         )
         projectaccount = __join_schema.dict()
 
-        #rename the pid key to avoid conflicts later
-        project_dict['project_id'] = project_dict['id']   
-
-        #drop the original project id and the dummy account ids
+        #drop the original primary keys to avoid duplicates
         del project_dict['id']
-        del account_dict['id']
-        del projectaccount['account_id']
+        del account_dict['bcode']
 
         #merge in the account and project dicts
-        projectaccount.update(account_dict)
         projectaccount.update(project_dict)
+        projectaccount.update(account_dict) #NB currently empty as only contained bcode
         
         result.append(projectaccount)
 
