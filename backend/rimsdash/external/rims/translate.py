@@ -57,7 +57,7 @@ def validate_project_list(rims_project_list: list[dict]) -> list[dict]:
 
     for project in rims_project_list:
 
-        _schema = schemas.ProjectCreateSchema(
+        _schema = schemas.project_schema.ProjectListTranslateSchema(
             id = project['ProjectRef'],
             title = project['ProjectName'],
             phase = project['Phase'],

@@ -91,6 +91,44 @@ def sync_user_admin(db: Session = Depends(rdb.get_db), skip_existing: bool = Fal
 
 
 
+def sync_accounts(db: Session = Depends(rdb.get_db)) -> list[dict]:
+    """
+    Sync local account DB to external RIMS DB
+    
+    Update projects to include account
+
+    external data will overwrite any local conflicts
+    """
+
+    logger.info(f"getting account list from RIMS")
+    projectaccount_list: list[dict] = rims.get_project_accounts()
+
+    logger.info(f"reading account list into DB")
+
+    for acc in projectaccount_list:
+
+        #now setup the account
+        __row = crud.account.get(db, acc['bcode'])
+
+        if __row is None:
+            logger.debug(f"creating account {acc['bcode']}")
+            account_in = schemas.AccountReceiveSchema.validate(
+                bcode = acc['bcode'],
+                )
+
+            crud.account.create(db, account_in)
+        else:
+            logger.debug(f"updating account {acc['bcode']}")
+
+            account_in = schemas.AccountReceiveSchema.validate(
+                bcode = acc['bcode'],
+            )
+            crud.account.update(db, __row, account_in)
+    
+    return projectaccount_list
+
+
+
 def sync_projects(db: Session = Depends(rdb.get_db)):
     """
     Sync local project DB to external RIMS DB
@@ -133,55 +171,69 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
             project_in = schemas.ProjectInitDetailsSchema(**project)
 
             crud.project.update(db, _row, project_in)
-
-
-def sync_accounts(db: Session = Depends(rdb.get_db)):
-    """
-    Sync local account DB to external RIMS DB
     
-    Update projects to include account
+    return projects
 
-    external data will overwrite any local conflicts
+
+def match_project_account_pair(projectaccount_list: list[dict], bcode: str, project_id: int) -> dict:
+    """
+    find the corresponding project-account pair in a rims projacc list
+    
+    does not check for duplicates    
+    """
+            
+    for __projacc in projectaccount_list:
+        if __projacc['bcode'] == bcode and __projacc['project_id'] == project_id:
+            return __projacc     
+
+    logger.warn(f"pair | pid: {project_id} | bcode: {bcode} | not found in RIMS project-account report - skipping")
+
+
+def sync_project_accounts(project_list: list[dict], projectaccount_list: list[dict], db: Session = Depends(rdb.get_db)):
+    """
+    Sync project-account pairs to DB
+
+    Iterates through rims-projects and matches to rims-projectaccounts via DB
     """
 
-    logger.info(f"getting account list from RIMS")
-    projectaccount_list: list[dict] = rims.get_project_accounts()
+    logger.info(f"creating projacc")
 
-    logger.info(f"reading account list into DB")
+    #projectaccount_list: list[dict] = rims.get_project_accounts()
 
-    for acc in projectaccount_list:
+    for project in project_list:
 
-        #now setup the account
-        __row = crud.account.get(db, acc['bcode'])
+        #warn and skip if the account does not exist
+        if project['bcode'] == '' or crud.account.get(project['bcode']) is None:
+            logger.warn(f"account {project['bcode']} not found in DB for project {project['id']} - skipping")
+            continue
+        
+
+        project_account = match_project_account_pair(projectaccount_list, project['bcode'], project['id'])
+
+        #link the project and account
+        projacc_in = schemas.ProjectAccountReceiveSchema.validate(
+            bcode = project['bcode'],
+            project_id = project['id'],
+            valid = project_account.valid,
+        )
+
+        __row = crud.projectaccount.get(db, (project['bcode'], project['id']) )
 
         if __row is None:
-            logger.debug(f"creating account {acc['bcode']}")
-            account_in = schemas.AccountReceiveSchema.validate(
-                bcode = acc['bcode'],
-                )
-
-            crud.account.create(db, account_in)
+            crud.projectaccount.create(db, projacc_in)
         else:
-            logger.debug(f"updating account {acc['bcode']}")
-
-            account_in = schemas.AccountReceiveSchema.validate(
-                bcode = acc['bcode'],
-            )
-            crud.account.update(db, __row, account_in)
+            crud.projectaccount.update(db, __row, projacc_in)
 
 
 
-
-
-def update_accounts(db: Session = Depends(rdb.get_db)):
+def update_accounts(projectaccount_list, projects, db: Session = Depends(rdb.get_db)):
     """
-    NB: run this after project creation
+    DEPRECATED
     """
-
-    logger.info(f"getting account list from RIMS")
-    projectaccount_list: list[dict] = rims.get_project_accounts()
 
     logger.info(f"reading account list into DB")
+
+    #projectaccount_list: list[dict] = rims.get_project_accounts()
 
     for acc in projectaccount_list:
         #first, confirm the project exists
@@ -364,7 +416,9 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
                 logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
                 sync_systems(db)
                 sync_users(db)
-                sync_projects(db)
+                project_list = sync_projects(db)
+                projectaccount_list = sync_accounts(db)
+                sync_project_accounts(project_list, projectaccount_list, db)
                 sync_user_rights(db)
                 sync_project_users(db)
                 sync_user_admin(db, skip_existing = True)

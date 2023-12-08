@@ -8,7 +8,7 @@ class ProjectAccountModel(Base):
     """
     junction table linking project + account with validity
     """
-    __tablename__ = 'rdsystemrights'
+    __tablename__ = 'rdprojectaccount'
     bcode = Column(String, ForeignKey('rdaccount.bcode'), primary_key=True)      #maybe use a direct reference here eg. User.username
     project_id = Column(Integer, ForeignKey('rdproject.id'), primary_key=True)
     valid = Column(Boolean, primary_key=False, index=False, nullable=False)

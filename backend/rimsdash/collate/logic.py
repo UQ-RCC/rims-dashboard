@@ -119,7 +119,7 @@ def process_project(project: ProjectFullSchema) -> ProjectStateCreateSchema:
 
     try:
         if project.phase == 0:
-            state.phase = IStatus.waiting
+            state.phase = IStatus.off
         elif project.phase == 1:
             state.phase = IStatus.waiting
         elif project.phase == 2:
@@ -136,11 +136,13 @@ def process_project(project: ProjectFullSchema) -> ProjectStateCreateSchema:
         else:
             state.active = IStatus.disabled
 
-        if project.bcode is not None:
-            state.billing = IStatus.ready
-        else:
+        try:
+            if project.account.valid == True:
+                state.billing = IStatus.ready
+            elif project.account.valid == False:
+                state.billing = IStatus.waiting
+        except:
             state.billing = IStatus.disabled
-            ##FUTURE: check financial report for chartstring validity
 
         #FUTURE: if has rights in any lab
         #or is fee-for-service
