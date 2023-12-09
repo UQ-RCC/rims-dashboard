@@ -17,5 +17,5 @@ class ProjectModel(Base):
     qcollection = Column(String, primary_key=False, index=False, nullable=True)
     status = Column(String, primary_key=False, index=False, nullable=True)
     project_account = relationship("ProjectAccountModel", back_populates="project")
-    user_rights = relationship("ProjectUsersModel", back_populates="project")  
+    user_rights = relationship("ProjectUsersModel", back_populates="project")
     project_state = relationship("ProjectStateModel", back_populates="project")

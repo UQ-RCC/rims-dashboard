@@ -1,7 +1,6 @@
 from .base_schema import BaseSchema
 
 class AccountBaseSchema(BaseSchema):
-    id: int
     bcode: str
 
     class Config:

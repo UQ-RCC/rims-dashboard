@@ -208,6 +208,10 @@ def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
                 logger.warn(f"account read failed for valid projaccount {acc['Project ID']}, {acc['Project Account']}, {acc['Group PI']}")
             continue
 
+        if account_dict['bcode'] == '' or account_dict['bcode'] is None:
+            logger.warn(f"bcode empty for {acc['Project ID']}, {acc['Project Account']}, {acc['Group PI']}")
+            continue
+
         #validate the join and validity
         __join_schema = schemas.projectaccount_schema.ProjectAccountReceiveSchema(
             bcode = account_dict['bcode'],

@@ -112,9 +112,10 @@ def sync_accounts(db: Session = Depends(rdb.get_db)) -> list[dict]:
 
         if __row is None:
             logger.debug(f"creating account {acc['bcode']}")
+            print(f"creating account {acc['bcode']}")
             account_in = schemas.AccountReceiveSchema.validate(
                 bcode = acc['bcode'],
-                )
+            )
 
             crud.account.create(db, account_in)
         else:

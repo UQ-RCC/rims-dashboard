@@ -8,7 +8,7 @@ ProjectOutSchema = ForwardRef('ProjectOutSchema')
 AccountOutSchema = ForwardRef('AccountOutSchema')
 
 class ProjectAccountBaseSchema(BaseSchema):
-    bcode: int
+    bcode: str
     project_id: int
     valid: bool
 

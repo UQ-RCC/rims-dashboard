@@ -106,7 +106,7 @@ class ProjectOutRefsSchema(ProjectOutSchema):
     ...
     project_state: Optional[list[ProjectStateOutSchema]]    
     user_rights: Optional[list[ProjectUsersOutFromProjectSchema]]  
-    account: Optional[list[ProjectAccountOutSchema]]
+    project_account: Optional[list[ProjectAccountOutSchema]]
 
 #Minimum for table
 class ProjectMinOutSchema(BaseSchema):
@@ -127,7 +127,7 @@ class ProjectOutRefsMinSchema(ProjectMinOutSchema):
     ...
     project_state: Optional[list[ProjectStateOutSchema]]
     user_rights: Optional[list[ProjectUsersOutUserMin]]
-    account: Optional[list[ProjectAccountOutSchema]]
+    project_account: Optional[list[ProjectAccountOutSchema]]
 
 
 #import the circular deps and update forward

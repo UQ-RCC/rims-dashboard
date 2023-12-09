@@ -7,4 +7,4 @@ from .base_model import Base
 class AccountModel(Base):
     __tablename__ = 'rdaccount'
     bcode = Column(String, primary_key=True, index=False, nullable=False)
-    project_accounts = relationship('ProjectAccountModel', back_populates='account')
+    account_projects = relationship('ProjectAccountModel', back_populates='account')
