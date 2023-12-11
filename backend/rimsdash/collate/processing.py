@@ -101,6 +101,7 @@ def sync_accounts(db: Session = Depends(rdb.get_db)) -> list[dict]:
     """
 
     logger.info(f"getting account list from RIMS")
+
     projectaccount_list: list[dict] = rims.get_project_accounts()
 
     logger.info(f"reading account list into DB")
@@ -113,7 +114,7 @@ def sync_accounts(db: Session = Depends(rdb.get_db)) -> list[dict]:
         if __row is None:
             logger.debug(f"creating account {acc['bcode']}")
             print(f"creating account {acc['bcode']}")
-            account_in = schemas.AccountReceiveSchema.validate(
+            account_in = schemas.AccountReceiveSchema(
                 bcode = acc['bcode'],
             )
 
@@ -121,7 +122,7 @@ def sync_accounts(db: Session = Depends(rdb.get_db)) -> list[dict]:
         else:
             logger.debug(f"updating account {acc['bcode']}")
 
-            account_in = schemas.AccountReceiveSchema.validate(
+            account_in = schemas.AccountReceiveSchema(
                 bcode = acc['bcode'],
             )
             crud.account.update(db, __row, account_in)
@@ -204,18 +205,22 @@ def sync_project_accounts(project_list: list[dict], projectaccount_list: list[di
     for project in project_list:
 
         #warn and skip if the account does not exist
-        if project['bcode'] == '' or crud.account.get(project['bcode']) is None:
+        if project['bcode'] == '' or crud.account.get(db, project['bcode']) is None:
             logger.warn(f"account {project['bcode']} not found in DB for project {project['id']} - skipping")
             continue
         
 
         project_account = match_project_account_pair(projectaccount_list, project['bcode'], project['id'])
 
+        if project_account is None:
+            logger.warn(f"pair | pid: {project['id']} | bcode: {project['bcode']} | not found in RIMS project-account report - skipping")
+            continue
+
         #link the project and account
-        projacc_in = schemas.ProjectAccountReceiveSchema.validate(
+        projacc_in = schemas.ProjectAccountReceiveSchema(
             bcode = project['bcode'],
             project_id = project['id'],
-            valid = project_account.valid,
+            valid = project_account['valid'],
         )
 
         __row = crud.projectaccount.get(db, (project['bcode'], project['id']) )

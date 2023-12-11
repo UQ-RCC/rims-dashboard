@@ -204,7 +204,7 @@ def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
             account_dict = __account_schema.dict()
 
         except:
-            if __valid:                          
+            if __valid:
                 logger.warn(f"account read failed for valid projaccount {acc['Project ID']}, {acc['Project Account']}, {acc['Group PI']}")
             continue
 
