@@ -2,14 +2,12 @@ from typing import Optional, ForwardRef
 
 from .base_schema import BaseSchema
 
-#use forward refs for circular deps
-
+# forward refs to other schemas
 ProjectStateOutSchema=ForwardRef('ProjectStateOutSchema')
 ProjectUsersOutSchema=ForwardRef('ProjectUsersOutSchema')
 ProjectUsersOutUserMin=ForwardRef('ProjectUsersOutUserMin')
-ProjectUsersOutFromProjectSchema=ForwardRef('ProjectUsersOutFromProjectSchema')
+ProjectUsersWithUserSchema=ForwardRef('ProjectUsersWithUserSchema')
 ProjectAccountOutSchema=ForwardRef('ProjectAccountOutSchema')
-
 
 class ProjectBaseSchema(BaseSchema):
     id: int
@@ -25,14 +23,6 @@ class ProjectBaseSchema(BaseSchema):
     class Config:
         orm_mode = True
 
-#complete DB schema with all fields
-class ProjectFullSchema(ProjectBaseSchema):
-    qcollection: Optional[str] = None
-    status: Optional[str] = None
-    project_state: Optional[list[ProjectStateOutSchema]]
-    user_rights: Optional[list[ProjectUsersOutSchema]]
-    account: Optional[list[ProjectAccountOutSchema]]    
-    ...
 
 # Properties on creation
 class ProjectCreateSchema(ProjectBaseSchema):
@@ -49,8 +39,6 @@ class ProjectInitDetailsSchema(BaseSchema):
 
     class Config:
         orm_mode = True
-
-
 
 #RIMS translation check
 class ProjectListTranslateSchema(ProjectReceiveSchema):
@@ -73,6 +61,10 @@ class ProjectFromAccountSchema(BaseSchema):
 
     class Config:
         orm_mode = True    
+
+
+
+
 
 
 
@@ -105,7 +97,7 @@ class ProjectOutRefsSchema(ProjectOutSchema):
     """ 
     ...
     project_state: Optional[list[ProjectStateOutSchema]]    
-    user_rights: Optional[list[ProjectUsersOutFromProjectSchema]]  
+    user_rights: Optional[list[ProjectUsersWithUserSchema]]  
     project_account: Optional[list[ProjectAccountOutSchema]]
 
 #Minimum for table
@@ -130,13 +122,24 @@ class ProjectOutRefsMinSchema(ProjectMinOutSchema):
     project_account: Optional[list[ProjectAccountOutSchema]]
 
 
+
+class ProjectForStateCheckSchema(ProjectOutSchema):
+    """
+    """
+    ...
+    project_state: Optional[list[ProjectStateOutSchema]]    
+    user_rights: Optional[list[ProjectUsersWithUserSchema]]  
+    project_account: Optional[list[ProjectAccountOutSchema]]
+
+
+
 #import the circular deps and update forward
-from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersOutFromProjectSchema, ProjectUsersOutUserMin
+from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersWithUserSchema, ProjectUsersOutUserMin
 from .project_state_schema import ProjectStateOutSchema
 from .projectaccount_schema import ProjectAccountOutSchema
 
 
-ProjectFullSchema.update_forward_refs()
 ProjectOutWithStateSchema.update_forward_refs()
 ProjectOutRefsSchema.update_forward_refs()
 ProjectOutRefsMinSchema.update_forward_refs()
+ProjectForStateCheckSchema.update_forward_refs()

@@ -4,12 +4,10 @@ from rimsdash.models import ProjectRight
 
 from .base_schema import BaseSchema
 
-#use forward refs for circular deps
-
+# forward refs to other schemas
 UserOutSchema = ForwardRef('UserOutSchema')
 UserMinOutSchema = ForwardRef('UserMinOutSchema')
 UserOutWithStateSchema = ForwardRef('UserOutWithStateSchema')
-
 ProjectOutSchema = ForwardRef('ProjectOutSchema')
 ProjectOutWithStateSchema = ForwardRef('ProjectOutWithStateSchema')
 
@@ -47,14 +45,14 @@ class ProjectUsersOutSchema(ProjectUsersBaseSchema):
     """    
     ...
 
-class ProjectUsersOutFromProjectSchema(ProjectUsersBaseSchema):
+class ProjectUsersWithUserSchema(ProjectUsersBaseSchema):
     """
     Include linked users with states
     """    
     ...
     user: UserOutWithStateSchema = None
 
-class ProjectUsersOutFromUserSchema(ProjectUsersBaseSchema):
+class ProjectUsersWithProjectSchema(ProjectUsersBaseSchema):
     """
     Include linked projects with states
     """    
@@ -77,8 +75,8 @@ from .user_schema import UserOutSchema, UserOutWithStateSchema, UserMinOutSchema
 from .project_schema import ProjectOutSchema, ProjectOutWithStateSchema
 
 #update local schema with refs
-ProjectUsersFullSchema.update_forward_refs()
 
-ProjectUsersOutFromUserSchema.update_forward_refs()
-ProjectUsersOutFromProjectSchema.update_forward_refs()
+ProjectUsersFullSchema.update_forward_refs()
+ProjectUsersWithProjectSchema.update_forward_refs()
+ProjectUsersWithUserSchema.update_forward_refs()
 ProjectUsersOutUserMin.update_forward_refs()

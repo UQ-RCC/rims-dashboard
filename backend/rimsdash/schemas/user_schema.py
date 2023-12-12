@@ -4,11 +4,9 @@ from rimsdash.models import SystemRight
 
 from .base_schema import BaseSchema
 
-#use forward refs for circular deps
-
-#NEW
+# forward refs to other schemas
 UserStateOutSchema=ForwardRef('UserStateOutSchema')
-ProjectUsersOutFromUserSchema=ForwardRef('ProjectUsersOutFromUserSchema')
+ProjectUsersWithProjectSchema=ForwardRef('ProjectUsersWithProjectSchema')
 SystemUserOutInfoSchema=ForwardRef('SystemUserOutInfoSchema')
 SystemUserOutSchema = ForwardRef('SystemUserOutSchema')
 ProjectUsersOutSchema = ForwardRef('ProjectUsersOutSchema')
@@ -24,13 +22,6 @@ class UserBaseSchema(BaseSchema):
     class Config:
         orm_mode = True
 
-#complete DB schema with all fields
-class UserFullSchema(UserBaseSchema):
-    ...
-    admin: Optional[bool]
-    user_state: Optional[list[UserStateOutSchema]]
-    system_rights: Optional[list[SystemUserOutSchema]]
-    project_rights: Optional[list[ProjectUsersOutSchema]]
 
 
 # Properties on creation
@@ -92,7 +83,7 @@ class UserOutRefsSchema(UserOutSchema):
     ...
     user_state: Optional[list[UserStateOutSchema]]
     system_rights: Optional[list[SystemUserOutInfoSchema]]
-    project_rights: Optional[list[ProjectUsersOutFromUserSchema]]
+    project_rights: Optional[list[ProjectUsersWithProjectSchema]]
 
 
 #Minimum for table
@@ -111,15 +102,28 @@ class UserMinOutSchema(BaseSchema):
         orm_mode = True
 
 
+
+#Mnalysis schema
+
+class UserForStateCheckSchema(UserOutSchema):
+    """
+    """
+    ...
+    user_state: Optional[list[UserStateOutSchema]]
+    system_rights: Optional[list[SystemUserOutInfoSchema]]
+    project_rights: Optional[list[ProjectUsersWithProjectSchema]]
+
+
+
 #import the circular deps and update forward
 from .systemuser_schema import SystemUserOutSchema, SystemUserOutInfoSchema
-from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersOutFromUserSchema
+from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersWithProjectSchema
 from .user_state_schema import UserStateOutSchema
 
 #update local schema with refs
-UserFullSchema.update_forward_refs()
 UserOutWithStateSchema.update_forward_refs()
 UserOutRefsSchema.update_forward_refs()
+UserForStateCheckSchema.update_forward_refs()
 
 
 

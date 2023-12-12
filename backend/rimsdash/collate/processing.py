@@ -351,7 +351,7 @@ def process_projects(db: Session = Depends(rdb.get_db)):
 
     for project in projects:
         logger.debug(f"project state: {project.id}")
-        project_schema = schemas.ProjectFullSchema.validate(project)
+        project_schema = schemas.ProjectForStateCheckSchema.validate(project)
 
         project_state = logic.process_project(project_schema)
 
@@ -373,7 +373,7 @@ def process_users(db: Session = Depends(rdb.get_db)):
 
     for user in users:
         logger.debug(f"user state: {user.username}")
-        user_schema = schemas.UserFullSchema.validate(user)
+        user_schema = schemas.UserForStateCheckSchema.validate(user)
 
         user_state = logic.process_user(user_schema)
 

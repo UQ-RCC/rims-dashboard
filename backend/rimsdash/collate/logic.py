@@ -1,5 +1,5 @@
 from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
-from rimsdash.schemas import UserFullSchema, ProjectFullSchema, UserStateCreateSchema, ProjectStateCreateSchema
+from rimsdash.schemas import UserForStateCheckSchema, UserStateCreateSchema, ProjectStateCreateSchema, ProjectForStateCheckSchema
 
 import rimsdash.utils as utils
 
@@ -66,7 +66,7 @@ def recursive():
     """
     pass
 
-def process_user(user: UserFullSchema) -> UserStateCreateSchema:
+def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
     """
     generate status result from user data
     """    
@@ -111,13 +111,14 @@ def process_user(user: UserFullSchema) -> UserStateCreateSchema:
 
 
 
-def process_project(project: ProjectFullSchema) -> ProjectStateCreateSchema:
+def process_project(project: ProjectForStateCheckSchema) -> ProjectStateCreateSchema:
     """
     generate status result from project data
     """
     state = ProjectStateCreateSchema(project_id = project.id)
 
     try:
+        #phase
         if project.phase == 0:
             state.phase = IStatus.off
         elif project.phase == 1:
@@ -131,15 +132,16 @@ def process_project(project: ProjectFullSchema) -> ProjectStateCreateSchema:
         else:
             state.phase = IStatus.fail
 
+        #activity status
         if project.active == True:
             state.active = IStatus.ready
         else:
             state.active = IStatus.disabled
 
         try:
-            if project.account.valid == True:
+            if project.project_account[0].valid == True:
                 state.billing = IStatus.ready
-            elif project.account.valid == False:
+            elif project.project_account[0].valid == False:
                 state.billing = IStatus.waiting
         except:
             state.billing = IStatus.disabled

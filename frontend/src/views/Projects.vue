@@ -114,7 +114,7 @@
                                                 <strong>Active</strong>:  {{ item.active }}
                                             </div>                                            
                                             <div>
-                                                <strong>Bcode</strong>:  {{ item.account[0].bcode }}
+                                                <strong>Bcode</strong>:  {{ item.project_account[0].bcode }}
                                             </div>
                                             <div>
                                                 <strong>Affiliation</strong>:  {{ item.affiliation }}
