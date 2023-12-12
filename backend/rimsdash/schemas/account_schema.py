@@ -14,6 +14,9 @@ class AccountReceiveSchema(AccountBaseSchema):
 class AccountUpdateSchema(AccountBaseSchema):
     ...
 
+class AccountCreateSchema(AccountBaseSchema):
+    ...
+
 
 #export schema
 #---------------

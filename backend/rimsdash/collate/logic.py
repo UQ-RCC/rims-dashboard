@@ -39,7 +39,7 @@ def get_rims_key(code: int):
 def recursive():
     """
     for project in projects:
-        __user_ok = IState.off
+        __user_ok = IState.fail
 
         if project.type == "Fee for service":
             __user_ok = IState.ok
@@ -98,6 +98,8 @@ def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
 
     if user.active == True:
         state.active = IStatus.ready
+    else:
+        state.active = IStatus.disabled
     
     if state.active == IStatus.ready and any(
             (labstate == IStatus.ready or labstate == IStatus.extended) for \
@@ -120,7 +122,7 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateCreateSc
     try:
         #phase
         if project.phase == 0:
-            state.phase = IStatus.off
+            state.phase = IStatus.disabled
         elif project.phase == 1:
             state.phase = IStatus.waiting
         elif project.phase == 2:
@@ -138,6 +140,7 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateCreateSc
         else:
             state.active = IStatus.disabled
 
+        #billing
         try:
             if project.project_account[0].valid == True:
                 state.billing = IStatus.ready

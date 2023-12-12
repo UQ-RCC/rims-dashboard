@@ -10,7 +10,7 @@ AccountOutSchema = ForwardRef('AccountOutSchema')
 class ProjectAccountBaseSchema(BaseSchema):
     bcode: str
     project_id: int
-    valid: bool
+    valid: Optional[bool] = None
 
     class Config:
         orm_mode = True

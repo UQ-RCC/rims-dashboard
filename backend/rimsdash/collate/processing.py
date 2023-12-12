@@ -183,13 +183,14 @@ def match_project_account_pair(projectaccount_list: list[dict], bcode: str, proj
     
     does not check for duplicates    
     """
-            
+
     for __projacc in projectaccount_list:
         if __projacc['bcode'] == bcode and __projacc['project_id'] == project_id:
             return __projacc     
 
-    logger.warn(f"pair | pid: {project_id} | bcode: {bcode} | not found in RIMS project-account report - skipping")
-
+    #if not found, warn and return the ids with valid = None
+    logger.warn(f"pair | pid: {project_id} | bcode: {bcode} | not found in RIMS project-account report, setting valid = None")    
+    return { 'bcode': bcode, 'project_id': project_id, 'valid': None }
 
 def sync_project_accounts(project_list: list[dict], projectaccount_list: list[dict], db: Session = Depends(rdb.get_db)):
     """
@@ -205,16 +206,20 @@ def sync_project_accounts(project_list: list[dict], projectaccount_list: list[di
     for project in project_list:
 
         #warn and skip if the account does not exist
-        if project['bcode'] == '' or crud.account.get(db, project['bcode']) is None:
-            logger.warn(f"account {project['bcode']} not found in DB for project {project['id']} - skipping")
-            continue
-        
+        if project['bcode'] == '':
+            logger.info(f"empty bcode {project['bcode']} for project {project['id']}")   
 
-        project_account = match_project_account_pair(projectaccount_list, project['bcode'], project['id'])
-
-        if project_account is None:
-            logger.warn(f"pair | pid: {project['id']} | bcode: {project['bcode']} | not found in RIMS project-account report - skipping")
-            continue
+        #if the account is in the DB, find the pair from the local list
+        if crud.account.get(db, project['bcode']) is not None:
+            project_account = match_project_account_pair(projectaccount_list, project['bcode'], project['id'])
+        else:           
+            #if the account is not in the DB, create it with valid = None 
+            logger.info(f"account {project['bcode']} not found in DB for project {project['id']}, creating w/ valid=None")
+            __account_schema = schemas.account_schema.AccountCreateSchema(
+                bcode = project['bcode']
+            )
+            crud.account.create(db, __account_schema)
+            project_account = { 'bcode': project['bcode'], 'project_id': project['id'], 'valid': None }
 
         #link the project and account
         projacc_in = schemas.ProjectAccountReceiveSchema(
@@ -229,7 +234,6 @@ def sync_project_accounts(project_list: list[dict], projectaccount_list: list[di
             crud.projectaccount.create(db, projacc_in)
         else:
             crud.projectaccount.update(db, __row, projacc_in)
-
 
 
 def update_accounts(projectaccount_list, projects, db: Session = Depends(rdb.get_db)):
@@ -413,7 +417,8 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
         except:
             __last = None
 
-        if force or __last is None or (datetime.datetime.now() - __last.start_time  > datetime.timedelta(days=sync_frequency)):
+                #FUTURE update the time delta here to allow sync at -5 min
+        if force or __last is None or (datetime.datetime.now() - __last.start_time  >= datetime.timedelta(days=sync_frequency)):
             logger.info(">>>>>>>>>>>> Begin full sync")
             __start_schema = schemas.sync_schema.SyncCreateSchema(sync_type=SyncType.full)
             __current = crud.sync.create(db, __start_schema)
@@ -422,9 +427,37 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
                 logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
                 sync_systems(db)
                 sync_users(db)
+                """
+                FUTURE: reorder this logic to reduce passing of secondary lists
+
+                pseudo:
+                
+                #empty projectaccounts table?
+                
+                def sync_projects                
+                    for project in projects
+                        if crud.account.get(db, bcode) is None:
+                            __aschema = schemas.xxx.(bcode = bcode)
+                            crud.account.create(db, __aschema)
+                        if crud.projectaccount.get(db, bcode, project_id) is None:
+                            __paschema = schemas.xxx.(..., valid = None)
+                            crud.projectaccount.create(db, __paschema)
+                    
+                palist = rims.getxxxx
+
+                def match_projectaccounts:
+                    for pa in palist:
+                        if crud.projectaccount.get(db, bcode, project_id):
+                            __paschema( valid = pa['valid'])
+                            crud.projectaccount.update(db, __paschema)
+
+                """
+                #FUTURE refactor these 
                 project_list = sync_projects(db)
                 projectaccount_list = sync_accounts(db)
                 sync_project_accounts(project_list, projectaccount_list, db)
+                #/end refactor
+
                 sync_user_rights(db)
                 sync_project_users(db)
                 sync_user_admin(db, skip_existing = True)
