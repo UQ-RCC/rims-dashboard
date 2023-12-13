@@ -11,6 +11,7 @@
             <v-row>
                 <v-col cols="2">
                     <v-text-field
+                        ref="idTextField"
                         v-model="filteredId"
                         append-icon="mdi-magnify"
                         label="Search By ID"
@@ -22,6 +23,7 @@
                 </v-col> 
                 <v-col cols="4">
                     <v-text-field
+                        ref="titleTextField"                    
                         v-model="filteredTitle"
                         append-icon="mdi-magnify"
                         label="Search By Title"
@@ -32,6 +34,7 @@
                 </v-col>              
                 <v-col cols="2">
                     <v-text-field
+                        ref="groupTextField"                     
                         v-model="filteredGroup"
                         append-icon="mdi-magnify"
                         label="Search By Group"
@@ -42,6 +45,7 @@
                 </v-col>
                 <v-col cols="2">
                     <v-text-field
+                        ref="fullNameTextField" 
                         v-model="filteredFullName"
                         append-icon="mdi-magnify"
                         label="Search By User"
@@ -49,7 +53,13 @@
                         hide-details
                         @keydown.enter.prevent="filterByFullName"
                     ></v-text-field>
-                </v-col>                            
+                </v-col>     
+                <v-col cols="2">
+                    <v-btn class="align-clear-btn" color="deep-purple-lighten-4" density="compact" small @click="clearFilters">
+                        <v-icon left>mdi-close</v-icon>
+                        Clear filters
+                    </v-btn>
+                </v-col>
             </v-row>                    
         </v-card-title>
         <v-data-table
@@ -68,7 +78,11 @@
             <template v-slot:item="{ item, expand, isExpanded }">
                  <tr @click="expand(!isExpanded)">
                     <td></td>
-                    <td>{{ item.id }}</td>
+                    <td>
+                        <a :href="`${item.url}`" target="_blank">
+                            {{ item.id }}
+                        </a>
+                    </td>
                     <td class="truncate">{{ item.title }}</td>   
                     <td class="truncate">{{ item.group }}</td>
                     <td>
@@ -158,8 +172,12 @@
                                         >
                                             <template v-slot:item="{ item }">
                                                 <tr :class="itemRowBackground(item)">
-                                                    <td>{{ item.user.name }}</td>
-                                                    <td>{{ item.user.username }}</td>
+                                                    <td>{{ item.user.name }}</td>                                      
+                                                    <td>
+                                                        <a :href="`${item.user.url}`" target="_blank">
+                                                        {{ item.user.username }}
+                                                        </a>
+                                                    </td>
                                                     <td>
                                                         <StatusIndicatorLocal :status="item.user.user_state[0].active" :pulse="false"/>
                                                     </td>   
@@ -194,18 +212,6 @@
     </v-card>
 </template>
 
-
-
-
-<!--
-    <template v-slot:body="{ items }">
-        <tr>v-for="item in items" :key="item.id"
-
-    search field clear button
-    https://stackoverflow.com/questions/2803532/how-do-i-put-a-clear-button-inside-my-html-text-input-box-like-the-iphone-does
-    maybe just use v-autocomplete or v-search?
-    eg. https://codepen.io/AndrewThian/pen/QdeOVa
--->
 
 <script>
     import Vue from 'vue'
@@ -263,7 +269,7 @@
                 ],
 
                 numberRules: [
-                    value => value && value >= 0 || 'Must be 0 or a positive number'
+                    value => ( value === null || value && ( value >= 0 || value === '' )) || 'Must be 0 or a positive number'
                 ],
 
             }
@@ -298,7 +304,7 @@
             async filterByTitle(){
                 this.projects = []
                 if (this.filteredTitle){
-                    this.filteredId = null
+                    this.filteredId = null                  
                     this.filteredGroup = null
                     this.filteredFullName = null                    
                     this.projectsFull.forEach(aproj => {
@@ -313,7 +319,7 @@
             async filterByGroup(){
                 this.projects = []
                 if (this.filteredGroup){
-                    this.filteredId = null
+                    this.filteredId = null                       
                     this.filteredTitle = null
                     this.filteredFullName = null                    
                     this.projectsFull.forEach(aproj => {
@@ -330,7 +336,7 @@
 
                 if (this.filteredFullName){
                     Vue.$log.info("filtering by fullname " + this.filteredFullName)                     
-                    this.filteredId = null
+                    this.filteredId = null                     
                     this.filteredTitle = null
                     this.filteredGroup = null
                     this.projectsFull.forEach(aproj => {
@@ -341,6 +347,21 @@
                     this.projects = this.projectsFull
                 }
             },
+
+            async clearFilters(){
+                Vue.$log.info("clearing filters")                     
+                this.filteredId = null
+                //reset the id field to avoid triggering validation
+                if (this.$refs.idTextField) {
+                    this.$refs.idTextField.resetValidation();
+                    //  not actually needed, numberRules now accepts null                    
+                }                
+                this.filteredTitle = null
+                this.filteredGroup = null
+                this.filteredFullName = null
+                this.projects = this.projectsFull
+            },
+
 
             userFilter(items, search) {
                 return items.filter(user_rights => user_rights.some(item => item.user.name.toLowerCase().indexOf(search.toLowerCase())) !== -1)
@@ -421,6 +442,10 @@
         text-overflow: ellipsis;
     }
 
+    .align-clear-btn {
+        height: auto; /* Adjust the button height as needed */
+        margin-top: 18px;
+    }
 
     .style-row-user {
         background: rgb(255,255,255) !important;
