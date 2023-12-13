@@ -51,9 +51,7 @@ async def api_checkwhitelistbyemail(email: str, db: Session = Depends(rdb.get_db
     """
     __user = crud.user.get_by_email(db, email=email) 
 
-    whitelist=config.get("manual","whitelist")
-    whitelist=whitelist.replace(' ', '')
-    whitelist=whitelist.split(',')
+    whitelist=config.get_csv_list("manual","whitelist")
 
     status=(__user.email in whitelist or whitelist=='' or whitelist is None)
 

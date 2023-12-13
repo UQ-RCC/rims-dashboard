@@ -88,7 +88,6 @@
         data: () => ({
             drawer: true,
             has_rims_admin: false,
-            whitelist: false,
         }),
 
         computed: {
@@ -110,7 +109,7 @@
             },
 
             has_access(){
-                if ( ( this.has_rims_admin && this.whitelist ) || this.has_dashboard_access ) {
+                if ( ( this.has_rims_admin ) || this.has_dashboard_access ) {
                     return true
                 }
                 else {
@@ -137,10 +136,6 @@
             this.has_rims_admin = admin_response.admin
             Vue.$log.info("NB has admin: " + this.has_rims_admin)
             
-            Vue.$log.info("NB checking whitelist: " + this.$keycloak.idTokenParsed.email);            
-            const whitelist_response = await RimsdashAPI.checkEmailIsInWhitelist(this.$keycloak.idTokenParsed.email)
-            this.whitelist = whitelist_response.whitelist
-            Vue.$log.info("NB in whitelist: " + this.whitelist)
         },
         
 

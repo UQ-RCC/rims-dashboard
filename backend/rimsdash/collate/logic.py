@@ -1,8 +1,15 @@
+import copy
+
 from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
+
 from rimsdash.schemas import UserForStateCheckSchema, UserStateCreateSchema, ProjectStateCreateSchema, ProjectForStateCheckSchema
 
+
+import rimsdash.config as config
 import rimsdash.utils as utils
 
+
+EXTERNAL_AFFILIATIONS = config.get_csv_list('manual', 'external_affiliations')
 
 #rims codes for each lab & access-level
 #NB: order MUST match
@@ -28,6 +35,8 @@ RIGHTS_OK = [ SystemRight.novice, SystemRight.autonomous, SystemRight.superuser 
 #extra prime: "QBP UQROCX LAB ACCESS 9AM": 163
 #extra AH: "QBP CRYO EM AFTER HOURS":85, "QBP UQROCX LAB ACCESS 24":164
 #extra types: [ "MASS SPEC LAB", "Z_CHEM ENG LAB", "Z_CHEMISTRY LAB LEVEL 7" ]
+
+
 
 def get_rims_key(code: int):
     for i in range(len(RIMS_LAB_KEYS)):
@@ -140,14 +149,19 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateCreateSc
         else:
             state.active = IStatus.disabled
 
+        
         #billing
-        try:
-            if project.project_account[0].valid == True:
-                state.billing = IStatus.ready
-            elif project.project_account[0].valid == False:
-                state.billing = IStatus.waiting
-        except:
-            state.billing = IStatus.disabled
+        if project.affiliation in EXTERNAL_AFFILIATIONS:
+            state.billing = IStatus.ready
+        else:
+            try:                
+                if project.project_account[0].valid == True:
+                    state.billing = IStatus.ready
+                elif project.project_account[0].valid == False:
+                    state.billing = IStatus.fail
+            except:
+                state.billing = IStatus.disabled                        
+            
 
         #FUTURE: if has rights in any lab
         #or is fee-for-service
