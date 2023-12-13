@@ -13,4 +13,5 @@ class ProjectStateModel(Base):
     ohs = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     rdm = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     phase = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
+    ok_user =  Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     project = relationship("ProjectModel", back_populates="project_state") 

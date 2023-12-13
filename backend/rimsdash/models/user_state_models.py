@@ -13,4 +13,6 @@ class UserStateModel(Base):
     access_hawken = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     access_chem = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
     access_qbp = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
-    user = relationship("UserModel", back_populates="user_state")    
+    access_pitschi = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off) 
+    ok_project =  Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
+    user = relationship("UserModel", back_populates="user_state")

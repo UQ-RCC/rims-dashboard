@@ -31,6 +31,8 @@ RIMS_LAB_NAMES_AH = [
 RIMS_LAB_TYPES = [
     "Z_HAWKEN LAB", "Z_AIBN LAB", "Z_CHEMISTRY LAB LEVEL 2", "Z_QBP LAB"
 ]
+PITSCHI_SYSTEM_ID = 132
+
 RIGHTS_OK = [ SystemRight.novice, SystemRight.autonomous, SystemRight.superuser ]
 #extra prime: "QBP UQROCX LAB ACCESS 9AM": 163
 #extra AH: "QBP CRYO EM AFTER HOURS":85, "QBP UQROCX LAB ACCESS 24":164
@@ -75,6 +77,11 @@ def recursive():
     """
     pass
 
+
+def postprocess_project(user: UserForStateCheckSchema):
+    pass
+
+
 def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
     """
     generate status result from user data
@@ -105,12 +112,22 @@ def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
             elif _usersystem.system_id == RIMS_LAB_CODES_AH[3]:
                 state.access_qbp = IStatus.extended
 
+            #pitschi
+            elif _usersystem.system_id == PITSCHI_SYSTEM_ID:
+                state.access_pitschi = IStatus.ok
+
+    #admin pitschi cheat
+    if user.admin == True:
+        state.access_pitschi = IStatus.ok
+
     if user.active == True:
         state.active = IStatus.ready
     else:
         state.active = IStatus.disabled
     
-    if state.active == IStatus.ready and any(
+    if state.active == IStatus.ready and \
+        state.access_pitschi == IStatus.ok \
+        and any(
             (labstate == IStatus.ready or labstate == IStatus.extended) for \
             labstate in [ state.access_hawken, state.access_aibn, state.access_chem, state.access_qbp ]
     ):

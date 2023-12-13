@@ -466,6 +466,25 @@ def process_users(db: Session = Depends(rdb.get_db)):
             user_state = schemas.UserStateUpdateSchema.from_orm(user_state)
             crud.user_state.update(db, _row, user_state)
 
+def postprocess_projects(db: Session = Depends(rdb.get_db)):
+    
+    projects = crud.project.get_all(db)
+
+    for project in projects:
+
+        project_schema = schemas.ProjectForPostStateCheckSchema.from_orm(project)
+
+        project_state_updated = logic.postprocess_project()
+
+        _row = crud.project_state.get(db, project.id)
+
+        if _row is not None:
+            project_state = schemas.ProjectStatePostUpdateSchema.from_orm(project_state_updated)
+            crud.project_state.update(db, _row, project_state)
+        else:
+            logger.warn(f'project-state {project.id} not found in database after update')
+
+
 
 
 def calc_states(db):

@@ -9,12 +9,14 @@ UserOutSchema=ForwardRef('UserOutSchema')
 
 class UserStateBaseSchema(BaseSchema):
     username: str
-    ok: IStatus = IStatus.off
-    active: IStatus = IStatus.off
+    ok: IStatus = IStatus.disabled
+    active: IStatus = IStatus.disabled
     access_aibn: IStatus = IStatus.off
     access_hawken: IStatus = IStatus.off
     access_chem: IStatus = IStatus.off
     access_qbp: IStatus = IStatus.off
+    access_pitschi: IStatus = IStatus.disabled 
+    ok_project: IStatus = IStatus.disabled
 
     class Config:
         orm_mode = True

@@ -11,12 +11,13 @@ ProjectOutInfoSchema=ForwardRef('ProjectOutInfoSchema')
 
 class ProjectStateBaseSchema(BaseSchema):
     project_id: int
-    ok: IStatus = IStatus.off
-    active: IStatus = IStatus.off
+    ok: IStatus = IStatus.disabled
+    active: IStatus = IStatus.disabled
     billing: IStatus = IStatus.off
-    ohs: IStatus = IStatus.off
-    rdm: IStatus = IStatus.off
-    phase: IStatus = IStatus.off
+    ohs: IStatus = IStatus.disabled
+    rdm: IStatus = IStatus.disabled
+    phase: IStatus = IStatus.disabled
+    ok_user: IStatus = IStatus.disabled
 
     class Config:
         orm_mode = True
