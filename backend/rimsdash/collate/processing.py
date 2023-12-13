@@ -255,7 +255,7 @@ def update_accounts(projectaccount_list, projects, db: Session = Depends(rdb.get
             continue
         
         #next, link the project and account
-        projacc_in = schemas.ProjectAccountReceiveSchema.validate(
+        projacc_in = schemas.ProjectAccountReceiveSchema.from_orm(
             bcode = acc['bcode'],
             project_id = acc['project_id'],
             valid = acc['valid'],
@@ -296,7 +296,7 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
             logger.info(f"unrecognised system {user_right['system_id']} for user {user_right['username']}")                     
             continue  
 
-        __schema = schemas.SystemUserCreateSchema.validate(user_right)
+        __schema = schemas.SystemUserCreateSchema.from_orm(user_right)
         __row = crud.systemuser.get(db, (__schema.username, __schema.system_id))
 
         if __row is None:
@@ -376,7 +376,7 @@ def sync_project_users(db: Session = Depends(rdb.get_db)):
             logger.info(f"unrecognised system {project_user['project_id']} for user {project_user['username']}")                     
             continue
 
-        __schema = schemas.ProjectUsersReceiveSchema.validate(project_user)
+        __schema = schemas.ProjectUsersReceiveSchema.from_orm(project_user)
         __row = crud.projectuser.get(db, (__schema.username, __schema.project_id))
 
         if __row is None:
@@ -430,7 +430,7 @@ def process_projects(db: Session = Depends(rdb.get_db)):
 
     for project in projects:
         logger.debug(f"project state: {project.id}")
-        project_schema = schemas.ProjectForStateCheckSchema.validate(project)
+        project_schema = schemas.ProjectForStateCheckSchema.from_orm(project)
 
         project_state = logic.process_project(project_schema)
 
@@ -438,10 +438,10 @@ def process_projects(db: Session = Depends(rdb.get_db)):
 
         #FUTURE: need to sort out create vs update, much simpler if can unify
         if _row is None:
-            project_state = schemas.ProjectStateCreateSchema.validate(project_state)
+            project_state = schemas.ProjectStateCreateSchema.from_orm(project_state)
             crud.project_state.create(db, project_state)
         else:
-            project_state = schemas.ProjectStateUpdateSchema.validate(project_state)
+            project_state = schemas.ProjectStateUpdateSchema.from_orm(project_state)
             crud.project_state.update(db, _row, project_state)
 
 def process_users(db: Session = Depends(rdb.get_db)):
@@ -452,7 +452,7 @@ def process_users(db: Session = Depends(rdb.get_db)):
 
     for user in users:
         logger.debug(f"user state: {user.username}")
-        user_schema = schemas.UserForStateCheckSchema.validate(user)
+        user_schema = schemas.UserForStateCheckSchema.from_orm(user)
 
         user_state = logic.process_user(user_schema)
 
@@ -460,10 +460,10 @@ def process_users(db: Session = Depends(rdb.get_db)):
 
         #FUTURE: need to sort out create vs update, much simpler if can unify
         if _row is None:
-            user_state = schemas.UserStateCreateSchema.validate(user_state)
+            user_state = schemas.UserStateCreateSchema.from_orm(user_state)
             crud.user_state.create(db, user_state)
         else:
-            user_state = schemas.UserStateUpdateSchema.validate(user_state)
+            user_state = schemas.UserStateUpdateSchema.from_orm(user_state)
             crud.user_state.update(db, _row, user_state)
 
 

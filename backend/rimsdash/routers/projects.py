@@ -22,7 +22,7 @@ async def api_getallprojectswithstates(db: Session = Depends(rdb.get_db)):
     __projects = crud.project.get_all(db)
 
     for project in __projects:
-        result.append(schemas.project_schema.ProjectOutRefsMinSchema.validate(project))
+        result.append(schemas.project_schema.ProjectOutRefsMinSchema.from_orm(project))
 
     return result
 
@@ -34,7 +34,7 @@ async def api_getallprojectswithfullstates(db: Session = Depends(rdb.get_db)):
     __projects = crud.project.get_all(db)
 
     for project in __projects:
-        result.append(schemas.project_schema.ProjectOutRefsSchema.validate(project))
+        result.append(schemas.project_schema.ProjectOutRefsSchema.from_orm(project))
 
     return result
 
@@ -44,6 +44,6 @@ async def api_projectdetailwithusers(project_id: int, db: Session = Depends(rdb.
 
     __project = crud.project.get(db, project_id)
 
-    result = schemas.project_schema.ProjectOutRefsSchema.validate(__project)
+    result = schemas.project_schema.ProjectOutRefsSchema.from_orm(__project)
 
     return result

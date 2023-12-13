@@ -28,7 +28,7 @@ async def api_userbyemail(email: str, db: Session = Depends(rdb.get_db)):
 
     __user = crud.user.get_by_email(db, email=email) 
 
-    result = schemas.user_schema.UserOutSchema.validate(__user)
+    result = schemas.user_schema.UserOutSchema.from_orm(__user)
 
     return result
 
@@ -37,7 +37,7 @@ async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db)):
 
     __user = crud.user.get_by_email(db, email=email) 
 
-    result = schemas.user_schema.UserReturnAdminSchema.validate(__user)
+    result = schemas.user_schema.UserReturnAdminSchema.from_orm(__user)
 
     return result
 
@@ -78,7 +78,7 @@ async def api_adminslist(db: Session = Depends(rdb.get_db)) -> str:
     result = []
 
     for admin in admins:
-        result.append(schemas.user_schema.UserOutSchema.validate(admin).json())
+        result.append(schemas.user_schema.UserOutSchema.from_orm(admin).json())
 
     return result
 
