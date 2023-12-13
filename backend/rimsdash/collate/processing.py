@@ -113,7 +113,6 @@ def sync_accounts(db: Session = Depends(rdb.get_db)) -> list[dict]:
 
         if __row is None:
             logger.debug(f"creating account {acc['bcode']}")
-            print(f"creating account {acc['bcode']}")
             account_in = schemas.AccountReceiveSchema(
                 bcode = acc['bcode'],
             )
@@ -192,6 +191,8 @@ def match_project_account_pair(projectaccount_list: list[dict], bcode: str, proj
     logger.warn(f"pair | pid: {project_id} | bcode: {bcode} | not found in RIMS project-account report, setting valid = None")    
     return { 'bcode': bcode, 'project_id': project_id, 'valid': None }
 
+
+
 def sync_project_accounts(project_list: list[dict], projectaccount_list: list[dict], db: Session = Depends(rdb.get_db)):
     """
     Sync project-account pairs to DB
@@ -268,11 +269,50 @@ def update_accounts(projectaccount_list, projects, db: Session = Depends(rdb.get
             crud.projectaccount.update(db, __row, projacc_in)
 
 
+
 def sync_user_rights(db: Session = Depends(rdb.get_db)):
     """
     Sync local user rights DB to external RIMS DB
 
     external data will overwrite any local conflicts
+    """
+
+    logger.info(f"Syncing user rights to RIMS")
+
+    user_rights_list = rims.get_user_rights_list()
+
+    for user_right in user_rights_list:
+
+        logger.debug(f"user right for {user_right['username']}")
+
+        #check both system and user exist
+        user = crud.user.get(db, user_right['username'])
+        if user is None:
+            logger.info(f"unrecognised user {user_right['username']} in rims user_rights_list")                     
+            continue              
+
+        system = crud.system.get(db, user_right['system_id'])
+        if system is None:
+            logger.info(f"unrecognised system {user_right['system_id']} for user {user_right['username']}")                     
+            continue  
+
+        __schema = schemas.SystemUserCreateSchema.validate(user_right)
+        __row = crud.systemuser.get(db, (__schema.username, __schema.system_id))
+
+        if __row is None:
+            crud.systemuser.create(db, __schema)
+        else:
+            crud.systemuser.update(db, __row, __schema)
+          
+
+
+def sync_user_rights_indiv(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local user rights DB to external RIMS DB
+
+    external data will overwrite any local conflicts
+
+    DEPRECATED - many calls to external API
     """
     
     logger.info(f"Syncing user rights to RIMS")
@@ -310,13 +350,48 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
 
 
 
-
-
 def sync_project_users(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local project membership DB to external RIMS DB
+
+    external data will overwrite any local conflicts
+    """
+
+    logger.info(f"Syncing user rights to RIMS")
+
+    user_projects_list = rims.get_user_projects_list()
+
+    for project_user in user_projects_list:
+
+        logger.debug(f"project membership for {project_user['username']}")
+
+        #check both user and project exist
+        user = crud.user.get(db, project_user['username'])
+        if user is None:
+            logger.info(f"unrecognised user {project_user['username']} in rims user_projects_list")                     
+            continue
+
+        project = crud.project.get(db, project_user['project_id'])
+        if project is None:
+            logger.info(f"unrecognised system {project_user['project_id']} for user {project_user['username']}")                     
+            continue
+
+        __schema = schemas.ProjectUsersReceiveSchema.validate(project_user)
+        __row = crud.projectuser.get(db, (__schema.username, __schema.project_id))
+
+        if __row is None:
+            crud.projectuser.create(db, __schema)
+        else:
+            crud.projectuser.update(db, __row, __schema)
+
+
+def sync_project_users_indiv(db: Session = Depends(rdb.get_db)):
     """
     Sync local project users DB to external RIMS DB
 
     external data will overwrite any local conflicts
+
+    DEPRECATED - many calls to external API
     """
     
     logger.info(f"syncing project users to RIMS")
@@ -337,12 +412,12 @@ def sync_project_users(db: Session = Depends(rdb.get_db)):
         for username in username_list:
             __schema = schemas.ProjectUsersBaseSchema(username=username, project_id=project.id, status=ProjectRight("M"))
 
-            __row = crud.projectusers_rights.get(db, (username, project.id))
+            __row = crud.projectuser.get(db, (username, project.id))
 
             if __row is None:
-                crud.projectusers_rights.create(db, __schema)
+                crud.projectuser.create(db, __schema)
             else:
-                crud.projectusers_rights.update(db, __row, __schema)
+                crud.projectuser.update(db, __row, __schema)
  
         _counter+=1 #debug
 

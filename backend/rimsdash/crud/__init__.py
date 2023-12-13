@@ -9,6 +9,6 @@ from .user_state_crud import user_state
 from .project_state_crud import project_state
 
 from .systemuser_crud import systemuser
-from .projectusers_crud import projectusers_rights
+from .projectusers_crud import projectuser
 
 from .projectaccount_crud import projectaccount

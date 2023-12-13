@@ -1,6 +1,10 @@
 from typing import Optional, ForwardRef
 
+import rimsdash.config as config
+
 from .base_schema import BaseSchema
+
+RIMS_URL = config.get('ppms', 'rims_url')
 
 # forward refs to other schemas
 ProjectStateOutSchema=ForwardRef('ProjectStateOutSchema')
@@ -82,11 +86,15 @@ class ProjectOutSchema(ProjectBaseSchema):
     qcollection: str = None
     status: str = None
 
+    @property
+    def rims_url(self) -> str:
+        return f'{RIMS_URL}/user/?user={self.id}'
+
 class ProjectOutWithStateSchema(ProjectOutSchema):
     """
 
     FUTURE: consider merging this with ProjectOutSchema 
-        and creating ProjectNoRefs for ProjectStateSchema only
+        and creating ProjectNoRefs for base only
     """
     ...
     project_state: Optional[list[ProjectStateOutSchema]]
@@ -110,6 +118,10 @@ class ProjectMinOutSchema(BaseSchema):
 
     class Config:
         orm_mode = True
+
+    @property
+    def rims_url(self) -> str:
+        return f'{RIMS_URL}/user/?user={self.id}'
 
 
 class ProjectOutRefsMinSchema(ProjectMinOutSchema):

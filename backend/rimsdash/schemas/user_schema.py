@@ -1,8 +1,12 @@
 from typing import Optional, TypedDict, Dict, ForwardRef
 
+import rimsdash.config as config
+
 from rimsdash.models import SystemRight
 
 from .base_schema import BaseSchema
+
+RIMS_URL = config.get('ppms', 'rims_url')
 
 # forward refs to other schemas
 UserStateOutSchema=ForwardRef('UserStateOutSchema')
@@ -65,12 +69,15 @@ class UserOutSchema(UserBaseSchema):
     ...
     admin: bool = False
 
+    @property
+    def rims_url(self) -> str:
+        return f'{RIMS_URL}/user/?user={self.userid}'
 
 class UserOutWithStateSchema(UserOutSchema):
     """
 
-    FUTURE: consider merging this with ProjectOutSchema 
-        and creating ProjectNoRefs for ProjectStateSchema only
+    FUTURE: consider merging this with UserOutSchema 
+        and creating UserNoRefs for base only
     """
     ...
     user_state: Optional[list[UserStateOutSchema]]
@@ -100,6 +107,10 @@ class UserMinOutSchema(BaseSchema):
 
     class Config:
         orm_mode = True
+
+    @property
+    def rims_url(self) -> str:
+        return f'{RIMS_URL}/user/?user={self.userid}'
 
 
 

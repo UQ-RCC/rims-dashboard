@@ -22,6 +22,9 @@ class SystemUserFullSchema(BaseSchema):
     user: UserOutSchema = None
     system: SystemOutSchema = None
 
+class SystemUserReceiveSchema(SystemUserBaseSchema):
+    ...
+
 class SystemUserCreateSchema(SystemUserBaseSchema):
     ...
 

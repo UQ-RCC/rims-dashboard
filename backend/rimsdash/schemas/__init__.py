@@ -4,7 +4,7 @@ from .system_schema import SystemBaseSchema, SystemCreateSchema, SystemUpdateSch
 from .user_state_schema import UserStateBaseSchema, UserStateCreateSchema, UserStateUpdateSchema
 from .project_state_schema import ProjectStateBaseSchema, ProjectStateCreateSchema, ProjectStateUpdateSchema
 from .systemuser_schema import SystemUserBaseSchema, SystemUserCreateSchema, SystemUserUpdateSchema
-from .projectusers_schema import ProjectUsersBaseSchema, ProjectUsersCreateSchema, ProjectUsersUpdateSchema, ProjectUsersFullSchema
+from .projectusers_schema import ProjectUsersBaseSchema, ProjectUsersCreateSchema, ProjectUsersUpdateSchema, ProjectUsersFullSchema, ProjectUsersReceiveSchema
 from .sync_schema import SyncBaseSchema, SyncCreateSchema, SyncCompleteSchema
 from .account_schema import AccountBaseSchema, AccountReceiveSchema, AccountOutSchema
 from .projectaccount_schema import ProjectAccountBaseSchema, ProjectAccountReceiveSchema, ProjectAccountOutSchema, ProjectAccountOutInfoSchema

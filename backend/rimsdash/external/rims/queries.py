@@ -72,6 +72,59 @@ def get_chartstring_data() -> list[dict]:
     else:
         raise Exception('Not found')
 
+
+
+def get_rights_by_user() -> list[dict]:
+    """
+    requests user rights report from RIMS API
+    """    
+    REPORT_NO=1527  #user rights
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            return response.json(strict=False)
+
+    else:
+        raise Exception('Not found')
+
+
+def get_projects_by_user() -> list[dict]:
+    """
+    requests user projects report from RIMS API
+    """    
+    REPORT_NO=1526  #project membership
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    payload=f"apikey={KEY}&action=Report{REPORT_NO}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            return response.json(strict=False)
+
+    else:
+        raise Exception('Not found')
+
+
+
+
+
 def get_systems() -> list[dict]:
     """
     requests system ids from RIMS API

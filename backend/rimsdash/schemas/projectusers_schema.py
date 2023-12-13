@@ -21,6 +21,9 @@ class ProjectUsersBaseSchema(BaseSchema):
         orm_mode = True
 
 
+class ProjectUsersReceiveSchema(ProjectUsersBaseSchema):
+    ...
+
 class ProjectUsersCreateSchema(ProjectUsersBaseSchema):
     ...
 

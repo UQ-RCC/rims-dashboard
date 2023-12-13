@@ -1,7 +1,10 @@
 import re 
 import logging
+import json
 
 import rimsdash.schemas as schemas
+
+from rimsdash.models import SystemRight, ProjectRight, IStatus
 
 logger = logging.getLogger('rimsdash')
 
@@ -73,6 +76,7 @@ def validate_project_list(rims_project_list: list[dict]) -> list[dict]:
         result.append(_schema.to_dict())
     
     return result
+
 
 def validate_admin_check(rights_dict: dict) -> bool:
     result = False
@@ -229,5 +233,64 @@ def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
         projectaccount.update(account_dict) #NB currently empty as only contained bcode
         
         result.append(projectaccount)
+
+    return result
+
+
+
+def validate_user_rights_list(rims_rights_list: list[dict]) -> list[dict]:
+    """
+    validate return from user rights report 
+        against user schema
+    """
+    result = []
+
+    for user in rims_rights_list:
+
+        __username = user['username']
+        __rights_list = json.loads(user['Data'])
+
+        for right in __rights_list:
+            __system_id = right['SystemID']
+            __status = SystemRight(right['Rights'])
+
+            try:
+                __schema = schemas.systemuser_schema.SystemUserReceiveSchema(
+                    username=__username, 
+                    system_id=__system_id, 
+                    status=__status
+                )
+                result.append(__schema.dict())
+            except:
+                logger.info(f"error translating userright: {user['username']}, {right['SystemID']}")
+
+    return result
+
+
+def validate_user_projects_list(rims_projectrights_list: list[dict]) -> list[dict]:
+    """
+    validate return from user rights report 
+        against user schema
+    """
+    result = []
+
+    for project in rims_projectrights_list:
+
+        __username = project['Username']
+        __project_ids = json.loads(project['UserProjects'])
+
+        for id in __project_ids:
+            __project_id = id
+            __status = ProjectRight('M')
+
+            try:
+                __schema = schemas.projectusers_schema.ProjectUsersReceiveSchema(
+                    username=__username, 
+                    project_id=__project_id, 
+                    status=__status
+                )
+                result.append(__schema.dict())
+            except:
+                logger.info(f"error translating project right: {project['Username']}, {id}")
 
     return result

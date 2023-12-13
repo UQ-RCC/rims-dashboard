@@ -23,4 +23,4 @@ class CRUDProjectUsers(CRUDBase[ProjectUsersModel, ProjectUsersCreateSchema, Pro
         db.commit()
         db.refresh(db_obj)
 
-projectusers_rights = CRUDProjectUsers(ProjectUsersModel)
+projectuser = CRUDProjectUsers(ProjectUsersModel)

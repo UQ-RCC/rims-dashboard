@@ -50,18 +50,11 @@ if False:
 
 
 print("STARTING")
+collate.processing.sync_project_users(db)
+print("systemrights")
+collate.processing.sync_user_rights(db)
+print("COMPLETE")
 
-if False:
-    collate.processing.sync_systems(db)
-    print(1)
-    collate.processing.sync_users(db)
-print(2)
-project_list = collate.processing.sync_projects(db)
-print(3)
-projectaccount_list = collate.processing.sync_accounts(db)
-print(4)
-collate.processing.sync_project_accounts(project_list, projectaccount_list, db)
-print(5)    
 
 
 

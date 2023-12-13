@@ -56,3 +56,21 @@ def get_project_accounts() -> list[dict]:
     result = translate.validate_account_list(__account_data)
 
     return result
+
+
+def get_user_rights_list() -> list[dict]:
+
+    __rights_data = queries.get_rights_by_user()
+
+    result = translate.validate_user_rights_list(__rights_data)
+
+    return result
+
+
+def get_user_projects_list() -> list[dict]:
+
+    user_projects_data = queries.get_projects_by_user()
+
+    result = translate.validate_user_projects_list(user_projects_data)
+
+    return result

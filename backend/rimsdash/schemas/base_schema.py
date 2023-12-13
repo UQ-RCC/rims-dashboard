@@ -1,6 +1,9 @@
 from enum import Enum
 from pydantic import BaseModel
 
+
+import rimsdash.config as config
+
 class BaseSchema(BaseModel):
     """
     extension of BaseModel with simple helper methods
