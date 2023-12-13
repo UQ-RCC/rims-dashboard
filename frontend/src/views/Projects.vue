@@ -72,6 +72,9 @@
                     <td class="truncate">{{ item.title }}</td>   
                     <td class="truncate">{{ item.group }}</td>
                     <td>
+                        <FeeForServiceIcon :value="item.type" />
+                    </td>
+                    <td>
                         <StatusIndicatorLocal :status="item.project_state[0].active" :pulse="false"/>
                     </td>   
                     <td>
@@ -109,6 +112,7 @@
                                             </div>
                                             <div>
                                                 <strong>Type</strong>:  {{ item.type }}
+                                                <FeeForServiceIcon :value="item.type" :size='large'/>
                                             </div>
                                             <div>
                                                 <strong>Active</strong>:  {{ item.active }}
@@ -208,13 +212,15 @@
     import VueLogger from 'vuejs-logger'
     import RimsdashAPI from "@/api/RimsdashAPI"
     import StatusIndicatorLocal from '../components/StatusIndicatorLocal.vue'    
+    import FeeForServiceIcon from '../components/FeeForServiceIcon.vue'   
 
     Vue.use(VueLogger)
 
     export default {
         name: 'Projects',
         components:{
-            StatusIndicatorLocal: StatusIndicatorLocal
+            StatusIndicatorLocal: StatusIndicatorLocal,
+            FeeForServiceIcon: FeeForServiceIcon
         },           
         data() {
             return {
@@ -236,6 +242,7 @@
                     { text: 'Id', value: 'id', width: '5%', sortable: false },
                     { text: 'Title', value: 'title', width: '30%', sortable: false },
                     { text: 'Group', value: 'group', width: '10%', sortable: false },
+                    { text: 'Type', value: 'group', width: '7%', sortable: false },
                     { text: 'Active', value: 'active', width: '7%', sortable: false },
                     { text: 'Billing', value: 'billing', width: '7%', sortable: false },
                     { text: 'OHS', value: 'ohs', width: '7%', sortable: false },
