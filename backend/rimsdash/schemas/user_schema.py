@@ -1,4 +1,5 @@
 from typing import Optional, TypedDict, Dict, ForwardRef
+from pydantic import root_validator
 
 import rimsdash.config as config
 
@@ -69,9 +70,14 @@ class UserOutSchema(UserBaseSchema):
     ...
     admin: bool = False
 
-    @property
-    def rims_url(self) -> str:
-        return f'{RIMS_URL}/user/?user={self.userid}'
+    #use root_validator to add a computed property that will return via .dict() & .json()
+    #   @property is cleaner for direct access only
+    @root_validator
+    def add_url(cls, values) -> str:
+        if isinstance(values, dict) and 'userid' in values:
+            values['url'] = f'{RIMS_URL}/user/?user={values.get("userid")}'
+        return values
+        #   NB: operate via values dict rather than on self directly
 
 class UserOutWithStateSchema(UserOutSchema):
     """
@@ -97,6 +103,8 @@ class UserOutRefsSchema(UserOutSchema):
 class UserMinOutSchema(BaseSchema):
     """
     base with admin, no email
+
+    WARNING: completely rebuilt from BaseSchema, not inherited
     """
     username: str
     name: str
@@ -108,9 +116,14 @@ class UserMinOutSchema(BaseSchema):
     class Config:
         orm_mode = True
 
-    @property
-    def rims_url(self) -> str:
-        return f'{RIMS_URL}/user/?user={self.userid}'
+    #re-add root validator
+    @root_validator
+    def add_url(cls, values) -> str:
+        if isinstance(values, dict) and 'userid' in values:
+            values['url'] = f'{RIMS_URL}/user/?user={values.get("userid")}'
+        return values
+
+
 
 
 

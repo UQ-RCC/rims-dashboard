@@ -1,4 +1,5 @@
 from typing import Optional, ForwardRef
+from pydantic import root_validator
 
 import rimsdash.config as config
 
@@ -86,9 +87,14 @@ class ProjectOutSchema(ProjectBaseSchema):
     qcollection: str = None
     status: str = None
 
-    @property
-    def rims_url(self) -> str:
-        return f'{RIMS_URL}/user/?user={self.id}'
+    #use root_validator to add a computed property that will return via .dict() & .json()
+    #   @property is cleaner for direct access only
+    @root_validator
+    def add_url(cls, values) -> str:
+        if isinstance(values, dict) and 'id' in values:        
+            values['url'] = f'{RIMS_URL}/vproj/?projectid={values.get("id")}'
+        return values
+        #   NB: operate via values dict rather than on self directly
 
 class ProjectOutWithStateSchema(ProjectOutSchema):
     """
@@ -119,9 +125,11 @@ class ProjectMinOutSchema(BaseSchema):
     class Config:
         orm_mode = True
 
-    @property
-    def rims_url(self) -> str:
-        return f'{RIMS_URL}/user/?user={self.id}'
+    @root_validator
+    def add_url(cls, values) -> str:
+        if isinstance(values, dict) and 'id' in values:        
+            values['url'] = f'{RIMS_URL}/vproj/?projectid={values.get("id")}'
+        return values
 
 
 class ProjectOutRefsMinSchema(ProjectMinOutSchema):
