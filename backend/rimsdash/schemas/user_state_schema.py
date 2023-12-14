@@ -44,6 +44,13 @@ class UserStateOutInfoSchema(UserStateBaseSchema):
 
 
 
+class UserStatePostProcessUpdateSchema(BaseSchema):
+    username: str
+    ok_project: IStatus = IStatus.disabled
+
+    class Config:
+        orm_mode = True
+
 
 from .user_schema import UserOutSchema
 

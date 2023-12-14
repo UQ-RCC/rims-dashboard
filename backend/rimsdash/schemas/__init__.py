@@ -1,11 +1,15 @@
-from .user_schema import UserBaseSchema, UserCreateSchema, UserUpdateSchema, UserReceiveSchema, UserForStateCheckSchema
-from .project_schema import ProjectBaseSchema, ProjectCreateSchema, ProjectInitDetailsSchema, ProjectUpdateSchema, ProjectForStateCheckSchema, ProjectFromAccountSchema, ProjectForStateCheckSchema
-from .system_schema import SystemBaseSchema, SystemCreateSchema, SystemUpdateSchema, SystemReceiveSchema
-from .user_state_schema import UserStateBaseSchema, UserStateCreateSchema, UserStateUpdateSchema
-from .project_state_schema import ProjectStateBaseSchema, ProjectStateCreateSchema, ProjectStateUpdateSchema
-from .systemuser_schema import SystemUserBaseSchema, SystemUserCreateSchema, SystemUserUpdateSchema
-from .projectusers_schema import ProjectUsersBaseSchema, ProjectUsersCreateSchema, ProjectUsersUpdateSchema, ProjectUsersFullSchema, ProjectUsersReceiveSchema
-from .sync_schema import SyncBaseSchema, SyncCreateSchema, SyncCompleteSchema
-from .account_schema import AccountBaseSchema, AccountReceiveSchema, AccountOutSchema
-from .projectaccount_schema import ProjectAccountBaseSchema, ProjectAccountReceiveSchema, ProjectAccountOutSchema, ProjectAccountOutInfoSchema
-from .util_schema import WhitelistSchema
+from .user_schema import *
+from .user_state_schema import *
+
+
+from .project_schema import *
+from .project_state_schema import *
+from .projectusers_schema import *
+
+from .system_schema import *
+from .systemuser_schema import *
+from .account_schema import *
+from .projectaccount_schema import *
+
+from .sync_schema import *
+from .util_schema import *

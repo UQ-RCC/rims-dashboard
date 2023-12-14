@@ -49,5 +49,15 @@ class ProjectStateOutFullRefsSchema(ProjectStateBaseSchema):
     project: ProjectOutInfoSchema
 
 
+class ProjectStatePostProcessUpdateSchema(BaseSchema):
+    project_id: int
+    ok_user: IStatus
+
+    class Config:
+        orm_mode = True
+
+
+
+
 ProjectStateOutInfoSchema.update_forward_refs()
 ProjectStateOutFullRefsSchema.update_forward_refs()

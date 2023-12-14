@@ -2,7 +2,7 @@ import copy
 
 from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
 
-from rimsdash.schemas import UserForStateCheckSchema, UserStateCreateSchema, ProjectStateCreateSchema, ProjectForStateCheckSchema
+from rimsdash.schemas import UserForStateCheckSchema, UserStateCreateSchema, ProjectStateCreateSchema, ProjectForStateCheckSchema, ProjectOutRefsSchema, ProjectStatePostProcessUpdateSchema, UserStatePostProcessUpdateSchema, UserOutRefsSchema
 
 
 import rimsdash.config as config
@@ -47,41 +47,6 @@ def get_rims_key(code: int):
     raise ValueError(f"code {code} not found in lab code lists")
 
 
-def recursive():
-    """
-    for project in projects:
-        __user_ok = IState.fail
-
-        if project.type == "Fee for service":
-            __user_ok = IState.ok
-        else:
-            __found_user = False         
-
-            for user in project_users
-                if user.admin == False:
-                    __found_user = True
-                    if user.user_state.ok == IState.ok
-                        __user_ok = True
-            
-            if not __found_user:
-                for user in project_users:
-                    if lower(user.name) in lower(project.title) :
-                        __found_user = True
-                        if user.user_state.ok == IState.ok
-                            __user_ok = True                                   
-            
-            if not __found_user:        
-                logger.warn("No user found for project {project.id}")
-
-        project.project_state.user_ok = __user_ok
-    """
-    pass
-
-
-def postprocess_project(user: UserForStateCheckSchema):
-    pass
-
-
 def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
     """
     generate status result from user data
@@ -114,11 +79,11 @@ def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
 
             #pitschi
             elif _usersystem.system_id == PITSCHI_SYSTEM_ID:
-                state.access_pitschi = IStatus.ok
+                state.access_pitschi = IStatus.ready
 
     #admin pitschi cheat
     if user.admin == True:
-        state.access_pitschi = IStatus.ok
+        state.access_pitschi = IStatus.ready
 
     if user.active == True:
         state.active = IStatus.ready
@@ -126,7 +91,7 @@ def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
         state.active = IStatus.disabled
     
     if state.active == IStatus.ready and \
-        state.access_pitschi == IStatus.ok \
+        state.access_pitschi == IStatus.ready \
         and any(
             (labstate == IStatus.ready or labstate == IStatus.extended) for \
             labstate in [ state.access_hawken, state.access_aibn, state.access_chem, state.access_qbp ]
@@ -205,3 +170,35 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateCreateSc
 
     finally:
         return state
+
+
+
+def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProcessUpdateSchema:
+    
+    return_state = ProjectStatePostProcessUpdateSchema(project_id = project.id, ok_user = IStatus.fail )
+
+    for user_right in project.user_rights:
+        _user_state = user_right.user.user_state[0]
+        if user_right.user.admin == True:
+            continue
+        elif _user_state.ok == IStatus.ready:
+            return_state.ok_user = IStatus.ready
+
+    if project.type == "Fee for Service" and not return_state.ok_user == IStatus.ready:
+        return_state.ok_user == IStatus.off
+
+    return return_state
+
+
+def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchema:
+    
+    return_state = UserStatePostProcessUpdateSchema(username = user.username, ok_project = IStatus.fail )
+
+    for project_right in user.project_rights:
+        __project_state = project_right.project.project_state[0]
+        if user.admin == True:
+            return_state.ok_project = IStatus.off
+        elif __project_state.ok == IStatus.ready:
+            return_state.ok_project = IStatus.ready
+
+    return return_state

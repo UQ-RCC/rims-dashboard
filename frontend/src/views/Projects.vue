@@ -104,8 +104,11 @@
                         <StatusIndicatorLocal :status="item.project_state[0].phase" :pulse="false"/>
                     </td>
                     <td>
+                        <StatusIndicatorLocal :status="item.project_state[0].ok_user" :pulse="false"/>
+                    </td> 
+                    <td>
                         <StatusIndicatorLocal :status="item.project_state[0].ok" :pulse="false"/>
-                    </td>                    
+                    </td> 
                 </tr> 
             </template> 
             
@@ -194,8 +197,14 @@
                                                         <StatusIndicatorLocal :status="item.user.user_state[0].access_qbp" :pulse="false"/>
                                                     </td>
                                                     <td>
+                                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_pitschi" :pulse="false"/>
+                                                    </td>
+                                                    <td>
+                                                        <StatusIndicatorLocal :status="item.user.user_state[0].ok_project" :pulse="false"/>
+                                                    </td>                                                                                                         
+                                                    <td>
                                                         <StatusIndicatorLocal :status="item.user.user_state[0].ok" :pulse="false"/>
-                                                    </td>                                                    
+                                                    </td>                                 
                                                 </tr>
                                             </template>
                                         </v-data-table>
@@ -248,12 +257,13 @@
                     { text: 'Id', value: 'id', width: '5%', sortable: false },
                     { text: 'Title', value: 'title', width: '30%', sortable: false },
                     { text: 'Group', value: 'group', width: '10%', sortable: false },
-                    { text: 'Type', value: 'group', width: '7%', sortable: false },
+                    { text: 'Type', value: 'type', width: '7%', sortable: false },
                     { text: 'Active', value: 'active', width: '7%', sortable: false },
                     { text: 'Billing', value: 'billing', width: '7%', sortable: false },
                     { text: 'OHS', value: 'ohs', width: '7%', sortable: false },
                     { text: 'RDM', value: 'rdm', width: '7%', sortable: false },
                     { text: 'Phase', value: 'phase', width: '7%', sortable: false },
+                    { text: 'User', value: 'user', width: '7%', sortable: false },                    
                     { text: 'OK', value: 'ok', width: '7%', sortable: false },                    
                 ],
 
@@ -265,6 +275,8 @@
                     { text: 'Hawken', value: 'hawken', width: '8%', sortable: false },
                     { text: 'Chem', value: 'chem', width: '8%', sortable: false },
                     { text: 'QBP', value: 'qbp', width: '8%', sortable: false },
+                    { text: 'Pitschi', value: 'pitschi', width: '8%', sortable: false },                    
+                    { text: 'Project', value: 'project', width: '8%', sortable: false },                     
                     { text: 'OK', value: 'ok', width: '8%', sortable: false },                    
                 ],
 

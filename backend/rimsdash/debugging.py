@@ -50,11 +50,9 @@ if False:
 
 
 print("STARTING")
-collate.processing.sync_project_users(db)
-print("systemrights")
-collate.processing.sync_user_rights(db)
-print("COMPLETE")
-
-
+#collate.processing.postprocess_projects(db)
+print("P done")
+collate.processing.postprocess_users(db)
+print("U done")
 
 
