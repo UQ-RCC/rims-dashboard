@@ -225,7 +225,8 @@
 <script>
     import Vue from 'vue'
     import VueLogger from 'vuejs-logger'
-    import RimsdashAPI from "@/api/RimsdashAPI"
+    //import RimsdashAPI from "@/api/RimsdashAPI"
+    import ProjectsAPI from "@/api/ProjectsAPI"
     import StatusIndicatorLocal from '../components/StatusIndicatorLocal.vue'    
     import FeeForServiceIcon from '../components/FeeForServiceIcon.vue'   
 
@@ -303,11 +304,14 @@
                 if (this.filteredId){
                     this.filteredTitle = null
                     this.filteredGroup = null
-                    this.filteredFullName = null                                 
-                    this.projectsFull.forEach(aproj => {
-                    if(aproj.id === parseInt(this.filteredId))
-                        this.projects = [aproj]
-                    })
+                    this.filteredFullName = null
+                    this.loading = true
+                    this.projects = await ProjectsAPI.getProjectById(this.filteredId)
+                    this.loading = false
+                    //this.projectsFull.forEach(aproj => {
+                    //if(aproj.id === parseInt(this.filteredId))
+                    //    this.projects = [aproj]
+                    //})
                 } else {
                     this.projects = this.projectsFull
                 }
@@ -318,11 +322,14 @@
                 if (this.filteredTitle){
                     this.filteredId = null                  
                     this.filteredGroup = null
-                    this.filteredFullName = null                    
-                    this.projectsFull.forEach(aproj => {
-                    if(aproj.title.toLowerCase().includes(this.filteredTitle.toLowerCase()) )
-                        this.projects.push(aproj)
-                    })
+                    this.filteredFullName = null
+                    this.loading = true
+                    this.projects = await ProjectsAPI.getProjectsByTitle(this.filteredTitle)                    
+                    this.loading = false
+                    //this.projectsFull.forEach(aproj => {
+                    //if(aproj.title.toLowerCase().includes(this.filteredTitle.toLowerCase()) )
+                    //    this.projects.push(aproj)
+                    //})
                 } else {
                     this.projects = this.projectsFull
                 }
@@ -333,11 +340,14 @@
                 if (this.filteredGroup){
                     this.filteredId = null                       
                     this.filteredTitle = null
-                    this.filteredFullName = null                    
-                    this.projectsFull.forEach(aproj => {
-                        if(aproj.group.toLowerCase().includes(this.filteredGroup.toLowerCase()) )
-                            this.projects.push(aproj)
-                    })
+                    this.filteredFullName = null         
+                    this.loading = true
+                    this.projects = await ProjectsAPI.getProjectsByGroup(this.filteredGroup) 
+                    this.loading = false           
+                    //this.projectsFull.forEach(aproj => {
+                    //    if(aproj.group.toLowerCase().includes(this.filteredGroup.toLowerCase()) )
+                    //        this.projects.push(aproj)
+                    //})
                 } else {
                     this.projects = this.projectsFull
                 }
@@ -351,10 +361,13 @@
                     this.filteredId = null                     
                     this.filteredTitle = null
                     this.filteredGroup = null
-                    this.projectsFull.forEach(aproj => {
-                        if(aproj.user_rights.some(item => item.user.name.toLowerCase().includes(this.filteredFullName.toLowerCase()))                        )
-                            this.projects.push(aproj)
-                    })
+                    this.loading = true
+                    this.projects = await ProjectsAPI.getProjectsByUser(this.filteredFullName) 
+                    this.loading = false 
+                    //this.projectsFull.forEach(aproj => {
+                    //    if(aproj.user_rights.some(item => item.user.name.toLowerCase().includes(this.filteredFullName.toLowerCase()))                        )
+                    //        this.projects.push(aproj)
+                    //})
                 } else {
                     this.projects = this.projectsFull
                 }
@@ -386,7 +399,7 @@
 
                 //retrieve values to populate dropdown
                 try {
-                    __projects = await RimsdashAPI.getAllProjectsWithFullStates()
+                    __projects = await ProjectsAPI.getAllProjectsWithFullStates()
                 } catch (error) {
                     Vue.$log.info("API call FAILED")                       
                 }             
@@ -400,7 +413,7 @@
                 let project_details = {}
 
                 try {
-                    project_details = await RimsdashAPI.getProjectDetails(project_id)
+                    project_details = await ProjectsAPI.getProjectDetails(project_id)
                 } catch (error) {
                     Vue.$log.info("API call getProjectDetails FAILED")                       
                 }             

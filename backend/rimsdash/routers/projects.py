@@ -50,49 +50,55 @@ async def api_projectdetailwithusers(project_id: int, db: Session = Depends(rdb.
 
     return result
 
-
-@router.get("/projectgetbyid", response_model=schemas.project_schema.ProjectMinOutWithStateSchema)
+#schemas.project_schema.ProjectMinOutWithStateSchema
+@router.get("/projectgetbyid", response_model=list[schemas.project_schema.ProjectOutRefsSchema])
 async def api_projectgetbyid(project_id: int, db: Session = Depends(rdb.get_db)): 
 
     __project = repo.project.get_by_id(db, project_id=project_id)
 
-    result = schemas.project_schema.ProjectMinOutWithStateSchema.from_orm(__project)
+    result = [schemas.project_schema.ProjectOutRefsSchema.from_orm(__project)]
 
     return result
 
 
-@router.get("/projectsgetbytitle", response_model=schemas.project_schema.ProjectMinOutWithStateSchema)
-async def api_projectsgetbytitle(substring: str, db: Session = Depends(rdb.get_db)): 
+@router.get("/projectsgetbytitle", response_model=list[schemas.project_schema.ProjectOutRefsSchema])
+async def api_projectsgetbytitle(search: str, db: Session = Depends(rdb.get_db)): 
 
-    __projects = repo.project.filter_by_title(db, substring=substring)
+    __projects = repo.project.filter_by_title(db, substring=search)
 
     result = []
 
     for project in __projects:
-        result.append(schemas.project_schema.ProjectMinOutWithStateSchema.from_orm(project))
+        result.append(schemas.project_schema.ProjectOutRefsSchema.from_orm(project))
 
     return result
 
-@router.get("/projectsgetbygroup", response_model=schemas.project_schema.ProjectMinOutWithStateSchema)
-async def api_projectsgetbygroup(substring: str, db: Session = Depends(rdb.get_db)): 
+@router.get("/projectsgetbygroup", response_model=list[schemas.project_schema.ProjectOutRefsSchema])
+async def api_projectsgetbygroup(search: str, db: Session = Depends(rdb.get_db)): 
 
-    __projects = repo.project.filter_by_group(db, substring=substring)
+    logger.debug(f"received: {search}")
+
+    __projects = repo.project.filter_by_group(db, substring=search)
+
+    logger.debug(f"found: {__projects[0].title}")
 
     result = []
 
     for project in __projects:
-        result.append(schemas.project_schema.ProjectMinOutWithStateSchema.from_orm(project))
+        result.append(schemas.project_schema.ProjectOutRefsSchema.from_orm(project))
+
+    logger.debug(f"schema: {result[0].title}")
 
     return result
 
-@router.get("/projectsgetbyuser", response_model=schemas.project_schema.ProjectMinOutWithStateSchema)
-async def api_projectsgetbyuser(substring: str, db: Session = Depends(rdb.get_db)): 
+@router.get("/projectsgetbyuser", response_model=list[schemas.project_schema.ProjectOutRefsSchema])
+async def api_projectsgetbyuser(search: str, db: Session = Depends(rdb.get_db)): 
 
-    __projects = repo.project.filter_projects_by_user_allnames(db, substring=substring)
+    __projects = repo.project.filter_projects_by_user_allnames(db, substring=search)
 
     result = []
 
     for project in __projects:
-        result.append(schemas.project_schema.ProjectMinOutWithStateSchema.from_orm(project))
+        result.append(schemas.project_schema.ProjectOutRefsSchema.from_orm(project))
 
     return result
