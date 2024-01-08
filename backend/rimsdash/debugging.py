@@ -8,7 +8,7 @@ import rimsdash.models as models
 import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 
-import rimsdash.collate as collate
+import rimsdash.service as service
 import rimsdash.routers as routers
 import rimsdash.routers.manual_sync as updater
 
@@ -50,9 +50,9 @@ if False:
 
 
 print("STARTING")
-#collate.processing.postprocess_projects(db)
+#service.processing.postprocess_projects(db)
 print("P done")
-collate.processing.postprocess_users(db)
+service.processing.postprocess_users(db)
 print("U done")
 
 

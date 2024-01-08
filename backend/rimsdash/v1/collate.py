@@ -158,7 +158,7 @@ def get_user_indicators(user_login):
 
     #user state
     #------------------
-    user_state = logic.collate_user(user_rights)
+    user_state = logic.service_user(user_rights)
 
     #FUTURE: save user_result to DB here
 
@@ -176,7 +176,7 @@ def get_all_project_states():
     result_dicts = []
 
     for item in project_dicts:
-        project_state = logic.collate_project_dict(item)
+        project_state = logic.service_project_dict(item)
         project_result = ProjectResult(item, project_state)
         result_dicts.append(project_result.to_dict())
 
@@ -191,7 +191,7 @@ def get_project_indicators(project_number):
     try:
         project_dict = project_df.to_dict('records')[0] #to-dict returns a list
         project_dict.pop('Descr', None) #remove description field
-        project_state = logic.collate_project_dict(project_dict)        
+        project_state = logic.service_project_dict(project_dict)        
         
         #FUTURE: save project_result to DB here        
                         
@@ -257,7 +257,7 @@ def state_from_user(user_login):
 
     #user state
     #------------------
-    user_state = logic.collate_user(user_rights)
+    user_state = logic.service_user(user_rights)
 
     user_result = UserResult()
     user_result.metadata = user_dict
@@ -278,7 +278,7 @@ def state_from_user(user_login):
             try:
                 project_dict = project_df.to_dict('records')[0] #to-dict returns a list
                 project_dict.pop('Descr', None) #remove description field
-                project_state = logic.collate_project(project_df)                
+                project_state = logic.service_project(project_df)                
             except:
                 #dict conversion will fail on inaccessible projects (eg. 1995)
                 #return empty defaults for these

@@ -10,7 +10,7 @@ import rimsdash.db as rdb
 import rimsdash.external.rims as rims
 import rimsdash.schemas as schemas
 import rimsdash.crud as crud
-import rimsdash.collate.logic as logic
+import rimsdash.service.logic as logic
 
 from rimsdash.models import SystemRight, ProjectRight, SyncType
 

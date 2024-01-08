@@ -1,7 +1,7 @@
 import logging
 
 import rimsdash.db as rdb
-import rimsdash.collate.processing as processing
+import rimsdash.service.processing as processing
 
 logger = logging.getLogger('rimsdash')
 

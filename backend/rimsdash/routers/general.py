@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 import rimsdash.usergather as gather
 import rimsdash.external as external
-import rimsdash.collate as collate
+import rimsdash.service as service
 
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
@@ -35,7 +35,7 @@ async def get_collections(db: Session = Depends(rdb.get_db)):
 
 @router.get("/userlist")
 async def api_getuserlist():
-    userlist=collate.populate_userdropdown()
+    userlist=service.populate_userdropdown()
 
     return userlist
 
@@ -62,7 +62,7 @@ async def api_getprojectdetails(project_number: int):    #expects project_number
 @router.get("/userstate")
 async def api_getuserstate(login: str): #expects user_login
        
-    result = collate.get_user_indicators(login)  #dict
+    result = service.get_user_indicators(login)  #dict
     
     return result
   
@@ -71,7 +71,7 @@ async def api_getuserstate(login: str): #expects user_login
 @router.get("/allprojectstates")
 async def api_getallprojectstates(): 
 
-    result = collate.get_all_project_states()  #list of dicts
+    result = service.get_all_project_states()  #list of dicts
 
     return result
 
@@ -79,14 +79,14 @@ async def api_getallprojectstates():
 @router.get("/userprojectstates")
 async def api_getuserprojectstates(login: str): #expects user_login
 
-    result = collate.get_user_project_indicators(login)  #dict
+    result = service.get_user_project_indicators(login)  #dict
 
     return result
 
 @router.get("/defaultuserstate")
 async def api_defaultuserstate():
 
-    result = collate.get_default_user_indicator()  #dict
+    result = service.get_default_user_indicator()  #dict
 
     return result
     
@@ -94,28 +94,28 @@ async def api_defaultuserstate():
 @router.get("/defaultuserprojectstates")
 async def api_defaultprojectstates():
 
-    result = [ collate.get_default_project_indicator() ] #dict
+    result = [ service.get_default_project_indicator() ] #dict
    
     return result
 
 @router.get("/defaultprojectstate")
 async def api_defaultprojectstate():
-    result = collate.get_default_project_indicator()  #dict
+    result = service.get_default_project_indicator()  #dict
 
     return result
 
 @router.get("/userfromemail")
 async def api_userbyemail(email: str): #expects email
     
-    result = collate.user_from_email(email)  #dict
+    result = service.user_from_email(email)  #dict
 
     return result
 
 @router.get("/checkadminbyemail")
 async def api_adminstatusbyemail(email: str): #expects email
 
-    _login = collate.user_from_email(email)['login']
-    result = collate.admin_status(_login)  #dict
+    _login = service.user_from_email(email)['login']
+    result = service.admin_status(_login)  #dict
 
     return result
 

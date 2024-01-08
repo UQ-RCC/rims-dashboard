@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi_utils.tasks import repeat_every
 
 import rimsdash.db as rdb
-import rimsdash.collate.processing as processing
+import rimsdash.service.processing as processing
 
 router = APIRouter()
 logger = logging.getLogger('rimsdash')

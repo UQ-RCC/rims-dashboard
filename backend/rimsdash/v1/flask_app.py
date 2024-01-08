@@ -5,7 +5,7 @@ from flask_cors import CORS
 import sys
 import rimsdash.usergather as gather
 import rimsdash.external as external
-import rimsdash.collate as collate
+import rimsdash.service as service
 
 """Construct core Flask application with embedded Dash app."""
 app = Flask(__name__, instance_relative_config=False)
@@ -25,7 +25,7 @@ def home():
 @app.route('/rapi/v1/userlist', methods=['GET'])
 def api_getuserlist():
 
-    userlist=collate.populate_userdropdown()
+    userlist=service.populate_userdropdown()
 
     return jsonify(userlist)
 
@@ -77,7 +77,7 @@ def api_getuserstate(): #expects user_login
         else:
             return "Error: No login field provided. Please specify a login id."
         
-        result = collate.get_user_indicators(user_login)  #dict
+        result = service.get_user_indicators(user_login)  #dict
     
         print(result)
 
@@ -92,7 +92,7 @@ def api_getallprojectstates():
     try:
         print("received call for all project states", file=sys.stderr)
         
-        result = collate.get_all_project_states()  #list of dicts
+        result = service.get_all_project_states()  #list of dicts
     
         return jsonify(result)
     
@@ -111,7 +111,7 @@ def api_getuserprojectstates(): #expects user_login
         else:
             return "Error: No login field provided. Please specify a login id."
         
-        result = collate.get_user_project_indicators(user_login)  #dict
+        result = service.get_user_project_indicators(user_login)  #dict
     
         return jsonify(result)
     
@@ -123,7 +123,7 @@ def api_getuserprojectstates(): #expects user_login
 def api_defaultuserstate():
 
     try:
-        result = collate.get_default_user_indicator()  #dict
+        result = service.get_default_user_indicator()  #dict
 
         return jsonify(result)
     
@@ -135,8 +135,8 @@ def api_defaultuserstate():
 def api_defaultprojectstates():
 
     try:
-        result = [ collate.get_default_project_indicator() ] #dict
-       # result.append(collate.get_default_project_indicator())  
+        result = [ service.get_default_project_indicator() ] #dict
+       # result.append(service.get_default_project_indicator())  
 
         return jsonify(result)
     
@@ -147,7 +147,7 @@ def api_defaultprojectstates():
 def api_defaultprojectstate():
 
     try:
-        result = collate.get_default_project_indicator()  #dict
+        result = service.get_default_project_indicator()  #dict
 
         return jsonify(result)
     
@@ -167,9 +167,9 @@ def api_adminstatusbyemail(): #expects email
         else:
             return "Error: No email field provided. Please specify an email."
 
-        _login = collate.user_from_email(email)['login']
+        _login = service.user_from_email(email)['login']
         print(f"user {_login}")
-        result = collate.admin_status(_login)  #dict
+        result = service.admin_status(_login)  #dict
 
         print(f"returning {result}")
 
@@ -190,7 +190,7 @@ def api_userbyemail(): #expects email
         else:
             return "Error: No email field provided. Please specify an email."
 
-        result = collate.user_from_email(email)  #dict
+        result = service.user_from_email(email)  #dict
 
         print(f"returning {result}")
 
@@ -203,11 +203,11 @@ def api_userbyemail(): #expects email
 
 
 def check_inputs():
-    userlist=collate.populate_userdropdown()
+    userlist=service.populate_userdropdown()
     user_login='myusername'
     user_projects = external.get_user_projects(user_login)
-    #state_core, state_access, state_project = collate.dash_state(user_login)
-    states = collate.dash_state(user_login)
+    #state_core, state_access, state_project = service.dash_state(user_login)
+    states = service.dash_state(user_login)
     project_number=user_projects[0]
     project_info_df = gather.gather_projectdetails(project_number)
     project_info = project_info_df.to_dict('records')

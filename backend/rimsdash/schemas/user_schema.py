@@ -124,7 +124,19 @@ class UserMinOutSchema(BaseSchema):
         return values
 
 
+#Minimum for datatable search
+class UserIdOnlyOutSchema(BaseSchema):
+    """
+    base with 
 
+    WARNING: completely rebuilt from BaseSchema, not inherited
+    """
+    username: str
+    name: str
+    userid: int
+
+    class Config:
+        orm_mode = True
 
 
 #Mnalysis schema

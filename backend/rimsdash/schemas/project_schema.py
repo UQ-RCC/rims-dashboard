@@ -114,34 +114,6 @@ class ProjectOutRefsSchema(ProjectOutSchema):
     user_rights: Optional[list[ProjectUsersWithUserSchema]]  
     project_account: Optional[list[ProjectAccountOutSchema]]
 
-#Minimum for table
-class ProjectMinOutSchema(BaseSchema):
-    id: int
-    title: str
-    group: str
-    coreid: int = 2
-    affiliation: str = None
-
-    class Config:
-        orm_mode = True
-
-    @root_validator
-    def add_url(cls, values) -> str:
-        if isinstance(values, dict) and 'id' in values:        
-            values['url'] = f'{RIMS_URL}/vproj/?projectid={values.get("id")}'
-        return values
-
-
-class ProjectOutRefsMinSchema(ProjectMinOutSchema):
-    """
-
-    """
-    ...
-    project_state: Optional[list[ProjectStateOutSchema]]
-    user_rights: Optional[list[ProjectUsersOutUserMin]]
-    project_account: Optional[list[ProjectAccountOutSchema]]
-
-
 
 class ProjectForStateCheckSchema(ProjectOutSchema):
     """
@@ -153,6 +125,43 @@ class ProjectForStateCheckSchema(ProjectOutSchema):
 
 
 
+#Minimum for table
+class ProjectMinOutSchema(BaseSchema):
+    id: int
+    title: str
+    group: str
+    coreid: int = 2
+    type: str = None
+
+    class Config:
+        orm_mode = True
+
+    @root_validator
+    def add_url(cls, values) -> str:
+        if isinstance(values, dict) and 'id' in values:        
+            values['url'] = f'{RIMS_URL}/vproj/?projectid={values.get("id")}'
+        return values
+
+#Minimum for table
+class ProjectMinOutWithStateSchema(ProjectMinOutSchema):
+    ...
+    project_state: Optional[list[ProjectStateOutSchema]]
+
+
+class ProjectMinOutRefsSchema(ProjectMinOutSchema):
+    """
+
+    """
+    ...
+    project_state: Optional[list[ProjectStateOutSchema]]
+    user_rights: Optional[list[ProjectUsersOutUserMin]]
+    project_account: Optional[list[ProjectAccountOutSchema]]
+
+
+
+
+
+
 #import the circular deps and update forward
 from .projectusers_schema import ProjectUsersOutSchema, ProjectUsersWithUserSchema, ProjectUsersOutUserMin
 from .project_state_schema import ProjectStateOutSchema
@@ -161,5 +170,6 @@ from .projectaccount_schema import ProjectAccountOutSchema
 
 ProjectOutWithStateSchema.update_forward_refs()
 ProjectOutRefsSchema.update_forward_refs()
-ProjectOutRefsMinSchema.update_forward_refs()
+ProjectMinOutRefsSchema.update_forward_refs()
 ProjectForStateCheckSchema.update_forward_refs()
+ProjectMinOutWithStateSchema.update_forward_refs()

@@ -17,7 +17,7 @@ def get_rims_key(code: int):
     raise ValueError(f"code {code} not found in rims lab code lists")
 
 
-def collate_user(user_rights):
+def service_user(user_rights):
     """
     produce a list of rights by lab
     """
@@ -69,7 +69,7 @@ def collate_user(user_rights):
     return user_state
 
 
-def collate_project(df):
+def service_project(df):
     
     project_state = ProjectState()
 
@@ -119,7 +119,7 @@ def collate_project(df):
         return project_state
 
 
-def collate_project_dict(project_dict):
+def service_project_dict(project_dict):
     
     project_state = ProjectState()
 
