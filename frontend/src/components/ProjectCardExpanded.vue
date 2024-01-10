@@ -5,7 +5,7 @@
                 <v-col cols="6">
                     <v-card class="mx-2 my-4">
                         <v-card-title class="style-expanded-card-title">Project details</v-card-title> 
-                        <v-card-text class="style-expanded-table-text">
+                        <v-card-text class="style-expanded-table-text" v-if="item.user_rights">
                             <div>
                                 <strong>Title</strong>:  {{ item.title }}
                             </div>
@@ -39,14 +39,17 @@
                     <v-card class="mx-2 my-4">
                         <v-card-title class="style-expanded-card-title">Description</v-card-title>
                         <v-card-text>
-                            <div>
+                            <div v-if="item.user_rights">
                                 {{ item.description }}
+                            </div>
+                            <div v-else>
+                                ...
                             </div>
                         </v-card-text>
                     </v-card>
                 </v-col>
                 <v-col cols="6">
-                    <v-card class="mx-2 my-4">
+                    <v-card class="mx-2 my-4" v-if="item.user_rights">
                         <v-card-title class="style-expanded-card-title">Users</v-card-title>                                    
                         <v-data-table    
                         :headers="usersTableHeaders"
@@ -94,10 +97,14 @@
                             </template>
                         </v-data-table>
                     </v-card>
+                    <v-card class="style-expanded-table-card" style="font-size:0.8em" v-else>
+                        <v-card-text class="style-expanded-table-text">...</v-card-text>
+                    </v-card>
                 </v-col>                    
             </v-row>
         </div>
     </v-card>
+
 </template>
 
 <script>
@@ -113,7 +120,7 @@ export default {
     props: {
         item: {
             type: Object,
-            required: true
+            required: false
         },
     },
     data() {

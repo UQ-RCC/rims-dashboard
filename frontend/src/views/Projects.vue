@@ -72,8 +72,10 @@
                 :sort-desc="[true]"
                 height="auto" width="100%"
                 show-expand
+                :single-expand="true"
                 :expanded.sync="expanded"
                 :footer-props="{ itemsPerPageOptions: [15, 30, 50, 100, -1] }"
+                @item-expanded="fetchProjectDetails($event)"
         >
             <template v-slot:item="{ item, expand, isExpanded }">
                  <tr @click="expand(!isExpanded)">
@@ -114,7 +116,7 @@
             
             <template v-slot:expanded-item="{ item, headers }">
                 <td :colspan="headers.length">
-                    <ProjectCardExpanded :item="item" :usersTableHeaders="usersTableHeaders"></ProjectCardExpanded>
+                    <ProjectCardExpanded :item="item"></ProjectCardExpanded>
                 </td>
             </template>
 
@@ -145,7 +147,7 @@
             return {
 
                 expanded: [],
-                expanded_data: {},
+                //expanded_data: {},
                 singleExpand: true,
 
                 loading: false,
@@ -171,19 +173,6 @@
                     { text: 'OK', value: 'ok', width: '7%', sortable: false },                    
                 ],
 
-                usersTableHeaders: [
-                    { text: 'Name', value: 'name', width: '25%' },
-                    { text: 'Username', value: 'username', width: '8%' },
-                    { text: 'Active', value: 'active', width: '8%', sortable: false },
-                    { text: 'AIBN', value: 'aibn', width: '8%', sortable: false },
-                    { text: 'Hawken', value: 'hawken', width: '8%', sortable: false },
-                    { text: 'Chem', value: 'chem', width: '8%', sortable: false },
-                    { text: 'QBP', value: 'qbp', width: '8%', sortable: false },
-                    { text: 'Pitschi', value: 'pitschi', width: '8%', sortable: false },                    
-                    { text: 'Project', value: 'project', width: '8%', sortable: false },                     
-                    { text: 'OK', value: 'ok', width: '8%', sortable: false },                    
-                ],
-
                 numberRules: [
                     value => ( value === null || value && ( value >= 0 || value === '' )) || 'Must be 0 or a positive number'
                 ],
@@ -192,14 +181,14 @@
         },
         methods: {
             async refresh(){
-                Vue.$log.info("P refreshing ...")
+                Vue.$log.debug("P refreshing ...")
                 this.loading = true
                 this.projectsFull = await this.retrieveAllProjects()
                 //this.projects = await ProjectAPI.getProjects()
                 this.loading = false       
                 this.projects = this.projectsFull
-                Vue.$log.info("P refresh complete...")
-                Vue.$log.info(this.projects[0])
+                Vue.$log.debug("P refresh complete...")
+                Vue.$log.debug(this.projects[0])
             },
 
             async filterById(){
@@ -260,7 +249,7 @@
                 this.projects = []
 
                 if (this.filteredFullName){
-                    Vue.$log.info("filtering by fullname " + this.filteredFullName)                     
+                    Vue.$log.debug("filtering by fullname " + this.filteredFullName)                     
                     this.filteredId = null                     
                     this.filteredTitle = null
                     this.filteredGroup = null
@@ -277,7 +266,7 @@
             },
 
             async clearFilters(){
-                Vue.$log.info("clearing filters")                     
+                Vue.$log.debug("clearing filters")                     
                 this.filteredId = null
                 //reset the id field to avoid triggering validation
                 if (this.$refs.idTextField) {
@@ -302,29 +291,46 @@
 
                 //retrieve values to populate dropdown
                 try {
-                    __projects = await ProjectsAPI.getAllProjectsWithFullStates()
+                    __projects = await ProjectsAPI.getAllProjectsWithStates()
                 } catch (error) {
-                    Vue.$log.info("API call FAILED")                       
+                    Vue.$log.error("API call FAILED")                       
                 }             
-                Vue.$log.info("first project title:  "  + __projects[0].title)  
+                Vue.$log.debug("first project title:  "  + __projects[0].title)  
                 return __projects
             },            
 
             async retrieveProjectDetails(project_id) {
-                console.log("retrieving project details for " + project_id);
+                Vue.$log.debug("retrieving project details for " + project_id);
 
                 let project_details = {}
 
                 try {
                     project_details = await ProjectsAPI.getProjectDetails(project_id)
+                    Vue.$log.debug("retrieved details:  "  + project_details.id)                     
                 } catch (error) {
-                    Vue.$log.info("API call getProjectDetails FAILED")                       
+                    Vue.$log.debug("API call getProjectDetails FAILED")                       
                 }             
-                
-                this.expanded_data = project_details
 
-                Vue.$log.info("retrieved details:  "  + this.expanded_data.status)                  
+                return project_details
+                
             },
+
+            async fetchProjectDetails(event) {
+                const item = event.item; 
+
+                Vue.$log.debug("fetching details for " + item.id);
+                let project_details = {}
+
+                this.loading = true
+                project_details = await this.retrieveProjectDetails(item.id)
+                this.loading = false
+
+                const index = this.projects.indexOf(item);
+                
+                //replace the project data with the fetched details incl. extra fields
+                //WARNING: these objects need to remain compatible
+                this.$set(this.projects, index, project_details);
+           },
 
             caseCompare(a, b) {
                 return typeof a === 'string' && typeof b === 'string'
@@ -340,11 +346,11 @@
             await new Promise(r => setTimeout(r, 100));
 
             this.refresh()
-            Vue.$log.info("P recieved")            
+            Vue.$log.debug("P recieved")            
         },     
 
         created: async function() {
-            Vue.$log.info("P initalising")
+            Vue.$log.debug("P initalising")
         }        
 
     }

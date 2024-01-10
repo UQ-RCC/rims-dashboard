@@ -15,7 +15,17 @@ import VueCookies from 'vue-cookies'
 Vue.config.productionTip = false
 import axios from 'axios'
 
-Vue.use(VueLogger)
+const logger_options = {
+  isEnabled: true,
+  logLevel: 'debug', // or 'info', 'warn', 'error', 'fatal'
+  stringifyArguments: true,
+  showLogLevel: true,
+  showMethodName: false,
+  separator: '|',
+  showConsoleColors: true
+}
+
+Vue.use(VueLogger, logger_options)
 Vue.use(VueCookies)
 Vue.use(Notifications)
 Vue.$log.info("MJS Initialising")
