@@ -11,7 +11,6 @@ import rimsdash.external.rims as rims
 import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 import rimsdash.service.logic as logic
-import rimsdash.service.cleanup as cleanup
 
 from rimsdash.models import SystemRight, ProjectRight, SyncType
 
