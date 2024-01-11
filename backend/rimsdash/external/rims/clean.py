@@ -8,7 +8,7 @@ UQ_STAFF_PATTERN = r'\s*\(\s*uq[a-z]{3,5}[a-z0-9]{0,2}\s*\)'
 EXTERNAL_ID_PATTERN = r'\s*\(\s*[a-z0-9]+\.[a-z0-9]+\s*\)'
     #   brackets w/ lowercase/numbers + "." + lowercase/numbers
 
-def strip_brackets(name):
+def strip_brackets(name: str):
     """
     remove usernames in brackets from user full names
 
@@ -31,20 +31,20 @@ AMPERSAND_PATTERN = r'\[\[and\]\]'
 GREATERTHAN_PATTERN = r'\[\[gt\]\]'
 LESSTHAN_PATTERN = r'\[\[lt\]\]'
 
-def fix_special_chars(title):
+def fix_special_chars(text: str):
     """
     cleanup RIMS internal subtitutions for special chars
 
     eg. [[sqote]], [[and]]
     """
 
-    result = title
+    result = text
 
     if re.search(GENERAL_SPECIALCHAR_PATTERN, result):
         result = re.sub(SQUOTE_PATTERN, '\'', result)
         result = re.sub(DQUOTE_PATTERN, '\"', result)        
-        result = re.sub(AMPERSAND_PATTERN, '\&', result)
-        result = re.sub(GREATERTHAN_PATTERN, '\>', result)
-        result = re.sub(LESSTHAN_PATTERN, '\<', result)                
+        result = re.sub(AMPERSAND_PATTERN, '&', result)
+        result = re.sub(GREATERTHAN_PATTERN, '>', result)
+        result = re.sub(LESSTHAN_PATTERN, '<', result)                
 
     return result
