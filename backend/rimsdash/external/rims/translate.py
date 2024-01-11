@@ -2,11 +2,16 @@ import re
 import logging
 import json
 
+import rimsdash.config as config
 import rimsdash.schemas as schemas
 
+from .clean import strip_brackets, fix_special_chars
 from rimsdash.models import SystemRight, ProjectRight, IStatus
 
+CORE_NAME:str = config.get('ppms', 'core_name')
+
 logger = logging.getLogger('rimsdash')
+
 
 def validate_systems(rims_system_data: list[dict]) -> list[dict]:
     """
@@ -40,7 +45,7 @@ def validate_user_list(rims_user_list: list[dict]) -> list[dict]:
         _schema = schemas.UserCreateSchema(
             username = user['login'], 
             userid = user['id'], 
-            name = user['name'],
+            name = strip_brackets(user['name']),
             email = user['email'],
             group = user['group'],
             active = user['active'],
@@ -62,7 +67,7 @@ def validate_project_list(rims_project_list: list[dict]) -> list[dict]:
 
         _schema = schemas.project_schema.ProjectListTranslateSchema(
             id = project['ProjectRef'],
-            title = project['ProjectName'],
+            title = fix_special_chars(project['ProjectName']),
             phase = project['Phase'],
             active = project['Active'],
             bcode = project['Bcode'],
@@ -70,7 +75,7 @@ def validate_project_list(rims_project_list: list[dict]) -> list[dict]:
             type = project['ProjectType'],
             group = project['ProjectGroup'],
             core_id = project['CoreFacilityRef'],
-            description = project['Descr'],
+            description = fix_special_chars(project['Descr']),
         )
 
         result.append(_schema.to_dict())
@@ -79,6 +84,9 @@ def validate_project_list(rims_project_list: list[dict]) -> list[dict]:
 
 
 def validate_admin_check(rights_dict: dict) -> bool:
+    """
+    validate admin status API return
+    """
     result = False
 
     try:
@@ -98,16 +106,15 @@ def validate_project_details(rims_project_details: list[dict]) -> list[dict]:
     validate return from projectdetailsv2 report 
         against project schema
     
-    NB: API currently returns all facilities
-        including hardcoded filter for CMM only
+    NB: API currently returns all facilities, need to filter by core name
+        this field really only appears in this report
     """
 
     result = []
 
     for project in rims_project_details:
 
-        #filter for projects in CMM
-        if "CMM" in project['Visibility'][:4]:
+        if CORE_NAME in project['Visibility'][:10]:
 
             _schema = schemas.ProjectInitDetailsSchema(
                 id = project['Project ID'],
