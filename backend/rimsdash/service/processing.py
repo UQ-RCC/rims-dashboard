@@ -510,9 +510,26 @@ def calc_states(db):
     recalculate states only
     """
     logger.info(">>>>>>>>>>>> Begin calculating states")
-    #process_projects(db)
+    process_projects(db)
     process_users(db)
+    postprocess_projects(db)
+    postprocess_users(db)    
     logger.info(">>>>>>>>>>>> Finished calculating states")
+
+def dummy_sync(db):
+    """
+    add dummy sync to DB
+    """
+    logger.info(">>>>>>>>>>>> DEV adding fake sync to DB")
+    #FUTURE: add a dummy sync type to models/base_model
+    __start_schema = schemas.SyncCreateSchema(sync_type=SyncType.full)
+    __current = crud.sync.create(db, __start_schema)
+
+    __complete_schema = schemas.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type)
+    __updated = crud.sync.update(db, __current, __complete_schema)
+
+    __last = crud.sync.get_latest_completion(db)
+    logger.info(">>>>>>>>>>>> DEV finished adding fake sync to DB")
 
 
 def primary_sync(db: Session = Depends(rdb.get_db), force=False):
