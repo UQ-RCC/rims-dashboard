@@ -198,7 +198,7 @@ def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProces
             return_state.ok_user = IStatus.ready
 
     if project.type == "Fee for Service":
-        return_state.ok_user == IStatus.off
+        return_state.ok_user = IStatus.off
 
     return return_state
 
