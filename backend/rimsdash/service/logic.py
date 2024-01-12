@@ -1,4 +1,4 @@
-import copy
+import logging
 
 from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
 
@@ -8,8 +8,21 @@ from rimsdash.schemas import UserForStateCheckSchema, UserStateCreateSchema, Pro
 import rimsdash.config as config
 import rimsdash.utils as utils
 
+logger = logging.getLogger('rimsdash')
 
-EXTERNAL_AFFILIATIONS = config.get_csv_list('manual', 'external_affiliations')
+#FUTURE: move to config itself
+try:
+    EXTERNAL_AFFILIATIONS = config.get_csv_list('manual', 'external_affiliations')
+except:
+    EXTERNAL_AFFILIATIONS = []
+    logger.error("External affiliations could not be read from config")
+
+try:
+    UNLISTED_STAFF = config.get_csv_list('manual', 'unlisted_staff')
+except:
+    EXTERNAL_AFFILIATIONS = []    
+    logger.error("Unlisted staff could not be read from config")
+
 
 #rims codes for each lab & access-level
 #NB: order MUST match
@@ -178,7 +191,7 @@ def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProces
     return_state = ProjectStatePostProcessUpdateSchema(project_id = project.id, ok_user = IStatus.fail )
 
     for user_right in project.user_rights:
-        _user_state = user_right.user.user_state[0]
+        _user_state = user_right.user.user_state
         if user_right.user.admin == True:
             continue
         elif _user_state.ok == IStatus.ready:
@@ -195,7 +208,7 @@ def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchem
     return_state = UserStatePostProcessUpdateSchema(username = user.username, ok_project = IStatus.fail )
 
     for project_right in user.project_rights:
-        __project_state = project_right.project.project_state[0]
+        __project_state = project_right.project.project_state
         if user.admin == True:
             return_state.ok_project = IStatus.off
         elif __project_state.ok == IStatus.ready:

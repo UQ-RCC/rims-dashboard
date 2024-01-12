@@ -18,7 +18,7 @@ class UserModel(Base):
     #   strings to avoid circular import - ie. SystemUserModel.user    
     system_rights = relationship('SystemUserModel', back_populates='user')
     project_rights = relationship("ProjectUsersModel", back_populates="user")  
-    user_state = relationship("UserStateModel", back_populates="user")
+    user_state = relationship("UserStateModel", back_populates="user", uselist=False)
 
     def to_dict(self, literal: bool = False) -> dict:
 

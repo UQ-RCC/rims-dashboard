@@ -70,28 +70,28 @@
                                         </a>
                                     </td>
                                     <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].active" :pulse="false"/>
+                                        <StatusIndicatorLocal :status="item.user.user_state.active" :pulse="false"/>
                                     </td>   
                                     <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_aibn" :pulse="false"/>
+                                        <StatusIndicatorLocal :status="item.user.user_state.access_aibn" :pulse="false"/>
                                     </td>  
                                     <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_hawken" :pulse="false"/>
+                                        <StatusIndicatorLocal :status="item.user.user_state.access_hawken" :pulse="false"/>
                                     </td>   
                                     <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_chem" :pulse="false"/>
+                                        <StatusIndicatorLocal :status="item.user.user_state.access_chem" :pulse="false"/>
                                     </td>                                                           
                                     <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_qbp" :pulse="false"/>
+                                        <StatusIndicatorLocal :status="item.user.user_state.access_qbp" :pulse="false"/>
                                     </td>
                                     <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].access_pitschi" :pulse="false"/>
+                                        <StatusIndicatorLocal :status="item.user.user_state.access_pitschi" :pulse="false"/>
                                     </td>
                                     <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].ok_project" :pulse="false"/>
+                                        <StatusIndicatorLocal :status="item.user.user_state.ok_project" :pulse="false"/>
                                     </td>                                                                                                         
                                     <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state[0].ok" :pulse="false"/>
+                                        <StatusIndicatorLocal :status="item.user.user_state.ok" :pulse="false"/>
                                     </td>                                 
                                 </tr>
                             </template>

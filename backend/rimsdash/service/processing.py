@@ -572,11 +572,11 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
                             crud.projectaccount.update(db, __paschema)
 
                 """
-                #FUTURE refactor these 
+                #   FUTURE refactor these 
                 project_list = sync_projects(db)
                 projectaccount_list = sync_accounts(db)
                 sync_project_accounts(project_list, projectaccount_list, db)
-                #/end refactor target
+                #   /end refactor target
 
                 sync_user_rights(db)
                 sync_project_users(db)

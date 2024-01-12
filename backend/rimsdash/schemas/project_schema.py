@@ -103,14 +103,14 @@ class ProjectOutWithStateSchema(ProjectOutSchema):
         and creating ProjectNoRefs for base only
     """
     ...
-    project_state: Optional[list[ProjectStateOutSchema]]
+    project_state: Optional[ProjectStateOutSchema]
 
 class ProjectOutRefsSchema(ProjectOutSchema):
     """
     include users and user state
     """ 
     ...
-    project_state: Optional[list[ProjectStateOutSchema]]    
+    project_state: Optional[ProjectStateOutSchema]
     user_rights: Optional[list[ProjectUsersWithUserSchema]]  
     project_account: Optional[list[ProjectAccountOutSchema]]
 
@@ -119,7 +119,7 @@ class ProjectForStateCheckSchema(ProjectOutSchema):
     """
     """
     ...
-    project_state: Optional[list[ProjectStateOutSchema]]    
+    project_state: Optional[ProjectStateOutSchema]
     user_rights: Optional[list[ProjectUsersWithUserSchema]]  
     project_account: Optional[list[ProjectAccountOutSchema]]
 
@@ -145,7 +145,7 @@ class ProjectMinOutSchema(BaseSchema):
 #Minimum for table
 class ProjectMinOutWithStateSchema(ProjectMinOutSchema):
     ...
-    project_state: Optional[list[ProjectStateOutSchema]]
+    project_state: Optional[ProjectStateOutSchema]
 
 
 class ProjectMinOutRefsSchema(ProjectMinOutSchema):
@@ -153,7 +153,7 @@ class ProjectMinOutRefsSchema(ProjectMinOutSchema):
 
     """
     ...
-    project_state: Optional[list[ProjectStateOutSchema]]
+    project_state: Optional[ProjectStateOutSchema]
     user_rights: Optional[list[ProjectUsersOutUserMin]]
     project_account: Optional[list[ProjectAccountOutSchema]]
 

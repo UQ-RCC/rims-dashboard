@@ -86,7 +86,7 @@ class UserOutWithStateSchema(UserOutSchema):
         and creating UserNoRefs for base only
     """
     ...
-    user_state: Optional[list[UserStateOutSchema]]
+    user_state: Optional[UserStateOutSchema]
 
 
 class UserOutRefsSchema(UserOutSchema):
@@ -94,7 +94,7 @@ class UserOutRefsSchema(UserOutSchema):
     include projects w/ state, and systems
     """
     ...
-    user_state: Optional[list[UserStateOutSchema]]
+    user_state: Optional[UserStateOutSchema]
     system_rights: Optional[list[SystemUserOutInfoSchema]]
     project_rights: Optional[list[ProjectUsersWithProjectSchema]]
 
@@ -145,7 +145,7 @@ class UserForStateCheckSchema(UserOutSchema):
     """
     """
     ...
-    user_state: Optional[list[UserStateOutSchema]]
+    user_state: Optional[UserStateOutSchema]
     system_rights: Optional[list[SystemUserOutInfoSchema]]
     project_rights: Optional[list[ProjectUsersWithProjectSchema]]
 

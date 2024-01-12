@@ -91,25 +91,25 @@
                         <FeeForServiceIcon :value="item.type" />
                     </td>
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state[0].active" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.active" :pulse="false"/>
                     </td>   
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state[0].billing" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.billing" :pulse="false"/>
                     </td>  
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state[0].ohs" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.ohs" :pulse="false"/>
                     </td>   
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state[0].rdm" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.rdm" :pulse="false"/>
                     </td>                                                           
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state[0].phase" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.phase" :pulse="false"/>
                     </td>
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state[0].ok_user" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.ok_user" :pulse="false"/>
                     </td> 
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state[0].ok" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.ok" :pulse="false"/>
                     </td> 
                 </tr> 
             </template> 
