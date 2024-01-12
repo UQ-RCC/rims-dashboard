@@ -1,6 +1,7 @@
 import re 
 import logging
 import json
+from datetime import datetime
 
 import rimsdash.config as config
 import rimsdash.schemas as schemas
@@ -8,10 +9,53 @@ import rimsdash.schemas as schemas
 from .clean import strip_brackets, fix_special_chars
 from rimsdash.models import SystemRight, ProjectRight, IStatus
 
+RIMS_DATE_FORMAT_1 = "%Y/%m/%d %H:%M:%S"
+RIMS_DATE_FORMAT_2 = "%Y/%m/%d %H:%M"
+
 CORE_NAME:str = config.get('ppms', 'core_name')
 
 logger = logging.getLogger('rimsdash')
 
+
+def parse_rims_date(rims_date: str):
+    """
+    RIMS dates seem to use a variety of different formats
+
+    Try them in sequence and return the first that is successful
+    """
+    try:
+        result = datetime.strptime(rims_date, RIMS_DATE_FORMAT_1)
+    except:
+        try:
+            result = datetime.strptime(rims_date, RIMS_DATE_FORMAT_2)
+        except:
+            result = datetime(2018, 1, 1)
+            logging.error(f"WARNING: unable to parse date string {rims_date}, using 01/01/2018 instead")
+    finally:
+        return result
+
+def validate_training_requests(rims_request_data: list[dict]) -> list[dict]:
+    """
+    validate return from system list report 
+        against system schema
+    """
+    result = []
+
+    for request in rims_request_data:
+
+        schema = schemas.TrainingRequestReceiveSchema(
+            id = request["reqId"],
+            date = parse_rims_date(request["reqDate"]),
+            new = request["reqNew"],
+            type = request["reqType"],
+            form_id = request["formId"],
+            form_name = request["formName"],
+            user_id = request["userId"],
+        )
+
+        result.append(schema.dict())
+    
+    return result
 
 def validate_systems(rims_system_data: list[dict]) -> list[dict]:
     """

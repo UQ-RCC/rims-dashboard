@@ -412,7 +412,7 @@ def get_project_users(projectid: int):
     return []
 
 
-def get_training_requests() -> list[dict]:
+def get_training_request_list() -> list[dict]:
     """
     fetches list of training requests from RIMS
     """    

@@ -26,6 +26,12 @@ def get_project_list() -> list[dict]:
 
     return project_list
 
+def get_training_request_list() -> list[dict]:
+    _rims_user_list = queries.get_training_request_list()
+
+    user_list = translate.validate_training_requests(_rims_user_list)
+
+    return user_list
 
 
 def get_project_details() -> list[dict]:

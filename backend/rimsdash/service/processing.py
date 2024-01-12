@@ -34,12 +34,12 @@ def sync_systems(db: Session = Depends(rdb.get_db)):
         __row = crud.system.get(db, system['id'])
 
         if __row is None:
-            logger.debug(f"creating {system['id']}")
+            logger.debug(f"creating system {system['id']}")
             system_in = schemas.SystemCreateSchema(**system)
 
             crud.system.create(db, system_in)
         else:
-            logger.debug(f"updating {system['id']}")            
+            logger.debug(f"updating system {system['id']}")            
             system_in = schemas.SystemCreateSchema(**system)
 
             crud.system.update(db, __row, system_in)
@@ -174,6 +174,44 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
             crud.project.update(db, _row, project_in)
     
     return projects
+
+
+def sync_training_requests(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local request DB to external RIMS DB
+
+    external data will overwrite any local conflicts
+    """
+
+    logger.info(f"getting training requests from RIMS")
+    training_requests: list[dict] = rims.get_training_request_list()
+
+    logger.info(f"reading request list into DB")
+
+    for request in training_requests:
+
+        #use the RIMS uid to get a username
+        __user = crud.user.get_by_userid(db, userid=request['user_id'])
+
+        if __user is not None:
+            request['username'] = __user.username
+
+            __row = crud.request.get(db, request['id'])
+
+            if __row is None:
+                logger.debug(f"creating request {request['id']} for user {request['username']}")
+
+                request_in = schemas.TrainingRequestCreateSchema.parse_obj(request)
+
+                crud.request.create(db, request_in)
+            else:
+                logger.debug(f"updating request {request['id']} for user {request['username']}")
+
+                request_in = schemas.TrainingRequestCreateSchema.parse_obj(request)
+
+                crud.request.update(db, __row, request_in)
+        else:
+            logger.error(f"RIMS uid {request['user_id']} from training request  {request['id']} not found in local DB")
 
 
 def match_project_account_pair(projectaccount_list: list[dict], bcode: str, project_id: int) -> dict:
@@ -562,41 +600,19 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
 
             try:
                 logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
-                sync_systems(db)
-                sync_users(db)
-                """
-                FUTURE: reorder this logic to reduce passing of secondary lists
+                if False:
+                    sync_systems(db)
+                    sync_users(db)
 
-                pseudo:
-                
-                #empty projectaccounts table?
-                
-                def sync_projects                
-                    for project in projects
-                        if crud.account.get(db, bcode) is None:
-                            __aschema = schemas.xxx.(bcode = bcode)
-                            crud.account.create(db, __aschema)
-                        if crud.projectaccount.get(db, bcode, project_id) is None:
-                            __paschema = schemas.xxx.(..., valid = None)
-                            crud.projectaccount.create(db, __paschema)
-                    
-                palist = rims.getxxxx
+                    #   FUTURE refactor these 
+                    project_list = sync_projects(db)
+                    projectaccount_list = sync_accounts(db)
+                    sync_project_accounts(project_list, projectaccount_list, db)
+                    #   /end refactor target
 
-                def match_projectaccounts:
-                    for pa in palist:
-                        if crud.projectaccount.get(db, bcode, project_id):
-                            __paschema( valid = pa['valid'])
-                            crud.projectaccount.update(db, __paschema)
-
-                """
-                #   FUTURE refactor these 
-                project_list = sync_projects(db)
-                projectaccount_list = sync_accounts(db)
-                sync_project_accounts(project_list, projectaccount_list, db)
-                #   /end refactor target
-
-                sync_user_rights(db)
-                sync_project_users(db)
+                    sync_user_rights(db)
+                    sync_project_users(db)
+                sync_training_requests(db)
                 sync_user_admin(db, skip_existing = True)
                 logger.info(">>>>>>>>>>>> Finished syncing to RIMS")
 
@@ -616,6 +632,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
         else:
             logger.warn(">>>>>>>>>>>> Sync not attempted, time difference less than sync frequency")
 
+
 """
 managing accounts/projects is a bit complex
 
@@ -630,5 +647,31 @@ sync_projects to populate projects
 
 now update_accounts to assign validity to all project accounts
     any weirdness will show here, so maybe check consistency
+
+"""
+
+"""
+FUTURE: refactor project_list, projectaccount_list to reduce passing of secondary lists above
+
+pseudo:
+
+#empty projectaccounts table?
+
+def sync_projects                
+    for project in projects
+        if crud.account.get(db, bcode) is None:
+            __aschema = schemas.xxx.(bcode = bcode)
+            crud.account.create(db, __aschema)
+        if crud.projectaccount.get(db, bcode, project_id) is None:
+            __paschema = schemas.xxx.(..., valid = None)
+            crud.projectaccount.create(db, __paschema)
+    
+palist = rims.getxxxx
+
+def match_projectaccounts:
+    for pa in palist:
+        if crud.projectaccount.get(db, bcode, project_id):
+            __paschema( valid = pa['valid'])
+            crud.projectaccount.update(db, __paschema)
 
 """
