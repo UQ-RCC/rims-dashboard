@@ -80,3 +80,12 @@ def get_user_projects_list() -> list[dict]:
     result = translate.validate_user_projects_list(user_projects_data)
 
     return result
+
+
+def get_trequest_content_list(form_id: int) -> list[dict]:
+
+    trequest_data = queries.get_trequest_content(form_id)
+
+    result = translate.validate_trequest_list(trequest_data, form_id)
+
+    return result

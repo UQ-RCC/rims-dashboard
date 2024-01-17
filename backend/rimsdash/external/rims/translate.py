@@ -6,15 +6,51 @@ from datetime import datetime
 import rimsdash.config as config
 import rimsdash.schemas as schemas
 
-from .clean import strip_brackets, fix_special_chars
+from .clean import strip_username_brackets, fix_special_chars
 from rimsdash.models import SystemRight, ProjectRight, IStatus
 
 RIMS_DATE_FORMAT_1 = "%Y/%m/%d %H:%M:%S"
 RIMS_DATE_FORMAT_2 = "%Y/%m/%d %H:%M"
+RIMS_DATE_FORMAT_3 = "%Y/%m/%d"
 
 CORE_NAME:str = config.get('ppms', 'core_name')
 
 logger = logging.getLogger('rimsdash')
+
+
+def rims_link_extract_key(input: str, prefix: str) -> str:
+    """
+    get the key from a RIMS report hyperlink, by prefix
+    """
+    # Use a regular expression to match the pattern
+    pattern = f"{prefix}=([^\]]+)"
+    match = re.search(pattern, input)
+    if match:
+        return match.group(1)
+    else:
+        return ''    
+    
+def rims_link_extract_value(input: str) -> str:
+    """
+    get the value from a RIMS report hyperlink 
+    """
+    match = re.search(r"\(([^)]+)\)", input)
+    if match:
+        return match.group(1)
+    else:
+        return ''
+
+def strip_brackets(input: str) -> str:
+    """
+    remove any content in brackets from a string 
+    """    
+    return re.sub(r'\(.*?\)', '', input).strip()
+
+def write_rims_api_date(date: datetime):
+    """
+    RIMS API needs date in format year-month-day
+    """
+    return date.strftime('%Y-%m-%d')
 
 
 def parse_rims_date(rims_date: str):
@@ -29,8 +65,12 @@ def parse_rims_date(rims_date: str):
         try:
             result = datetime.strptime(rims_date, RIMS_DATE_FORMAT_2)
         except:
-            result = datetime(2018, 1, 1)
-            logging.error(f"WARNING: unable to parse date string {rims_date}, using 01/01/2018 instead")
+            try:
+                result = datetime.strptime(rims_date, RIMS_DATE_FORMAT_3)
+            except:
+                result = datetime(2018, 1, 1)
+                logging.error(f"WARNING: unable to parse date string {rims_date}, using 01/01/2018 instead")
+        
     finally:
         return result
 
@@ -89,7 +129,7 @@ def validate_user_list(rims_user_list: list[dict]) -> list[dict]:
         _schema = schemas.UserCreateSchema(
             username = user['login'], 
             userid = user['id'], 
-            name = strip_brackets(user['name']),
+            name = strip_username_brackets(user['name']),
             email = user['email'],
             group = user['group'],
             active = user['active'],
@@ -195,27 +235,6 @@ def validate_project_details(rims_project_details: list[dict]) -> list[dict]:
     """
 
 
-def rims_link_extract_key(input: str, prefix: str) -> str:
-    """
-    get the key from a RIMS report hyperlink, by prefix
-    """
-    # Use a regular expression to match the pattern
-    pattern = f"{prefix}=([^\]]+)"
-    match = re.search(pattern, input)
-    if match:
-        return match.group(1)
-    else:
-        return ''    
-    
-def rims_link_extract_value(input: str) -> str:
-    """
-    get the value from a RIMS report hyperlink 
-    """
-    match = re.search(r"\(([^)]+)\)", input)
-    if match:
-        return match.group(1)
-    else:
-        return ''
 
 
 def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
@@ -344,4 +363,48 @@ def validate_user_projects_list(rims_projectrights_list: list[dict]) -> list[dic
             except:
                 logger.info(f"error translating project right: {project['Username']}, {id}")
 
+    return result
+
+def trequest_extract_fields(request_data: dict, form_id: int) -> dict:
+    """
+    extract desired fields from training request form data
+    
+    temporary, this may need to be a whole module with own schema to handle multiple forms
+    """    
+    result = {}
+    use_keys = []
+
+    if form_id == 79:   #new worker induction form
+        use_keys = ['Q3']
+    else:
+        logger.error(f"unrecognised training form id: {form_id} at training request parser")
+
+    for key in use_keys:
+        try:
+            result[key] = request_data[key]
+        except:
+            logger.error(f"key {key} not found in request {request_data['Request ID']}")
+    
+    return result
+
+
+
+def validate_trequest_list(rims_request_data: list[dict], form_id: int) -> list[dict]:
+    """
+    validate return from system list report 
+        against system schema
+    """
+    result = []
+
+    for request in rims_request_data:
+
+        schema = schemas.TrainingRequestReceiveFormDataSchema(
+            id = int(rims_link_extract_key(request["Request ID"], 'trainreq')),
+            date = parse_rims_date(request["Date"]),
+            user_fullname = strip_username_brackets(request["User"]),
+            form_data = trequest_extract_fields(request, form_id),
+        )
+
+        result.append(schema.dict())
+    
     return result

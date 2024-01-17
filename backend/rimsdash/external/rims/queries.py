@@ -10,10 +10,9 @@ import datetime
 import logging
 import rimsdash.config as config
 import rimsdash.utils as utils
+
+from rimsdash.external.rims import translate
 from rimsdash.schemas import SystemReceiveSchema, UserReceiveSchema
-
-#from .translator import translate_projectsv2
-
 
 logger = logging.getLogger('rimsdash')
 
@@ -21,8 +20,9 @@ KEY=f"{config.get('ppms', 'api2_key')}"
 CORE_ID=f"{config.get('ppms', 'core_id')}"
 BASE_URL=f"{config.get('ppms','ppms_url')}"
 DATE_FORMAT='%Y-%m-%d'
+SEARCH_BEGIN_YEAR=int(config.get('ppms','search_begin_year'))
 
-
+START_DATE = datetime.datetime.strptime(f'01-01-{SEARCH_BEGIN_YEAR}', '%d-%m-%Y')
 
 def get_usage_per_project(start_date=datetime.date(2022, 7, 1), end_date=datetime.date(2022, 7, 31)):
     """
@@ -419,6 +419,32 @@ def get_training_request_list() -> list[dict]:
     url=f"{BASE_URL}API2/"
     return_format=f"json"
     payload=f"apikey={KEY}&action=GetTrainingRequestsList&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            return response.json(strict=False)
+    else:
+        raise Exception('Not found')
+
+
+def get_trequest_content(form_id: int) -> list[dict]:
+    """
+    fetches list of training requests from RIMS
+    """
+    startdate = translate.write_rims_api_date(START_DATE)
+    enddate = translate.write_rims_api_date(datetime.datetime.now())
+
+    report_no=78  #training request form data
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    payload=f"apikey={KEY}&action=Report{report_no}&startDate={startdate}&endDate={enddate}&formID={form_id}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }

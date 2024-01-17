@@ -176,6 +176,14 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
     return projects
 
 
+
+def sync_training_request_forms(training_requests):
+    pass
+
+
+
+
+
 def sync_training_requests(db: Session = Depends(rdb.get_db)):
     """
     Sync local request DB to external RIMS DB
@@ -188,30 +196,52 @@ def sync_training_requests(db: Session = Depends(rdb.get_db)):
 
     logger.info(f"reading request list into DB")
 
-    for request in training_requests:
+    for trequest in training_requests:
 
         #use the RIMS uid to get a username
-        __user = crud.user.get_by_userid(db, userid=request['user_id'])
+        __user = crud.user.get_by_userid(db, userid=trequest['user_id'])
 
         if __user is not None:
-            request['username'] = __user.username
+            trequest['username'] = __user.username
 
-            __row = crud.request.get(db, request['id'])
+            __row = crud.trequest.get(db, trequest['id'])
 
             if __row is None:
-                logger.debug(f"creating request {request['id']} for user {request['username']}")
+                logger.debug(f"creating request {trequest['id']} for user {trequest['username']}")
 
-                request_in = schemas.TrainingRequestCreateSchema.parse_obj(request)
+                trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
 
-                crud.request.create(db, request_in)
+                crud.trequest.create(db, trequest_in)
             else:
-                logger.debug(f"updating request {request['id']} for user {request['username']}")
+                logger.debug(f"updating request {trequest['id']} for user {trequest['username']}")
 
-                request_in = schemas.TrainingRequestCreateSchema.parse_obj(request)
+                trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
 
-                crud.request.update(db, __row, request_in)
+                crud.trequest.update(db, __row, trequest_in)
         else:
-            logger.error(f"RIMS uid {request['user_id']} from training request  {request['id']} not found in local DB")
+            logger.error(f"RIMS uid {trequest['user_id']} from training request  {trequest['id']} not found in local DB")
+
+
+    #FUTURE
+    #get list of unique form ids from database
+    form_id = 79
+
+    trequest_forms: list[dict] = rims.get_trequest_content_list(form_id)
+
+    for trform in trequest_forms:
+
+        row = crud.trequest.get(db, trform['id'])
+
+        if row is None:
+            logger.error(f"request {trform['id']} for user {trform['user_fullname']} not found in DB")
+            pass
+        else:
+
+            logger.debug(f"adding form data to {trform['id']} for user {row.username}")
+
+            trequest_in = schemas.TrainingRequestAddFormDataSchema.parse_obj(trform)
+
+            crud.trequest.update(db, row, trequest_in)
 
 
 def match_project_account_pair(projectaccount_list: list[dict], bcode: str, project_id: int) -> dict:
@@ -600,7 +630,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
 
             try:
                 logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
-                if False:
+                if True:
                     sync_systems(db)
                     sync_users(db)
 

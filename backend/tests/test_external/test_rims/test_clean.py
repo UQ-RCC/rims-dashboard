@@ -17,8 +17,8 @@ from rimsdash.external.rims import clean
                                 ('John Smith (Johnny)', 'John Smith (Johnny)'),
                             ]
                         )
-def test_strip_brackets(name, expected_output):
-    assert clean.strip_brackets(name) == expected_output
+def test_strip_username_brackets(name, expected_output):
+    assert clean.strip_username_brackets(name) == expected_output
 
 
 def test_fix_special_chars():
