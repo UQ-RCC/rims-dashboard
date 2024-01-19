@@ -6,3 +6,4 @@ def generate_projects(db):
 
     for project in __projects:
         yield project
+
