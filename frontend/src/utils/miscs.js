@@ -52,7 +52,8 @@ var miscs = {
     // maximum memory
     maxMemSize() {
         380 *  1024 * 1024 * 1024
-    }
+    },   
+
 }
 
 

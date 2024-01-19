@@ -17,8 +17,10 @@ class UserModel(Base):
     #rights = Column(MutableDict.as_mutable(JSON), primary_key=False, index=False, nullable=True, default={})
     #   strings to avoid circular import - ie. SystemUserModel.user    
     system_rights = relationship('SystemUserModel', back_populates='user')
-    project_rights = relationship("ProjectUsersModel", back_populates="user")  
+    project_rights = relationship("ProjectUsersModel", back_populates="user")
+    training_requests = relationship("TrainingRequestModel", back_populates="user")
     user_state = relationship("UserStateModel", back_populates="user", uselist=False)
+  
 
     def to_dict(self, literal: bool = False) -> dict:
 

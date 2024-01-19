@@ -34,12 +34,12 @@ def sync_systems(db: Session = Depends(rdb.get_db)):
         __row = crud.system.get(db, system['id'])
 
         if __row is None:
-            logger.debug(f"creating {system['id']}")
+            logger.debug(f"creating system {system['id']}")
             system_in = schemas.SystemCreateSchema(**system)
 
             crud.system.create(db, system_in)
         else:
-            logger.debug(f"updating {system['id']}")            
+            logger.debug(f"updating system {system['id']}")            
             system_in = schemas.SystemCreateSchema(**system)
 
             crud.system.update(db, __row, system_in)
@@ -174,6 +174,74 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
             crud.project.update(db, _row, project_in)
     
     return projects
+
+
+
+def sync_training_request_forms(training_requests):
+    pass
+
+
+
+
+
+def sync_training_requests(db: Session = Depends(rdb.get_db)):
+    """
+    Sync local request DB to external RIMS DB
+
+    external data will overwrite any local conflicts
+    """
+
+    logger.info(f"getting training requests from RIMS")
+    training_requests: list[dict] = rims.get_training_request_list()
+
+    logger.info(f"reading request list into DB")
+
+    for trequest in training_requests:
+
+        #use the RIMS uid to get a username
+        __user = crud.user.get_by_userid(db, userid=trequest['user_id'])
+
+        if __user is not None:
+            trequest['username'] = __user.username
+
+            __row = crud.trequest.get(db, trequest['id'])
+
+            if __row is None:
+                logger.debug(f"creating request {trequest['id']} for user {trequest['username']}")
+
+                trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
+
+                crud.trequest.create(db, trequest_in)
+            else:
+                logger.debug(f"updating request {trequest['id']} for user {trequest['username']}")
+
+                trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
+
+                crud.trequest.update(db, __row, trequest_in)
+        else:
+            logger.error(f"RIMS uid {trequest['user_id']} from training request  {trequest['id']} not found in local DB")
+
+
+    #FUTURE
+    #get list of unique form ids from database
+    form_id = 79
+
+    trequest_forms: list[dict] = rims.get_trequest_content_list(form_id)
+
+    for trform in trequest_forms:
+
+        row = crud.trequest.get(db, trform['id'])
+
+        if row is None:
+            logger.error(f"request {trform['id']} for user {trform['user_fullname']} not found in DB")
+            pass
+        else:
+
+            logger.debug(f"adding form data to {trform['id']} for user {row.username}")
+
+            trequest_in = schemas.TrainingRequestAddFormDataSchema.parse_obj(trform)
+
+            crud.trequest.update(db, row, trequest_in)
 
 
 def match_project_account_pair(projectaccount_list: list[dict], bcode: str, project_id: int) -> dict:
@@ -504,6 +572,24 @@ def postprocess_users(db: Session = Depends(rdb.get_db)):
         else:
             logger.warn(f'user-state {user.username} not found in database after update')
 
+def process_trequests(db: Session = Depends(rdb.get_db)):
+    
+    trequests = crud.trequest.get_all(db)
+
+    for trequest in trequests:
+        logger.debug(f'posprocessing training request  {trequest.id}')
+        trequest_schema = schemas.TrainingRequestForProcessingSchema.from_orm(trequest)
+
+        trequest_updated: schemas.TrainingRequestUpdateStateSchema \
+            = logic.process_trequest(trequest_schema)
+
+        _row = crud.trequest.get(db, trequest.id)
+
+        if _row is not None:
+            crud.trequest.update(db, _row, trequest_updated)
+        else:
+            logger.warn(f'training request {trequest.id} absent in DB on attempted update')
+
 
 def calc_states(db):
     """
@@ -562,41 +648,19 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
 
             try:
                 logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
-                sync_systems(db)
-                sync_users(db)
-                """
-                FUTURE: reorder this logic to reduce passing of secondary lists
+                if True:
+                    sync_systems(db)
+                    sync_users(db)
 
-                pseudo:
-                
-                #empty projectaccounts table?
-                
-                def sync_projects                
-                    for project in projects
-                        if crud.account.get(db, bcode) is None:
-                            __aschema = schemas.xxx.(bcode = bcode)
-                            crud.account.create(db, __aschema)
-                        if crud.projectaccount.get(db, bcode, project_id) is None:
-                            __paschema = schemas.xxx.(..., valid = None)
-                            crud.projectaccount.create(db, __paschema)
-                    
-                palist = rims.getxxxx
+                    #   FUTURE refactor these 
+                    project_list = sync_projects(db)
+                    projectaccount_list = sync_accounts(db)
+                    sync_project_accounts(project_list, projectaccount_list, db)
+                    #   /end refactor target
 
-                def match_projectaccounts:
-                    for pa in palist:
-                        if crud.projectaccount.get(db, bcode, project_id):
-                            __paschema( valid = pa['valid'])
-                            crud.projectaccount.update(db, __paschema)
-
-                """
-                #   FUTURE refactor these 
-                project_list = sync_projects(db)
-                projectaccount_list = sync_accounts(db)
-                sync_project_accounts(project_list, projectaccount_list, db)
-                #   /end refactor target
-
-                sync_user_rights(db)
-                sync_project_users(db)
+                    sync_user_rights(db)
+                    sync_project_users(db)
+                sync_training_requests(db)
                 sync_user_admin(db, skip_existing = True)
                 logger.info(">>>>>>>>>>>> Finished syncing to RIMS")
 
@@ -616,6 +680,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
         else:
             logger.warn(">>>>>>>>>>>> Sync not attempted, time difference less than sync frequency")
 
+
 """
 managing accounts/projects is a bit complex
 
@@ -630,5 +695,31 @@ sync_projects to populate projects
 
 now update_accounts to assign validity to all project accounts
     any weirdness will show here, so maybe check consistency
+
+"""
+
+"""
+FUTURE: refactor project_list, projectaccount_list to reduce passing of secondary lists above
+
+pseudo:
+
+#empty projectaccounts table?
+
+def sync_projects                
+    for project in projects
+        if crud.account.get(db, bcode) is None:
+            __aschema = schemas.xxx.(bcode = bcode)
+            crud.account.create(db, __aschema)
+        if crud.projectaccount.get(db, bcode, project_id) is None:
+            __paschema = schemas.xxx.(..., valid = None)
+            crud.projectaccount.create(db, __paschema)
+    
+palist = rims.getxxxx
+
+def match_projectaccounts:
+    for pa in palist:
+        if crud.projectaccount.get(db, bcode, project_id):
+            __paschema( valid = pa['valid'])
+            crud.projectaccount.update(db, __paschema)
 
 """

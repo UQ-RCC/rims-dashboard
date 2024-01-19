@@ -8,7 +8,7 @@ UQ_STAFF_PATTERN = r'\s*\(\s*uq[a-z]{3,5}[a-z0-9]{0,2}\s*\)'
 EXTERNAL_ID_PATTERN = r'\s*\(\s*[a-z0-9]+\.[a-z0-9]+\s*\)'
     #   brackets w/ lowercase/numbers + "." + lowercase/numbers
 
-def strip_brackets(name: str):
+def strip_username_brackets(name: str):
     """
     remove usernames in brackets from user full names
 

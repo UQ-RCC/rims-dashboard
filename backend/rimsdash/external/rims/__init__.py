@@ -26,6 +26,12 @@ def get_project_list() -> list[dict]:
 
     return project_list
 
+def get_training_request_list() -> list[dict]:
+    _rims_user_list = queries.get_training_request_list()
+
+    user_list = translate.validate_training_requests(_rims_user_list)
+
+    return user_list
 
 
 def get_project_details() -> list[dict]:
@@ -72,5 +78,14 @@ def get_user_projects_list() -> list[dict]:
     user_projects_data = queries.get_projects_by_user()
 
     result = translate.validate_user_projects_list(user_projects_data)
+
+    return result
+
+
+def get_trequest_content_list(form_id: int) -> list[dict]:
+
+    trequest_data = queries.get_trequest_content(form_id)
+
+    result = translate.validate_trequest_list(trequest_data, form_id)
 
     return result
