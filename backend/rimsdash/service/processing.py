@@ -572,6 +572,24 @@ def postprocess_users(db: Session = Depends(rdb.get_db)):
         else:
             logger.warn(f'user-state {user.username} not found in database after update')
 
+def process_trequests(db: Session = Depends(rdb.get_db)):
+    
+    trequests = crud.trequest.get_all(db)
+
+    for trequest in trequests:
+        logger.debug(f'posprocessing training request  {trequest.id}')
+        trequest_schema = schemas.TrainingRequestForProcessingSchema.from_orm(trequest)
+
+        trequest_updated: schemas.TrainingRequestUpdateStateSchema \
+            = logic.process_trequest(trequest_schema)
+
+        _row = crud.trequest.get(db, trequest.id)
+
+        if _row is not None:
+            crud.trequest.update(db, _row, trequest_updated)
+        else:
+            logger.warn(f'training request {trequest.id} absent in DB on attempted update')
+
 
 def calc_states(db):
     """

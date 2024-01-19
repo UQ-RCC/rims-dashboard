@@ -1,11 +1,18 @@
 from datetime import datetime
-from pydantic import Field
-
+from pydantic import Field, root_validator
 from typing import Optional, ForwardRef
+
+import rimsdash.config as config
+
+from rimsdash.models import IStatus
 
 from .base_schema import BaseSchema
 
-UserOutSchema = ForwardRef('UserOutSchema')
+
+RIMS_URL = config.get('ppms', 'rims_url')
+CORE_ID = config.get('ppms', 'core_id')
+
+UserOutWithStateSchema = ForwardRef('UserOutWithStateSchema')
 
 class TrainingRequestBaseSchema(BaseSchema):
     id: int
@@ -15,6 +22,7 @@ class TrainingRequestBaseSchema(BaseSchema):
     form_id: int
     form_name: str
     username: str
+    state: Optional[IStatus]
     #NB: username in DB but uid from external API, must be converted on ingest
 
     class Config:
@@ -61,6 +69,24 @@ class TrainingRequestAddFormDataSchema(BaseSchema):
     class Config:
         orm_mode = True
 
+class TrainingRequestUpdateStateSchema(BaseSchema):
+    id: int
+    state: IStatus = IStatus.disabled
+
+    class Config:
+        orm_mode = True
+
+
+#processing schema
+#---------------
+class TrainingRequestForProcessingSchema(TrainingRequestBaseSchema):
+    """
+    No references, terminates recursion
+    """ 
+    ...
+    user: Optional[UserOutWithStateSchema]
+
+
 #export schema
 #---------------
 #   naming convention:  
@@ -71,15 +97,24 @@ class TrainingRequestOutSchema(TrainingRequestBaseSchema):
     No references, terminates recursion
     """ 
     ...
+    #use root_validator to add a computed property that will return via .dict() & .json()
+    #   if not needed via json, use @property instead
+    @root_validator
+    def add_url(cls, values) -> str:
+        if isinstance(values, dict) and 'id' in values:
+            values['url'] = f'{RIMS_URL}/proctrain/?pf={CORE_ID}&trainreq={values.get("id")}'
+        return values
+        #   NB: operate via values dict rather than on self directly
 
-class TrainingRequestOutInfoSchema(TrainingRequestBaseSchema):
+class TrainingRequestOutWithUserStateSchema(TrainingRequestOutSchema):
     """
     No references, terminates recursion
     """ 
     ...
-    user: Optional[UserOutSchema]
+    user: Optional[UserOutWithStateSchema]
 
 
-from .user_schema import UserOutSchema
+from .user_schema import UserOutWithStateSchema
 
-UserOutSchema.update_forward_refs()
+TrainingRequestOutWithUserStateSchema.update_forward_refs()
+TrainingRequestForProcessingSchema.update_forward_refs()

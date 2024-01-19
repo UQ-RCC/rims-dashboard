@@ -1,5 +1,7 @@
 import logging
 
+import rimsdash.schemas as schemas
+
 from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
 
 from rimsdash.schemas import UserForStateCheckSchema, UserStateCreateSchema, ProjectStateCreateSchema, ProjectForStateCheckSchema, ProjectOutRefsSchema, ProjectStatePostProcessUpdateSchema, UserStatePostProcessUpdateSchema, UserOutRefsSchema
@@ -215,3 +217,15 @@ def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchem
             return_state.ok_project = IStatus.ready
 
     return return_state
+
+def process_trequest(trequest: schemas.TrainingRequestForProcessingSchema) -> schemas.TrainingRequestUpdateStateSchema:
+    
+    return_trequest = schemas.TrainingRequestUpdateStateSchema(id = trequest.id, state = IStatus.fail )
+
+    user_state = trequest.user.user_state
+
+    #good if user ok and has project that is ok, or is staff
+    if ( user_state.ok == IStatus.ready and user_state.ok_project == IStatus.ready ) or trequest.user.admin == True:
+        return_trequest.state = IStatus.ready
+
+    return return_trequest
