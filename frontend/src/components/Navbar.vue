@@ -60,7 +60,13 @@
                     </v-list-item-icon>
                     <v-list-item-title class="ml-n5">Projects</v-list-item-title>
                 </v-list-item>
-                
+
+                <v-list-item to="/trainingrequests" v-if="this.has_access">
+                    <v-list-item-icon>
+                        <v-icon>mdi-school</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title class="ml-n5">Training</v-list-item-title>
+                </v-list-item>
             </v-list>
             <br />
             <!-- <div align="right" justify="right">

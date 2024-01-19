@@ -12,6 +12,7 @@ from .base_schema import BaseSchema
 RIMS_URL = config.get('ppms', 'rims_url')
 CORE_ID = config.get('ppms', 'core_id')
 
+UserOutSchema = ForwardRef('UserOutSchema')
 UserOutWithStateSchema = ForwardRef('UserOutWithStateSchema')
 
 class TrainingRequestBaseSchema(BaseSchema):
@@ -106,6 +107,13 @@ class TrainingRequestOutSchema(TrainingRequestBaseSchema):
         return values
         #   NB: operate via values dict rather than on self directly
 
+class TrainingRequestOutWithUserSchema(TrainingRequestOutSchema):
+    """
+    No references, terminates recursion
+    """ 
+    ...
+    user: Optional[UserOutSchema]
+
 class TrainingRequestOutWithUserStateSchema(TrainingRequestOutSchema):
     """
     No references, terminates recursion
@@ -115,6 +123,10 @@ class TrainingRequestOutWithUserStateSchema(TrainingRequestOutSchema):
 
 
 from .user_schema import UserOutWithStateSchema
+from .user_schema import UserOutSchema
 
-TrainingRequestOutWithUserStateSchema.update_forward_refs()
+
 TrainingRequestForProcessingSchema.update_forward_refs()
+TrainingRequestOutWithUserSchema.update_forward_refs()
+TrainingRequestOutWithUserStateSchema.update_forward_refs()
+

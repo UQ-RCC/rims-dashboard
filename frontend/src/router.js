@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Projects from './views/Projects.vue'
+import TrainingRequests from './views/TrainingRequests.vue'
 //import User from './views/User.vue'
 //import Projects from './views/Projects.vue'
 
@@ -20,7 +21,12 @@ export default new Router({
             path: '/projects',
             name: 'Projects',
             component: Projects
-        }, 
+        },
+        {
+            path: '/trainingrequests',
+            name: 'Training Requests',
+            component: TrainingRequests
+        },         
         { path: '*', redirect: '/home' }  
     ]
 })

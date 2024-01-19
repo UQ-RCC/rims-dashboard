@@ -15,9 +15,8 @@ import rimsdash.service.generate as generate
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
-
-@router.get("/alltrequestswithusers", response_model=list[schemas.trequest_schema.TrainingRequestOutSchema])
-async def api_getalltrequestswithstates(db: Session = Depends(rdb.get_db)): 
+@router.get("/alltrequests", response_model=list[schemas.trequest_schema.TrainingRequestOutSchema])
+async def api_getalltrequests(db: Session = Depends(rdb.get_db)): 
 
     trequests = crud.trequest.get_all(db)
 
@@ -25,6 +24,18 @@ async def api_getalltrequestswithstates(db: Session = Depends(rdb.get_db)):
 
     for trequest in trequests:
         result.append(schemas.trequest_schema.TrainingRequestOutSchema.from_orm(trequest))
+
+    return result
+
+@router.get("/alltrequestswithusers", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
+async def api_getalltrequestswithusers(db: Session = Depends(rdb.get_db)): 
+
+    trequests = crud.trequest.get_all(db)
+
+    result = []
+
+    for trequest in trequests:
+        result.append(schemas.trequest_schema.TrainingRequestOutWithUserSchema.from_orm(trequest))
 
     return result
 
@@ -38,16 +49,16 @@ async def api_trequestdetail(trequest_id: int, db: Session = Depends(rdb.get_db)
     return result
 
 #schemas.trequest_schema.TrainingRequestMinOutWithStateSchema
-@router.get("/trequestsfilterbyid", response_model=list[schemas.trequest_schema.TrainingRequestOutSchema])
+@router.get("/trequestsfilterbyid", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
 async def api_trequestsfilterbyid(trequest_id: int, db: Session = Depends(rdb.get_db)): 
 
     trequest = crud.trequest.get(db, trequest_id)
 
-    result = [schemas.trequest_schema.TrainingRequestOutSchema.from_orm(trequest)]
+    result = [schemas.trequest_schema.TrainingRequestOutWithUserSchema.from_orm(trequest)]
 
     return result
 
-@router.get("/trequestsfilterbytype", response_model=list[schemas.trequest_schema.TrainingRequestOutSchema])
+@router.get("/trequestsfilterbytype", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
 async def api_trequestsfilterbytype(search: str, db: Session = Depends(rdb.get_db)): 
 
     logger.debug(f"received: {search}")
@@ -57,21 +68,19 @@ async def api_trequestsfilterbytype(search: str, db: Session = Depends(rdb.get_d
     result = []
 
     for trequest in trequests:
-        result.append(schemas.trequest_schema.TrainingRequestOutSchema.from_orm(trequest))
-
-    logger.debug(f"schema: {result[0].title}")
+        result.append(schemas.trequest_schema.TrainingRequestOutWithUserSchema.from_orm(trequest))
 
     return result
 
-@router.get("/trequestsfilterbyuser", response_model=list[schemas.trequest_schema.TrainingRequestOutSchema])
-async def api_trequestsfilterbyuser(search: str, db: Session = Depends(rdb.get_db)): 
+@router.get("/trequestsfilterbyuser", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
+async def api_trequestsfilterbyuser(substring: str, db: Session = Depends(rdb.get_db)): 
 
-    trequests = crud.trequest.filter_by_user_anyname(db, substring=search)
+    trequests = crud.trequest.filter_by_user_anyname(db, substring=substring)
 
     result = []
 
     for trequest in trequests:
-        result.append(schemas.trequest_schema.TrainingRequestOutSchema.from_orm(trequest))
+        result.append(schemas.trequest_schema.TrainingRequestOutWithUserSchema.from_orm(trequest))
 
     return result
 
@@ -80,7 +89,7 @@ async def api_trequestsfilterbyuser(search: str, db: Session = Depends(rdb.get_d
 """
 UNUSED
 """
-@router.get("/trequestsfilterbynew", response_model=list[schemas.trequest_schema.TrainingRequestOutSchema])
+@router.get("/trequestsfilterbynew", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
 async def api_trequestsfilterbynew(search: str, db: Session = Depends(rdb.get_db)): 
 
     __trequests = repo.trequest.filter_by_title(db, substring=search)
@@ -88,6 +97,6 @@ async def api_trequestsfilterbynew(search: str, db: Session = Depends(rdb.get_db
     result = []
 
     for trequest in __trequests:
-        result.append(schemas.trequest_schema.TrainingRequestOutSchema.from_orm(trequest))
+        result.append(schemas.trequest_schema.TrainingRequestOutWithUserSchema.from_orm(trequest))
 
     return result
