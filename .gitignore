@@ -1,5 +1,6 @@
 outs
 /rimsdash
+deploy.sh
 
 #environment files
 .env.*
