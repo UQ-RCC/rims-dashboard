@@ -5,7 +5,7 @@ from dataclasses import dataclass, asdict, field
 
 
 import rimsdash.external as external
-import rimsdash.utils as utils
+import rimsdash.utils.utils as utils
 import rimsdash.usergather as gather
 
 import rimsdash.logic as logic

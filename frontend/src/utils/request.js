@@ -10,9 +10,11 @@ const service = axios.create({
   // request interceptor
   service.interceptors.request.use(
     config => {
+      Vue.$log.debug('Request intercepted')
       //if token is good
       if (Vue.prototype.$keycloak && Vue.prototype.$keycloak.token 
             && !Vue.prototype.$keycloak.isTokenExpired(Vue.prototype.$Config.keycloak.minValidity)) {
+        Vue.$log.debug('Token good, adding bearer')
         config.headers['Authorization'] = 'Bearer ' + Vue.prototype.$keycloak.token;
         return config
       }

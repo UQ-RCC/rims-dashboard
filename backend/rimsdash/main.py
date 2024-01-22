@@ -2,15 +2,15 @@ import logging
 import uvicorn
 import os 
 
-from fastapi import FastAPI #, Depends, HTTPException, status
+from fastapi import FastAPI, Depends    #, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-
 from logging.handlers import TimedRotatingFileHandler
+
+import rimsdash.config as config
+import rimsdash.utils.keycloak as keycloak
 
 #from rimsdash.routers import general
 from rimsdash.routers import navbar, projects, sync, training_requests
-
-import rimsdash.config as config
 
 
 #logging setup
@@ -32,6 +32,7 @@ fh.setFormatter(formatter)
 #add handlers
 logger.addHandler(fh)
 logging.getLogger("uvicorn.access").addHandler(fh)
+logging.getLogger("uvicorn.error").addHandler(fh)
 logging.getLogger("uvicorn").addHandler(fh)
 
 
@@ -51,6 +52,7 @@ app.include_router(
     navbar.router,
     prefix="/rapi/v1",
     tags=['navbar'],
+    dependencies=[Depends(keycloak.decode)],    
     responses={404: {"description": "Not found"}},
 )
 
@@ -58,6 +60,7 @@ app.include_router(
     projects.router,
     prefix="/rapi/v1",
     tags=['projects'],
+    dependencies=[Depends(keycloak.decode)],    
     responses={404: {"description": "Not found"}},
 )
 
@@ -65,6 +68,7 @@ app.include_router(
     training_requests.router,
     prefix="/rapi/v1",
     tags=['trainingrequests'],
+    dependencies=[Depends(keycloak.decode)],
     responses={404: {"description": "Not found"}},
 )
 

@@ -8,7 +8,7 @@ from rimsdash.schemas import UserForStateCheckSchema, UserStateCreateSchema, Pro
 
 
 import rimsdash.config as config
-import rimsdash.utils as utils
+import rimsdash.utils.utils as utils
 
 logger = logging.getLogger('rimsdash')
 

@@ -1,5 +1,4 @@
-//import request from '@/utils/request'
-import axios from 'axios'
+import request from '@/utils/request'
 import Vue from 'vue'
 import { convertDatetime } from '../utils/helpers.js';
 
@@ -20,7 +19,7 @@ function convertTrainingRequestDates(data) {
 export default {
     async getAllTrainingRequests() {
 
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/alltrequests` )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/alltrequests` )
 
         let converted_data = convertTrainingRequestDates(data)
         
@@ -29,7 +28,7 @@ export default {
 
     async getAllTrainingRequestsWithUsers() {
 
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/alltrequestswithusers` )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/alltrequestswithusers` )
         
         let converted_data = convertTrainingRequestDates(data)
         
@@ -40,7 +39,7 @@ export default {
         let payload = {
             'trequest_id': trequest_id
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/trequestdetail`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/trequestdetail`, { params: payload } )
 
         let converted_data = convertTrainingRequestDates(data)
         
@@ -51,7 +50,7 @@ export default {
         let payload = {
             'trequest_id': trequest_id
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/trequestsfilterbyid`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/trequestsfilterbyid`, { params: payload } )
         
         let converted_data = convertTrainingRequestDates(data)
         
@@ -62,7 +61,7 @@ export default {
         let payload = {
             'search': substring
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/trequestsfilterbytype`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/trequestsfilterbytype`, { params: payload } )
         
         let converted_data = convertTrainingRequestDates(data)
         
@@ -73,7 +72,7 @@ export default {
         let payload = {
             'substring': substring
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/trequestsfilterbyuser`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/trequestsfilterbyuser`, { params: payload } )
         
         console.log("got: " + data[0].id + "   " + data[0].date)
         let converted_data = convertTrainingRequestDates(data)

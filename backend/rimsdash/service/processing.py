@@ -18,6 +18,31 @@ logger = logging.getLogger('rimsdash')
 
 #sessionmaker = FastAPISessionMaker(SQLALCHEMY_DATABASE_URL)
 
+ACCEPTED_REALMS = {'admin', 'dashboard'}
+
+def lookup_keycloak_user_access(db: Session, keycloak_user: dict) -> bool:
+    """
+    extracts user from decoded keycloak token and checks their access
+    """
+    try:
+        email = keycloak_user.get('email')
+        realm_access = keycloak_user.get('realm_access')
+    except:
+        raise Exception(f"Error parsing keycloak user from token")
+
+    #if the keycloak token has the appropriate realm (eg. admin), return ok
+    if realm_access and \
+        any ( realm in ACCEPTED_REALMS for realm in realm_access.get('roles') ):
+        return True
+    else:
+        #otherwise look up the user and return their admin status for the dashboard core
+        user = crud.user.get_by_email(db, email)
+        
+        if not email or not user:
+            raise Exception(f"Non-admin user from keycloak token not found in DB for {email}, access denied")
+        else:
+            return user.admin
+
 def sync_systems(db: Session = Depends(rdb.get_db)):
     """
     Sync local systems DB to external RIMS DB

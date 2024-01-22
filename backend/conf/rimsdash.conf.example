@@ -2,25 +2,38 @@
 type=postgresql
 host=0.0.0.0
 port=mydbport
+db_name=xxxx
 db_username=xxxx
 db_password=xxxx
-db_name=rimsdashdb
 
-
+[sync]
+automatic_sync=True
+full_sync_frequency=1   
+simple_sync_frequency=1 
 
 [logging]
 log_file=/var/log/rimsdash/rimsdash.log
+log_level=INFO
 
 [ppms]
 ppms_url=https://rims.uq.edu.au/
 api2_key=xxxxxx
 timezone=Australia/Brisbane
 core_id=2
+core_name=CORE_NAME
 system_for_admin_check=1
+search_begin_year=2000
 
-[visualisation]
-min_hours=250
+[manual]
+external_affiliations=
+unlisted_staff=
 
-[authentication]
-username = xxxxxx
-password = xxxxxx
+[keycloak]
+server_url=https://example.server
+realm_name=xxxx
+client_id=xxxx
+client_secret=xxxx
+authorization_url=https://example.server
+token_url=https://example.server
+public_key=xxxx
+dashboard_clientid=xxxx

@@ -1,11 +1,10 @@
-//import request from '@/utils/request'
-import axios from 'axios'
+import request from '@/utils/request'
 import Vue from 'vue'
 
 export default {
 
     async checkBackend() {
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/ready`)
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/ready`)
         return data
     },
 
@@ -13,7 +12,7 @@ export default {
         let payload = {
             'email': email
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userfromemail`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/userfromemail`, { params: payload } )
         return data
     },    
 
@@ -21,7 +20,7 @@ export default {
         let payload = {
             'email': email
         }        
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkadminbyemail`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkadminbyemail`, { params: payload } )
         return data
     },
 
@@ -29,19 +28,19 @@ export default {
         let payload = {
             'email': email
         }        
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkwhitelistbyemail`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/checkwhitelistbyemail`, { params: payload } )
         return data
     },
 
     async getAllProjectsWithStates() {
 
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithstates` )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithstates` )
         return data
     },
 
     async getAllProjectsWithFullStates() {
 
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithfullstates` )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithfullstates` )
         return data
     },
 
@@ -50,7 +49,7 @@ export default {
         let payload = {
             'project_id': project_id
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectdetailwithusers`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectdetailwithusers`, { params: payload } )
         return data
     },
 

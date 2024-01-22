@@ -9,7 +9,7 @@ import requests
 import datetime
 import logging
 import rimsdash.config as config
-import rimsdash.utils as utils
+import rimsdash.utils.utils as utils
 
 from rimsdash.external.rims import translate
 from rimsdash.schemas import SystemReceiveSchema, UserReceiveSchema
