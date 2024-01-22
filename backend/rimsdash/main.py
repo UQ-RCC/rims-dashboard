@@ -84,7 +84,7 @@ logger.info("App started")
 #Dev mode
 def entry_dev():
     logger.info("Starting app as dev")
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="127.0.0.1", port=5000)
     logger.info("App started as dev")
 
 if __name__ == "__main__":
