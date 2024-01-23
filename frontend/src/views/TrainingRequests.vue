@@ -7,7 +7,7 @@
             height="4"
             :active="loading"
         ></v-progress-linear>
-        <v-card-type>
+        <v-card-title>
             <v-row>
                 <v-col cols="2">
                     <v-text-field
@@ -50,7 +50,7 @@
                     </v-btn>
                 </v-col>
             </v-row>                    
-        </v-card-type>
+        </v-card-title>
         <v-data-table
                 :headers="trequestsTableHeaders"
                 :items="trequests"
@@ -231,13 +231,15 @@
             },
 
             async retrieveTrainingRequestDetails(trequest_id) {
-                Vue.$log.debug("retrieving trequest details for " + trequest_id);
+                Vue.$log.debug("retrieveTrainingRequestDetails start " + trequest_id);
 
                 let trequest_details = {}
 
                 try {
+                    Vue.$log.debug("awaiting details:  "  + trequest_id)
+                    //trequest_details = await TrainingRequestsAPI.getAllTrainingRequests()[0]
                     trequest_details = await TrainingRequestsAPI.getTrainingRequestDetails(trequest_id)
-                    Vue.$log.debug("retrieved details:  "  + trequest_details.id)                     
+                    Vue.$log.debug("retrieved details:  "  + trequest_details.id)
                 } catch (error) {
                     Vue.$log.debug("API call getTrainingRequestDetails FAILED")                       
                 }             

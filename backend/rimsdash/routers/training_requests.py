@@ -2,7 +2,11 @@ import logging
 import sys
 
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends
+
+from fastapi import APIRouter, Depends, FastAPI, Response, Request
+from starlette.background import BackgroundTask
+from fastapi.routing import APIRoute
+
 from fastapi.responses import JSONResponse
 
 import rimsdash.db as rdb
@@ -13,10 +17,31 @@ import rimsdash.service.generate as generate
 import rimsdash.utils.keycloak as keycloak
 import rimsdash.service as service
 
-router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
+def log_info(req_body, res_body):
+    logging.info(req_body)
+    logging.info(res_body)
+
+class LoggingRoute(APIRoute):
+    def get_route_handler(self):
+        original_route_handler = super().get_route_handler()
+
+        async def custom_route_handler(request: Request) -> Response:
+            req_body = await request.body()
+            response = await original_route_handler(request)
+            res_body = response.body
+            response.background = BackgroundTask(log_info, req_body, res_body)
+            return response
+
+        return custom_route_handler
+
+router = APIRouter(route_class=LoggingRoute)
+
+
 FALLBACK_ERROR = JSONResponse(status_code=400, content={"message": "request not completed"})
+
+
 
 @router.get("/alltrequests", response_model=list[schemas.trequest_schema.TrainingRequestOutSchema])
 async def api_getalltrequests(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
@@ -67,7 +92,8 @@ async def api_trequestdetail(trequest_id: int, db: Session = Depends(rdb.get_db)
         trequest = crud.trequest.get(db, trequest_id)
 
         result = schemas.trequest_schema.TrainingRequestOutWithUserStateSchema.from_orm(trequest)
-
+        
+        print("received")
         return result
     else:
         return FALLBACK_ERROR

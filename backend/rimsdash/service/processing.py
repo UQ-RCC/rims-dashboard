@@ -694,6 +694,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
                 process_users(db)
                 postprocess_projects(db)
                 postprocess_users(db)
+                process_trequests(db)
                 logger.info(">>>>>>>>>>>> Finished calculating states")
                 __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type)
                 __updated = crud.sync.update(db, __current, __complete_schema)
