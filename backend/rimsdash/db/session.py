@@ -14,8 +14,6 @@ SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
                            f"{config.get('database', 'port')}/"
                            f"{config.get('database', 'db_name')}")
 
-print(SQLALCHEMY_DATABASE_URL)
-
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={},
 )

@@ -1,6 +1,6 @@
+import os, sys
 import logging
 import uvicorn
-import os 
 
 from fastapi import FastAPI, Depends    #, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,14 +10,29 @@ import rimsdash.config as config
 import rimsdash.utils.keycloak as keycloak
 
 #from rimsdash.routers import general
-from rimsdash.routers import navbar, projects, sync, training_requests
+from rimsdash.routers import unsecured, navbar, projects, sync, training_requests
 
 
 #logging setup
-log_level = logging.DEBUG
+log_level_in: str = config.get('logging', 'log_level')
+
+#set log level from config
+if "debug" in log_level_in.lower():
+    log_level = logging.DEBUG
+elif "info" in log_level_in.lower():
+    log_level = logging.INFO
+elif "warn" in log_level_in.lower():
+    log_level = logging.WARN
+elif "error" in log_level_in.lower():
+    log_level = logging.ERROR
+else:
+    #default info
+    log_level = logging.INFO
 
 logger = logging.getLogger('rimsdash')
+
 logger.setLevel(log_level)
+
 log_file = config.get('logging', 'log_file', default = "/var/log/rimsdash/rimsdash.log")
 
 #   create the directory if it is missing
@@ -35,6 +50,18 @@ logging.getLogger("uvicorn.access").addHandler(fh)
 logging.getLogger("uvicorn.error").addHandler(fh)
 logging.getLogger("uvicorn").addHandler(fh)
 
+#streamhandler
+sh = logging.StreamHandler(sys.stderr)  # Use sys.stderr for stderr
+sh.setLevel(log_level)
+sh.setFormatter(formatter)
+
+#add handlers
+logger.addHandler(sh)
+logging.getLogger("uvicorn.access").addHandler(sh)
+logging.getLogger("uvicorn.error").addHandler(sh)
+logging.getLogger("uvicorn").addHandler(sh)
+
+
 
 #App setup
 app = FastAPI()
@@ -48,6 +75,7 @@ app.add_middleware(
 )
 
 #api routers
+
 app.include_router(
     navbar.router,
     prefix="/rapi/v1",
@@ -72,6 +100,14 @@ app.include_router(
     responses={404: {"description": "Not found"}},
 )
 
+#IMPORANT: unsecured, use for ready ping only
+app.include_router(
+    unsecured.router,
+    prefix="/rapi/v1",
+    tags=['open'],   
+    responses={404: {"description": "Not found"}},
+)
+
 
 # automatic tasks
 if (bool(config.get('sync', 'automatic_sync', default = False)) == True):
@@ -82,14 +118,11 @@ if (bool(config.get('sync', 'automatic_sync', default = False)) == True):
 else:
     logger.info("Automatic syncing off")
 
-
-logger.info("App started")
-
 #Dev mode
 def entry_dev():
-    logger.info("Starting app as dev")
+    logger.info("App starting in dev")
+    logger.info(f"logging initiated at level: {logger.level}, {log_level_in}")
     uvicorn.run(app, host="127.0.0.1", port=5000)
-    logger.info("App started as dev")
 
 if __name__ == "__main__":
     entry_dev()

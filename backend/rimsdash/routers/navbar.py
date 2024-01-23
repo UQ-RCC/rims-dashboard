@@ -17,13 +17,6 @@ logger = logging.getLogger('rimsdash')
 
 FALLBACK_ERROR = JSONResponse(status_code=400, content={"message": "request not completed"})
 
-@router.get("/ready")
-async def api_ready(db: Session = Depends(rdb.get_db), user: dict = Depends(keycloak.decode)):
-
-    result = { 'ok': True }
-
-    return result
-
 @router.get("/user")
 async def get_user(user: dict = Depends(keycloak.decode)):
     logger.debug("Querying user")

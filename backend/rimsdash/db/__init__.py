@@ -8,6 +8,8 @@ from .session import _get_fastapi_sessionmaker, get_session, sessionmaker
 from typing import Iterator
 from sqlalchemy.orm import Session
 
+import logging
+logger = logging.getLogger('rimsdash')
 
 def exists() -> bool:
     """
@@ -16,8 +18,7 @@ def exists() -> bool:
     with engine.connect() as connection:
         return engine.dialect.has_table(connection, 'rduser')
 
-def init_db():
-    print("Initialising DB")    
+def init_db():   
     Base.metadata.create_all(bind=engine)
 
 def get_db() -> Iterator[Session]:
@@ -32,7 +33,7 @@ def drop_db(force = False):
     drop the db
     """
     if force:
-        print("DROPPING DATABASE")
+        logger.warn("!!!!DROPPING DATABASE!!!!")
         Base.metadata.drop_all(bind=engine)
     
     #NB: because our data is just a local cache/derivation from the external DB, don't really need to worry about migrations
@@ -51,5 +52,4 @@ def get_db() -> Generator:
         db.close()
 """    
 
-print("starting DB")
 init_db()
