@@ -1,5 +1,5 @@
 from typing import Optional, TypedDict, Dict, ForwardRef
-from pydantic import root_validator
+from pydantic import root_validator, Field
 
 import rimsdash.config as config
 
@@ -52,7 +52,7 @@ class UserReceiveSchema(UserBaseSchema):
 # return schema
 
 class UserReturnAdminSchema(BaseSchema):
-    admin: bool = False
+    admin: Optional[bool] = False
 
     class Config:
         orm_mode = True
@@ -68,7 +68,7 @@ class UserOutSchema(UserBaseSchema):
     base export, no references
     """ 
     ...
-    admin: bool = False
+    admin: Optional[bool] = False
 
     #use root_validator to add a computed property that will return via .dict() & .json()
     #   @property is cleaner for direct access only
@@ -111,7 +111,7 @@ class UserMinOutSchema(BaseSchema):
     userid: int
     group: str
     active: bool
-    admin: bool = False
+    admin: Optional[bool] = False
 
     class Config:
         orm_mode = True
