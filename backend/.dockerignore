@@ -3,3 +3,4 @@ DashImage
 Dockerfile
 build
 .vscode
+*.egg*
