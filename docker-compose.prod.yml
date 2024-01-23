@@ -19,7 +19,9 @@ services:
 
   backend: 
   #----------------------
-    build:  ./backend
+    build:  
+      context: ./backend
+      dockerfile: Dockerfile.prod
 
     command: uvicorn rimsdash.main:app --host 0.0.0.0 --port 5000
 
