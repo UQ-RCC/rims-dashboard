@@ -301,14 +301,14 @@ def sync_project_accounts(project_list: list[dict], projectaccount_list: list[di
 
         #warn and skip if the account does not exist
         if project['bcode'] == '':
-            logger.info(f"empty bcode {project['bcode']} for project {project['id']}")   
+            logger.warn(f"empty bcode {project['bcode']} for project {project['id']}")   
 
         #if the account is in the DB, find the pair from the local list
         if crud.account.get(db, project['bcode']) is not None:
             project_account = match_project_account_pair(projectaccount_list, project['bcode'], project['id'])
         else:           
             #if the account is not in the DB, create it with valid = None 
-            logger.info(f"account {project['bcode']} not found in DB for project {project['id']}, creating w/ valid=None")
+            logger.warn(f"account {project['bcode']} not found in DB for project {project['id']}, creating w/ valid=None")
             __account_schema = schemas.account_schema.AccountCreateSchema(
                 bcode = project['bcode']
             )
@@ -370,7 +370,7 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
     external data will overwrite any local conflicts
     """
 
-    logger.info(f"Syncing user rights to RIMS")
+    logger.info(f"Getting user rights from RIMS")
 
     user_rights_list = rims.get_user_rights_list()
 
@@ -408,7 +408,7 @@ def sync_user_rights_indiv(db: Session = Depends(rdb.get_db)):
     DEPRECATED - many calls to external API
     """
     
-    logger.info(f"Syncing user rights to RIMS")
+    logger.info(f"Getting individual user rights from RIMS")
 
     users = crud.user.get_all(db)
     
@@ -450,7 +450,7 @@ def sync_project_users(db: Session = Depends(rdb.get_db)):
     external data will overwrite any local conflicts
     """
 
-    logger.info(f"Syncing user rights to RIMS")
+    logger.info(f"Syncing project rights to RIMS")
 
     user_projects_list = rims.get_user_projects_list()
 
@@ -643,6 +643,18 @@ def dummy_sync(db):
     logger.info(">>>>>>>>>>>> DEV finished adding fake sync to DB")
 
 
+
+def remake_db(db, force=False):
+    if force == True:
+        rdb.drop_db(force=True)
+
+        rdb.init_db()    
+
+        new_db = rdb.get_session()
+
+    return new_db
+
+
 def primary_sync(db: Session = Depends(rdb.get_db), force=False):
         """
         perform full sync
@@ -650,6 +662,13 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
         WARNING: many RIMS API calls (6k+)
             to be reduced by new reports when available
         """
+
+        remake = bool(config.get('sync', 'recreate_db'))
+
+        if remake:
+            logger.info("!!!!wipe and recreate DB")
+            db = remake_db(db, force=remake)
+        
         sync_frequency_days = int(config.get('sync', 'full_sync_frequency'))
 
         try:
@@ -672,7 +691,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
             __current = crud.sync.create(db, __start_schema)
 
             try:
-                logger.info(">>>>>>>>>>>> Begin syncing to RIMS")
+                logger.info(">>>>>>>>>>>> Begin syncing from RIMS")
                 if True:
                     sync_systems(db)
                     sync_users(db)
@@ -685,9 +704,10 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
 
                     sync_user_rights(db)
                     sync_project_users(db)
-                sync_training_requests(db)
-                sync_user_admin(db, skip_existing = True)
-                logger.info(">>>>>>>>>>>> Finished syncing to RIMS")
+                    sync_training_requests(db)
+                    sync_user_admin(db, skip_existing = True)
+				
+                logger.info(">>>>>>>>>>>> Finished syncing from RIMS")
 
                 logger.info(">>>>>>>>>>>> Begin calculating states")
                 process_projects(db)

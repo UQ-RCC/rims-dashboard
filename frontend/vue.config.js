@@ -1,4 +1,5 @@
 module.exports = {
-    publicPath: '/rims-dashboard/',
+    publicPath: './',
+    //publicPath: '/rims-dashboard/',
     runtimeCompiler: true
 };

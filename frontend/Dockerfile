@@ -15,7 +15,8 @@ RUN yarn install && yarn run build
 FROM nginx:1.25
 #FROM nginx:1.21.1-alpine
 COPY --from=builder /app/dist/ /usr/share/nginx/html/
-COPY --from=builder /app/nginx/dashboard.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+#COPY --from=builder /app/nginx/dashboard.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
