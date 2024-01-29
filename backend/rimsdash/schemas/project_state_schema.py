@@ -11,13 +11,13 @@ ProjectOutInfoSchema=ForwardRef('ProjectOutInfoSchema')
 
 class ProjectStateBaseSchema(BaseSchema):
     project_id: int
-    ok: IStatus = IStatus.disabled
-    active: IStatus = IStatus.disabled
-    billing: IStatus = IStatus.off
-    ohs: IStatus = IStatus.disabled
-    rdm: IStatus = IStatus.disabled
-    phase: IStatus = IStatus.disabled
-    ok_user: IStatus = IStatus.disabled
+    ok: IStatus = IStatus.none
+    active: IStatus = IStatus.none
+    billing: IStatus = IStatus.none
+    ohs: IStatus = IStatus.none
+    rdm: IStatus = IStatus.none
+    phase: IStatus = IStatus.none
+    ok_user: IStatus = IStatus.none
 
     class Config:
         orm_mode = True
@@ -51,7 +51,7 @@ class ProjectStateOutFullRefsSchema(ProjectStateBaseSchema):
 
 class ProjectStatePostProcessUpdateSchema(BaseSchema):
     project_id: int
-    ok_user: IStatus
+    ok_user: IStatus = IStatus.none
 
     class Config:
         orm_mode = True

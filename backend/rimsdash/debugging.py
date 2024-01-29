@@ -51,8 +51,7 @@ if False:
 
 print("STARTING")
 #service.processing.postprocess_projects(db)
-print("P done")
-service.processing.postprocess_users(db)
+service.processing.primary_sync(db)
 print("U done")
 
 

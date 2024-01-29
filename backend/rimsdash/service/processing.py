@@ -43,6 +43,17 @@ def lookup_keycloak_user_access(db: Session, keycloak_user: dict) -> bool:
         else:
             return user.admin
 
+def log_sync_error(label, id):
+    """
+    logs an error during syncing
+    handles the case that the id itself does not exist
+    """
+    try:
+        logger.error(f"Failure syncing {label} at id: {id}")
+    except:
+        logger.error(f"Failure syncing item, id/label missing")
+
+
 def sync_systems(db: Session = Depends(rdb.get_db)):
     """
     Sync local systems DB to external RIMS DB
@@ -55,20 +66,21 @@ def sync_systems(db: Session = Depends(rdb.get_db)):
 
     logger.info(f"reading system list into DB")
     for system in systems:
+        try:
+            __row = crud.system.get(db, system['id'])
 
-        __row = crud.system.get(db, system['id'])
+            if __row is None:
+                logger.debug(f"creating system {system['id']}")
+                system_in = schemas.SystemCreateSchema(**system)
 
-        if __row is None:
-            logger.debug(f"creating system {system['id']}")
-            system_in = schemas.SystemCreateSchema(**system)
+                crud.system.create(db, system_in)
+            else:
+                logger.debug(f"updating system {system['id']}")            
+                system_in = schemas.SystemCreateSchema(**system)
 
-            crud.system.create(db, system_in)
-        else:
-            logger.debug(f"updating system {system['id']}")            
-            system_in = schemas.SystemCreateSchema(**system)
-
-            crud.system.update(db, __row, system_in)
-
+                crud.system.update(db, __row, system_in)
+        except:
+            log_sync_error("system", system['id'])
 
 def sync_users(db: Session = Depends(rdb.get_db)):
     """
@@ -82,20 +94,21 @@ def sync_users(db: Session = Depends(rdb.get_db)):
 
     logger.info(f"reading user list into DB")
     for user in users:
+        try:
+            __row = crud.user.get(db, user['username'])
 
-        __row = crud.user.get(db, user['username'])
+            if __row is None:
+                logger.debug(f"creating user {user['username']}")
+                user_in = schemas.UserCreateSchema(**user)
 
-        if __row is None:
-            logger.debug(f"creating user {user['username']}")
-            user_in = schemas.UserCreateSchema(**user)
+                crud.user.create(db, user_in)
+            else:
+                logger.debug(f"updating user {user['username']}")            
+                user_in = schemas.UserUpdateSchema(**user)
 
-            crud.user.create(db, user_in)
-        else:
-            logger.debug(f"updating user {user['username']}")            
-            user_in = schemas.UserUpdateSchema(**user)
-
-            crud.user.update(db, __row, user_in)
-
+                crud.user.update(db, __row, user_in)
+        except:
+            log_sync_error("user", user['username'])
 
 def sync_user_admin(db: Session = Depends(rdb.get_db), skip_existing: bool = False):
     """
@@ -103,19 +116,21 @@ def sync_user_admin(db: Session = Depends(rdb.get_db), skip_existing: bool = Fal
     """
     logger.info(f"Syncing admin status")
     for __row in crud.user.get_all(db):
-        if __row is not None:
-            if skip_existing and __row.admin is not None:
-                pass
-            else:
-                logger.debug(f"admin sync: {__row.username}")
-                __admin = rims.get_admin_status(__row.username)
+        try:
+            if __row is not None:
+                if skip_existing and __row.admin is not None:
+                    pass
+                else:
+                    logger.debug(f"admin sync: {__row.username}")
+                    admin_dict = rims.get_admin_status(__row.username)
 
-                user_admin_in = schemas.user_schema.UserUpdateAdminSchema(admin=__admin)
+                    user_admin_in = schemas.user_schema.UserUpdateAdminSchema(**admin_dict)
 
-                crud.user.update(db, __row, user_admin_in)
+                    crud.user.update(db, __row, user_admin_in)
+        except:
+            log_sync_error("user admin status", __row.username)
 
-
-
+    
 def sync_accounts(db: Session = Depends(rdb.get_db)) -> list[dict]:
     """
     Sync local account DB to external RIMS DB
@@ -132,25 +147,26 @@ def sync_accounts(db: Session = Depends(rdb.get_db)) -> list[dict]:
     logger.info(f"reading account list into DB")
 
     for acc in projectaccount_list:
+        try:
+            #now setup the account
+            __row = crud.account.get(db, acc['bcode'])
 
-        #now setup the account
-        __row = crud.account.get(db, acc['bcode'])
+            if __row is None:
+                logger.debug(f"creating account {acc['bcode']}")
+                account_in = schemas.AccountReceiveSchema(
+                    bcode = acc['bcode'],
+                )
 
-        if __row is None:
-            logger.debug(f"creating account {acc['bcode']}")
-            account_in = schemas.AccountReceiveSchema(
-                bcode = acc['bcode'],
-            )
+                crud.account.create(db, account_in)
+            else:
+                logger.debug(f"updating account {acc['bcode']}")
 
-            crud.account.create(db, account_in)
-        else:
-            logger.debug(f"updating account {acc['bcode']}")
-
-            account_in = schemas.AccountReceiveSchema(
-                bcode = acc['bcode'],
-            )
-            crud.account.update(db, __row, account_in)
-    
+                account_in = schemas.AccountReceiveSchema(
+                    bcode = acc['bcode'],
+                )
+                crud.account.update(db, __row, account_in)
+        except:
+            log_sync_error("account", acc['bcode'])
     return projectaccount_list
 
 
@@ -167,37 +183,40 @@ def sync_projects(db: Session = Depends(rdb.get_db)):
 
     logger.info(f"reading project list into DB")
     for project in projects:
+        try:
+            _row = crud.project.get(db, project['id'])
 
-        _row = crud.project.get(db, project['id'])
+            if _row is None:
+                logger.debug(f"creating project {project['id']}")
+                project_in = schemas.ProjectCreateSchema(**project)
 
-        if _row is None:
-            logger.debug(f"creating project {project['id']}")
-            project_in = schemas.ProjectCreateSchema(**project)
+                crud.project.create(db, project_in)
+            else:
+                logger.debug(f"updating project {project['id']}")            
+                project_in = schemas.ProjectCreateSchema(**project)
 
-            crud.project.create(db, project_in)
-        else:
-            logger.debug(f"updating project {project['id']}")            
-            project_in = schemas.ProjectCreateSchema(**project)
-
-            crud.project.update(db, _row, project_in)
+                crud.project.update(db, _row, project_in)
+        except:
+            log_sync_error("project", project['id'])
 
     logger.info(f"getting additional project details from RIMS")
     project_details: list[dict] = rims.get_project_details()
 
     logger.info(f"updating DB with additional project details")
     for project in project_details:
+        try:
+            _row = crud.project.get(db, project['id'])
 
-        _row = crud.project.get(db, project['id'])
+            if _row is None:
+                logger.warn(f"Project {project['id']} found in RIMS details report but not present in DB. Project ignored.")
+                pass
+            else:
+                logger.debug(f"Updating project {project['id']}")   
+                project_in = schemas.ProjectInitDetailsSchema(**project)
 
-        if _row is None:
-            logger.warn(f"Project {project['id']} found in RIMS details report but not present in DB. Project ignored.")
-            pass
-        else:
-            logger.debug(f"Updating project {project['id']}")   
-            project_in = schemas.ProjectInitDetailsSchema(**project)
-
-            crud.project.update(db, _row, project_in)
-    
+                crud.project.update(db, _row, project_in)
+        except:
+            log_sync_error("project", project['id'])
     return projects
 
 
@@ -222,30 +241,31 @@ def sync_training_requests(db: Session = Depends(rdb.get_db)):
     logger.info(f"reading request list into DB")
 
     for trequest in training_requests:
+        try:
+            #use the RIMS uid to get a username
+            __user = crud.user.get_by_userid(db, userid=trequest['user_id'])
 
-        #use the RIMS uid to get a username
-        __user = crud.user.get_by_userid(db, userid=trequest['user_id'])
+            if __user is not None:
+                trequest['username'] = __user.username
 
-        if __user is not None:
-            trequest['username'] = __user.username
+                __row = crud.trequest.get(db, trequest['id'])
 
-            __row = crud.trequest.get(db, trequest['id'])
+                if __row is None:
+                    logger.debug(f"creating request {trequest['id']} for user {trequest['username']}")
 
-            if __row is None:
-                logger.debug(f"creating request {trequest['id']} for user {trequest['username']}")
+                    trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
 
-                trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
+                    crud.trequest.create(db, trequest_in)
+                else:
+                    logger.debug(f"updating request {trequest['id']} for user {trequest['username']}")
 
-                crud.trequest.create(db, trequest_in)
+                    trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
+
+                    crud.trequest.update(db, __row, trequest_in)
             else:
-                logger.debug(f"updating request {trequest['id']} for user {trequest['username']}")
-
-                trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
-
-                crud.trequest.update(db, __row, trequest_in)
-        else:
-            logger.error(f"RIMS uid {trequest['user_id']} from training request  {trequest['id']} not found in local DB")
-
+                logger.warn(f"RIMS uid {trequest['user_id']} from training request  {trequest['id']} not found in local DB")
+        except:
+            log_sync_error("trequest", trequest['user_id'])
 
     #FUTURE
     #get list of unique form ids from database
@@ -254,20 +274,21 @@ def sync_training_requests(db: Session = Depends(rdb.get_db)):
     trequest_forms: list[dict] = rims.get_trequest_content_list(form_id)
 
     for trform in trequest_forms:
+        try:
+            row = crud.trequest.get(db, trform['id'])
 
-        row = crud.trequest.get(db, trform['id'])
+            if row is None:
+                logger.error(f"request {trform['id']} for user {trform['user_fullname']} not found in DB")
+                pass
+            else:
 
-        if row is None:
-            logger.error(f"request {trform['id']} for user {trform['user_fullname']} not found in DB")
-            pass
-        else:
+                logger.debug(f"adding form data to {trform['id']} for user {row.username}")
 
-            logger.debug(f"adding form data to {trform['id']} for user {row.username}")
+                trequest_in = schemas.TrainingRequestAddFormDataSchema.parse_obj(trform)
 
-            trequest_in = schemas.TrainingRequestAddFormDataSchema.parse_obj(trform)
-
-            crud.trequest.update(db, row, trequest_in)
-
+                crud.trequest.update(db, row, trequest_in)
+        except:
+            log_sync_error("trform", trform['id'])        
 
 def match_project_account_pair(projectaccount_list: list[dict], bcode: str, project_id: int) -> dict:
     """
@@ -298,36 +319,38 @@ def sync_project_accounts(project_list: list[dict], projectaccount_list: list[di
     #projectaccount_list: list[dict] = rims.get_project_accounts()
 
     for project in project_list:
+        try:
+            #warn and skip if the account does not exist
+            if project['bcode'] == '':
+                logger.warn(f"empty bcode {project['bcode']} for project {project['id']}")   
 
-        #warn and skip if the account does not exist
-        if project['bcode'] == '':
-            logger.warn(f"empty bcode {project['bcode']} for project {project['id']}")   
+            #if the account is in the DB, find the pair from the local list
+            if crud.account.get(db, project['bcode']) is not None:
+                project_account = match_project_account_pair(projectaccount_list, project['bcode'], project['id'])
+            else:           
+                #if the account is not in the DB, create it with valid = None 
+                logger.warn(f"account {project['bcode']} not found in DB for project {project['id']}, creating w/ valid=None")
+                __account_schema = schemas.account_schema.AccountCreateSchema(
+                    bcode = project['bcode']
+                )
+                crud.account.create(db, __account_schema)
+                project_account = { 'bcode': project['bcode'], 'project_id': project['id'], 'valid': None }
 
-        #if the account is in the DB, find the pair from the local list
-        if crud.account.get(db, project['bcode']) is not None:
-            project_account = match_project_account_pair(projectaccount_list, project['bcode'], project['id'])
-        else:           
-            #if the account is not in the DB, create it with valid = None 
-            logger.warn(f"account {project['bcode']} not found in DB for project {project['id']}, creating w/ valid=None")
-            __account_schema = schemas.account_schema.AccountCreateSchema(
-                bcode = project['bcode']
+            #link the project and account
+            projacc_in = schemas.ProjectAccountReceiveSchema(
+                bcode = project['bcode'],
+                project_id = project['id'],
+                valid = project_account['valid'],
             )
-            crud.account.create(db, __account_schema)
-            project_account = { 'bcode': project['bcode'], 'project_id': project['id'], 'valid': None }
 
-        #link the project and account
-        projacc_in = schemas.ProjectAccountReceiveSchema(
-            bcode = project['bcode'],
-            project_id = project['id'],
-            valid = project_account['valid'],
-        )
+            __row = crud.projectaccount.get(db, (project['bcode'], project['id']) )
 
-        __row = crud.projectaccount.get(db, (project['bcode'], project['id']) )
-
-        if __row is None:
-            crud.projectaccount.create(db, projacc_in)
-        else:
-            crud.projectaccount.update(db, __row, projacc_in)
+            if __row is None:
+                crud.projectaccount.create(db, projacc_in)
+            else:
+                crud.projectaccount.update(db, __row, projacc_in)
+        except:
+            log_sync_error("project", project['id'])               
 
 
 def update_accounts(projectaccount_list, projects, db: Session = Depends(rdb.get_db)):
@@ -376,27 +399,29 @@ def sync_user_rights(db: Session = Depends(rdb.get_db)):
 
     for user_right in user_rights_list:
 
-        logger.debug(f"user right for {user_right['username']}")
+        try:
+            logger.debug(f"user right for {user_right['username']}")
 
-        #check both system and user exist
-        user = crud.user.get(db, user_right['username'])
-        if user is None:
-            logger.info(f"unrecognised user {user_right['username']} in rims user_rights_list")                     
-            continue              
+            #check both system and user exist
+            user = crud.user.get(db, user_right['username'])
+            if user is None:
+                logger.info(f"unrecognised user {user_right['username']} in rims user_rights_list")                     
+                continue              
 
-        system = crud.system.get(db, user_right['system_id'])
-        if system is None:
-            logger.info(f"unrecognised system {user_right['system_id']} for user {user_right['username']}")                     
-            continue  
+            system = crud.system.get(db, user_right['system_id'])
+            if system is None:
+                logger.info(f"unrecognised system {user_right['system_id']} for user {user_right['username']}")                     
+                continue  
 
-        __schema = schemas.SystemUserCreateSchema(**user_right)
-        __row = crud.systemuser.get(db, (__schema.username, __schema.system_id))
+            __schema = schemas.SystemUserCreateSchema(**user_right)
+            __row = crud.systemuser.get(db, (__schema.username, __schema.system_id))
 
-        if __row is None:
-            crud.systemuser.create(db, __schema)
-        else:
-            crud.systemuser.update(db, __row, __schema)
-          
+            if __row is None:
+                crud.systemuser.create(db, __schema)
+            else:
+                crud.systemuser.update(db, __row, __schema)
+        except:
+            log_sync_error("user_right", user_right['username'])
 
 
 def sync_user_rights_indiv(db: Session = Depends(rdb.get_db)):
@@ -455,28 +480,29 @@ def sync_project_users(db: Session = Depends(rdb.get_db)):
     user_projects_list = rims.get_user_projects_list()
 
     for project_user in user_projects_list:
+        try:
+            logger.debug(f"project membership for {project_user['username']}")
 
-        logger.debug(f"project membership for {project_user['username']}")
+            #check both user and project exist
+            user = crud.user.get(db, project_user['username'])
+            if user is None:
+                logger.info(f"unrecognised user {project_user['username']} in rims user_projects_list")                     
+                continue
 
-        #check both user and project exist
-        user = crud.user.get(db, project_user['username'])
-        if user is None:
-            logger.info(f"unrecognised user {project_user['username']} in rims user_projects_list")                     
-            continue
+            project = crud.project.get(db, project_user['project_id'])
+            if project is None:
+                logger.info(f"unrecognised system {project_user['project_id']} for user {project_user['username']}")                     
+                continue
 
-        project = crud.project.get(db, project_user['project_id'])
-        if project is None:
-            logger.info(f"unrecognised system {project_user['project_id']} for user {project_user['username']}")                     
-            continue
+            __schema = schemas.ProjectUsersReceiveSchema(**project_user)
+            __row = crud.projectuser.get(db, (__schema.username, __schema.project_id))
 
-        __schema = schemas.ProjectUsersReceiveSchema(**project_user)
-        __row = crud.projectuser.get(db, (__schema.username, __schema.project_id))
-
-        if __row is None:
-            crud.projectuser.create(db, __schema)
-        else:
-            crud.projectuser.update(db, __row, __schema)
-
+            if __row is None:
+                crud.projectuser.create(db, __schema)
+            else:
+                crud.projectuser.update(db, __row, __schema)
+        except:
+            log_sync_error("project_user", project_user['username'])
 
 def sync_project_users_indiv(db: Session = Depends(rdb.get_db)):
     """
@@ -522,20 +548,23 @@ def process_projects(db: Session = Depends(rdb.get_db)):
     projects = crud.project.get_all(db)
 
     for project in projects:
-        logger.debug(f"project state: {project.id}")
-        project_schema = schemas.ProjectForStateCheckSchema.from_orm(project)
+        try:
+            logger.debug(f"project state: {project.id}")
+            project_schema = schemas.ProjectForStateCheckSchema.from_orm(project)
 
-        project_state = logic.process_project(project_schema)
+            project_state = logic.process_project(project_schema)
 
-        _row = crud.project_state.get(db, project.id)
+            _row = crud.project_state.get(db, project.id)
 
-        #FUTURE: need to sort out create vs update, much simpler if can unify
-        if _row is None:
-            project_state = schemas.ProjectStateCreateSchema.validate(project_state)
-            crud.project_state.create(db, project_state)
-        else:
-            project_state = schemas.ProjectStateUpdateSchema.validate(project_state)
-            crud.project_state.update(db, _row, project_state)
+            #FUTURE: need to sort out create vs update, much simpler if can unify
+            if _row is None:
+                project_state = schemas.ProjectStateCreateSchema.validate(project_state)
+                crud.project_state.create(db, project_state)
+            else:
+                project_state = schemas.ProjectStateUpdateSchema.validate(project_state)
+                crud.project_state.update(db, _row, project_state)
+        except:
+            log_sync_error("project state", project.id)
 
 def process_users(db: Session = Depends(rdb.get_db)):
     """
@@ -544,77 +573,86 @@ def process_users(db: Session = Depends(rdb.get_db)):
     users = crud.user.get_all(db)
 
     for user in users:
-        logger.debug(f"user state: {user.username}")
-        user_schema = schemas.UserForStateCheckSchema.from_orm(user)
+        try:
+            logger.debug(f"user state: {user.username}")
+            user_schema = schemas.UserForStateCheckSchema.from_orm(user)
 
-        user_state = logic.process_user(user_schema)
+            user_state = logic.process_user(user_schema)
 
-        _row = crud.user_state.get(db, user.username)
+            _row = crud.user_state.get(db, user.username)
 
-        #FUTURE: need to sort out create vs update, much simpler if can unify
-        if _row is None:
-            user_state = schemas.UserStateCreateSchema.validate(user_state)
-            crud.user_state.create(db, user_state)
-        else:
-            user_state = schemas.UserStateUpdateSchema.validate(user_state)
-            crud.user_state.update(db, _row, user_state)
+            #FUTURE: need to sort out create vs update, much simpler if can unify
+            if _row is None:
+                user_state = schemas.UserStateCreateSchema.validate(user_state)
+                crud.user_state.create(db, user_state)
+            else:
+                user_state = schemas.UserStateUpdateSchema.validate(user_state)
+                crud.user_state.update(db, _row, user_state)
+        except:
+            log_sync_error("user state", user.username)
 
 def postprocess_projects(db: Session = Depends(rdb.get_db)):
     
     projects = crud.project.get_all(db)
 
     for project in projects:
+        try:
+            logger.debug(f'posprocessing proj {project.id}')
+            project_schema = schemas.ProjectOutRefsSchema.from_orm(project)
 
-        logger.debug(f'posprocessing proj {project.id}')
-        project_schema = schemas.ProjectOutRefsSchema.from_orm(project)
+            project_state_updated = logic.postprocess_project(project_schema)
 
-        project_state_updated = logic.postprocess_project(project_schema)
+            _row = crud.project_state.get(db, project.id)
 
-        _row = crud.project_state.get(db, project.id)
-
-        if _row is not None:
-            project_state = schemas.ProjectStatePostProcessUpdateSchema.validate(project_state_updated)
-            crud.project_state.update(db, _row, project_state)
-        else:
-            logger.warn(f'project-state {project.id} not found in database after update')
-
+            if _row is not None:
+                project_state = schemas.ProjectStatePostProcessUpdateSchema.validate(project_state_updated)
+                crud.project_state.update(db, _row, project_state)
+            else:
+                logger.warn(f'project-state {project.id} not found in database after update')
+        except:
+            log_sync_error("project post-state", project.id)
 
 def postprocess_users(db: Session = Depends(rdb.get_db)):
     
     users = crud.user.get_all(db)
 
     for user in users:
-        logger.debug(f'posprocessing user {user.username}')
-        user_schema = schemas.UserOutRefsSchema.from_orm(user)
+        try:
+            logger.debug(f'posprocessing user {user.username}')
+            user_schema = schemas.UserOutRefsSchema.from_orm(user)
 
-        user_state_updated = logic.postprocess_user(user_schema)
+            user_state_updated = logic.postprocess_user(user_schema)
 
-        _row = crud.user_state.get(db, user.username)
+            _row = crud.user_state.get(db, user.username)
 
-        if _row is not None:
-            user_state = schemas.UserStatePostProcessUpdateSchema.validate(user_state_updated)
-            crud.project_state.update(db, _row, user_state)
-        else:
-            logger.warn(f'user-state {user.username} not found in database after update')
+            if _row is not None:
+                user_state = schemas.UserStatePostProcessUpdateSchema.validate(user_state_updated)
+                crud.project_state.update(db, _row, user_state)
+            else:
+                logger.warn(f'user-state {user.username} not found in database after update')
+        except:
+            log_sync_error("user post-state", user.username)
 
 def process_trequests(db: Session = Depends(rdb.get_db)):
     
     trequests = crud.trequest.get_all(db)
 
     for trequest in trequests:
-        logger.debug(f'posprocessing training request  {trequest.id}')
-        trequest_schema = schemas.TrainingRequestForProcessingSchema.from_orm(trequest)
+        try:
+            logger.debug(f'posprocessing training request  {trequest.id}')
+            trequest_schema = schemas.TrainingRequestForProcessingSchema.from_orm(trequest)
 
-        trequest_updated: schemas.TrainingRequestUpdateStateSchema \
-            = logic.process_trequest(trequest_schema)
+            trequest_updated: schemas.TrainingRequestUpdateStateSchema \
+                = logic.process_trequest(trequest_schema)
 
-        _row = crud.trequest.get(db, trequest.id)
+            _row = crud.trequest.get(db, trequest.id)
 
-        if _row is not None:
-            crud.trequest.update(db, _row, trequest_updated)
-        else:
-            logger.warn(f'training request {trequest.id} absent in DB on attempted update')
-
+            if _row is not None:
+                crud.trequest.update(db, _row, trequest_updated)
+            else:
+                logger.warn(f'training request {trequest.id} absent in DB on attempted update')
+        except:
+            log_sync_error("trequest state", trequest.id)
 
 def calc_states(db):
     """
@@ -663,7 +701,10 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
             to be reduced by new reports when available
         """
 
-        remake = bool(config.get('sync', 'recreate_db'))
+        if config.get('sync', 'recreate_db') == "True":
+            remake = True
+        else:
+            remake = False
 
         if remake:
             logger.info("!!!!wipe and recreate DB")
@@ -705,7 +746,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
                     sync_user_rights(db)
                     sync_project_users(db)
                     sync_training_requests(db)
-                    sync_user_admin(db, skip_existing = True)
+                sync_user_admin(db, skip_existing = True)
 				
                 logger.info(">>>>>>>>>>>> Finished syncing from RIMS")
 

@@ -15,7 +15,7 @@ Copyright (c) 2018 Javier Diaz Chamorro
         default: '',
         validator(value) {
           if (value === '') return true;
-          return ['off', 'incomplete', 'waiting', 'waiting_external', 'ready', 'extended', 'disabled', 'warn', 'fail', 'na' ].indexOf(value) !== -1;
+          return ['off', 'incomplete', 'waiting', 'waiting_external', 'ready', 'extended', 'disabled', 'warn', 'fail', 'na', 'none' ].indexOf(value) !== -1;
         },
       },
       pulse: {

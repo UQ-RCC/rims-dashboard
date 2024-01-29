@@ -54,6 +54,7 @@ class IStatus(Enum):
     warn = 'warn'
     fail = 'fail'
     na = 'na'
+    none = 'none'
 
 class SystemRight(Enum):
     """

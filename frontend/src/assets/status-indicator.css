@@ -175,6 +175,14 @@ Copyright (c) 2018 Javier Diaz Chamorro
     animation-name: status-indicator-pulse-fail;
   }
 
+  .status-indicator[none] {
+    background-color: var(--status-indicator-color-fail);
+    animation-name: status-indicator-pulse-fail;
+  }
+  
+  .status-indicator[none][pulse] {
+    animation-name: status-indicator-pulse-fail;
+  }
 
 
 

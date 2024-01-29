@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CONF_FILE='./conf/rimsdash.conf'
-DB_VOLUME="rdb_postgres_data6"
+DB_VOLUME="rdb_postgres_data"
 
 db_name=$(awk -F "=" '/db_name/ {print $2}' $CONF_FILE | tr -d ' ' )
 db_username=$(awk -F "=" '/db_username/ {print $2}' $CONF_FILE | tr -d ' ' )

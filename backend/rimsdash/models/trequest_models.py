@@ -14,5 +14,5 @@ class TrainingRequestModel(Base):
     form_name = Column(String, primary_key=False, index=False, nullable=False)
     username = Column(String, ForeignKey('rduser.username'), primary_key=False)
     form_data = Column(JSONB, primary_key=False, index=False, nullable=True)
-    state = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.off)
+    state = Column(Enum(IStatus), primary_key=False, index=False, nullable=False, default=IStatus.none)
     user = relationship("UserModel", back_populates="training_requests")

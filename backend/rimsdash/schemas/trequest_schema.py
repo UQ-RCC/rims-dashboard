@@ -23,13 +23,13 @@ class TrainingRequestBaseSchema(BaseSchema):
     form_id: int
     form_name: str
     username: str
-    state: Optional[IStatus]
+    state: IStatus = IStatus.none    
     #NB: username in DB but uid from external API, must be converted on ingest
 
     class Config:
         orm_mode = True
 
-# Properties on update
+# Properties from external API
 class TrainingRequestReceiveSchema(BaseSchema):
     id: int
     date: datetime
@@ -43,14 +43,13 @@ class TrainingRequestReceiveSchema(BaseSchema):
     class Config:
         orm_mode = True
 
-
+# Form properties from external API
 class TrainingRequestReceiveFormDataSchema(BaseSchema):
     id: int
     date: datetime
     user_fullname: str
     #NB: user_fullname NOT in DB, ingested from rims and converted in services
     form_data: Optional[dict] = Field(None, example={'key': 'value'})
-    #NB: area NOT in DB, test for report #78
     
     class Config:
         orm_mode = True
@@ -72,7 +71,7 @@ class TrainingRequestAddFormDataSchema(BaseSchema):
 
 class TrainingRequestUpdateStateSchema(BaseSchema):
     id: int
-    state: IStatus = IStatus.disabled
+    state: IStatus = IStatus.none
 
     class Config:
         orm_mode = True
