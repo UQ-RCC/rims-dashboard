@@ -663,6 +663,7 @@ def calc_states(db):
     process_users(db)
     postprocess_projects(db)
     postprocess_users(db)    
+    process_trequests(db)    
     logger.info(">>>>>>>>>>>> Finished calculating states")
 
 def dummy_sync(db):

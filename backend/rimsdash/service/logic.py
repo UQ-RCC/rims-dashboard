@@ -65,57 +65,70 @@ def get_rims_key(code: int):
 def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
     """
     generate status result from user data
-    """    
-    state = UserStateCreateSchema(username=user.username)
+    """
 
-    #access rights:
-    for _usersystem in user.system_rights:
+    #initialise to labs not needed
+    state = UserStateCreateSchema(
+        username=user.username,
+        access_hawken=IStatus.off,        
+        access_aibn=IStatus.off,
+        access_chem=IStatus.off,
+        access_qbp=IStatus.off,        
+        access_pitschi=IStatus.fail,
+    )
 
-        if _usersystem.status in RIGHTS_OK:
+    try:
+        #access rights:
+        for _usersystem in user.system_rights:
 
-            #primetime
-            if _usersystem.system_id == RIMS_LAB_CODES_PRIME[0]:
-                state.access_hawken = IStatus.ready
-            elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[1]:
-                state.access_aibn = IStatus.ready
-            elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[2]:
-                state.access_chem = IStatus.ready        
-            elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[3]:
-                state.access_qbp = IStatus.ready
-            #after hours
-            elif _usersystem.system_id == RIMS_LAB_CODES_AH[0]:
-                state.access_hawken = IStatus.extended
-            elif _usersystem.system_id == RIMS_LAB_CODES_AH[1]:
-                state.access_aibn = IStatus.extended
-            elif _usersystem.system_id == RIMS_LAB_CODES_AH[2]:
-                state.access_chem = IStatus.extended        
-            elif _usersystem.system_id == RIMS_LAB_CODES_AH[3]:
-                state.access_qbp = IStatus.extended
+            if _usersystem.status in RIGHTS_OK:
 
-            #pitschi
-            elif _usersystem.system_id == PITSCHI_SYSTEM_ID:
-                state.access_pitschi = IStatus.ready
+                #primetime
+                if _usersystem.system_id == RIMS_LAB_CODES_PRIME[0]:
+                    state.access_hawken = IStatus.ready
+                elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[1]:
+                    state.access_aibn = IStatus.ready
+                elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[2]:
+                    state.access_chem = IStatus.ready        
+                elif _usersystem.system_id == RIMS_LAB_CODES_PRIME[3]:
+                    state.access_qbp = IStatus.ready
+                #after hours
+                elif _usersystem.system_id == RIMS_LAB_CODES_AH[0]:
+                    state.access_hawken = IStatus.extended
+                elif _usersystem.system_id == RIMS_LAB_CODES_AH[1]:
+                    state.access_aibn = IStatus.extended
+                elif _usersystem.system_id == RIMS_LAB_CODES_AH[2]:
+                    state.access_chem = IStatus.extended        
+                elif _usersystem.system_id == RIMS_LAB_CODES_AH[3]:
+                    state.access_qbp = IStatus.extended
 
-    #admin pitschi cheat
-    if user.admin == True:
-        state.access_pitschi = IStatus.ready
+                #pitschi
+                elif _usersystem.system_id == PITSCHI_SYSTEM_ID:
+                    state.access_pitschi = IStatus.ready
 
-    if user.active == True:
-        state.active = IStatus.ready
-    else:
-        state.active = IStatus.disabled
-    
-    if state.active == IStatus.ready and \
-        state.access_pitschi == IStatus.ready \
-        and any(
-            (labstate == IStatus.ready or labstate == IStatus.extended) for \
-            labstate in [ state.access_hawken, state.access_aibn, state.access_chem, state.access_qbp ]
-    ):
-        state.ok = IStatus.ready
-    else:
-        state.ok = IStatus.fail
-    
-    return state
+        #admin pitschi cheat
+        if user.admin == True:
+            state.access_pitschi = IStatus.ready
+
+        if user.active == True:
+            state.active = IStatus.ready
+        else:
+            state.active = IStatus.disabled
+        
+        if state.active == IStatus.ready and \
+            state.access_pitschi == IStatus.ready \
+            and any(
+                (labstate == IStatus.ready or labstate == IStatus.extended) for \
+                labstate in [ state.access_hawken, state.access_aibn, state.access_chem, state.access_qbp ]
+        ):
+            state.ok = IStatus.ready
+        else:
+            state.ok = IStatus.fail
+    except:
+        logger.error(f"error generating user state for {user.username}")
+
+    finally:
+        return state
 
 
 
@@ -182,50 +195,68 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateCreateSc
             state.ok = IStatus.ready
         else:
             state.ok = IStatus.fail
+    except:
+        logger.error(f"error generating project state for {project.id}")
 
     finally:
         return state
 
+
+def process_trequest(trequest: schemas.TrainingRequestForProcessingSchema) -> schemas.TrainingRequestUpdateStateSchema:
+    
+    return_trequest = schemas.TrainingRequestUpdateStateSchema(id = trequest.id, state = IStatus.fail )
+
+    try:
+        user_state = trequest.user.user_state
+
+        #good if user ok and has project that is ok, or is staff
+        if ( user_state.ok == IStatus.ready and user_state.ok_project == IStatus.ready ) or trequest.user.admin == True:
+            return_trequest.state = IStatus.ready
+    except:
+        logger.error(f"error generating trequest state for {trequest.id}")
+
+    finally:
+        return return_trequest
 
 
 def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProcessUpdateSchema:
     
     return_state = ProjectStatePostProcessUpdateSchema(project_id = project.id, ok_user = IStatus.fail )
 
-    for user_right in project.user_rights:
-        _user_state = user_right.user.user_state
-        if user_right.user.admin == True:
-            continue
-        elif _user_state.ok == IStatus.ready:
-            return_state.ok_user = IStatus.ready
+    try:
+        #look for a non-admin user 
+        for user_right in project.user_rights:
+            _user_state = user_right.user.user_state
+            if user_right.user.admin == True:
+                continue
+            elif _user_state.ok == IStatus.ready:
+                return_state.ok_user = IStatus.ready
 
-    if project.type == "Fee for Service":
-        return_state.ok_user = IStatus.off
-
-    return return_state
+        if project.type == "Fee for Service":
+            return_state.ok_user = IStatus.off
+    except:
+        logger.error(f"error post-processing project state {project.id}")
+    
+    finally:
+        return return_state
 
 
 def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchema:
     
-    return_state = UserStatePostProcessUpdateSchema(username = user.username, ok_project = IStatus.fail )
+    return_state = UserStatePostProcessUpdateSchema(
+        username = user.username, 
+        ok_project = IStatus.fail,
+    )
 
-    for project_right in user.project_rights:
-        __project_state = project_right.project.project_state
-        if user.admin == True:
-            return_state.ok_project = IStatus.off
-        elif __project_state.ok == IStatus.ready:
-            return_state.ok_project = IStatus.ready
+    try:
+        for project_right in user.project_rights:
+            __project_state = project_right.project.project_state
+            if user.admin == True:
+                return_state.ok_project = IStatus.off
+            elif __project_state.ok == IStatus.ready:
+                return_state.ok_project = IStatus.ready
+    except:
+        logger.error(f"error post-processing user state {user.username}")
 
-    return return_state
-
-def process_trequest(trequest: schemas.TrainingRequestForProcessingSchema) -> schemas.TrainingRequestUpdateStateSchema:
-    
-    return_trequest = schemas.TrainingRequestUpdateStateSchema(id = trequest.id, state = IStatus.fail )
-
-    user_state = trequest.user.user_state
-
-    #good if user ok and has project that is ok, or is staff
-    if ( user_state.ok == IStatus.ready and user_state.ok_project == IStatus.ready ) or trequest.user.admin == True:
-        return_trequest.state = IStatus.ready
-
-    return return_trequest
+    finally:
+        return return_state
