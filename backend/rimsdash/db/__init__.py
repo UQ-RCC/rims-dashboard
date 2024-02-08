@@ -1,3 +1,4 @@
+import time
 # from .database import SessionLocal, engine
 from typing import Generator, Optional
 
@@ -19,7 +20,22 @@ def exists() -> bool:
         return engine.dialect.has_table(connection, 'rduser')
 
 def init_db():   
-    Base.metadata.create_all(bind=engine)
+    """
+    Initialise the DB, repeating connection attempt if unsuccessful
+    """
+    ATTEMPTS=3
+    for i in range(ATTEMPTS):
+        try:
+            Base.metadata.create_all(bind=engine)
+            break
+        except Exception as e:
+            if i == 2:
+                logging.error(f"Could not connect to the database")
+                logging.error(e, exc_info=True)
+                raise ConnectionError("FATAL: Could not connect to the database")
+            else:
+                logging.warn(f"Database connection unsuccessful, attempt {i+1} of {ATTEMPTS}")
+                time.sleep(5)
 
 def get_db() -> Iterator[Session]:
     """ FastAPI dependency that provides a sqlalchemy session """
