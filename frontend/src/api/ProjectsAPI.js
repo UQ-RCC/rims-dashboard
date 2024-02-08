@@ -4,13 +4,13 @@ import Vue from 'vue'
 export default {
     async getAllProjectsWithStates() {
 
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithstates` )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/allprojectswithstates` )
         return data
     },
 
     async getAllProjectsWithFullStates() {
 
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/allprojectswithfullstates` )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/allprojectswithfullstates` )
         return data
     },
 
@@ -18,7 +18,7 @@ export default {
         let payload = {
             'project_id': project_id
         }
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectdetailwithusers`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/projectdetailwithusers`, { params: payload } )
         return data
     },
 
@@ -26,7 +26,7 @@ export default {
         let payload = {
             'project_id': project_id
         }
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectgetbyid`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/projectgetbyid`, { params: payload } )
         return data
     },
 
@@ -34,7 +34,7 @@ export default {
         let payload = {
             'search': substring
         }
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectsgetbytitle`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/projectsgetbytitle`, { params: payload } )
         return data
     },
 
@@ -42,7 +42,7 @@ export default {
         let payload = {
             'search': substring
         }
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectsgetbygroup`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/projectsgetbygroup`, { params: payload } )
         return data
     },
 
@@ -50,13 +50,13 @@ export default {
         let payload = {
             'search': substring
         }
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/rapi/v1/projectsgetbyuser`, { params: payload } )
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/projectsgetbyuser`, { params: payload } )
         return data
     },
 }
 /*
     async getUserList() {
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userlist`)
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/v1/userlist`)
         return data
     },
 
@@ -64,7 +64,7 @@ export default {
         let payload = {
             'login': user_login
         }
-        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/rapi/v1/userstate`, { params: payload } )
+        const { data } = await axios.get(`${Vue.prototype.$Config.backend}/v1/userstate`, { params: payload } )
         return data
     },
 

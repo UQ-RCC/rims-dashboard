@@ -78,7 +78,7 @@ app.add_middleware(
 
 app.include_router(
     navbar.router,
-    prefix="/rapi/v1",
+    prefix="/rims/api/v1",
     tags=['navbar'],
     dependencies=[Depends(keycloak.decode)],    
     responses={404: {"description": "Not found"}},
@@ -86,7 +86,7 @@ app.include_router(
 
 app.include_router(
     projects.router,
-    prefix="/rapi/v1",
+    prefix="/rims/api/v1",
     tags=['projects'],
     dependencies=[Depends(keycloak.decode)],    
     responses={404: {"description": "Not found"}},
@@ -94,7 +94,7 @@ app.include_router(
 
 app.include_router(
     training_requests.router,
-    prefix="/rapi/v1",
+    prefix="/rims/api/v1",
     tags=['trainingrequests'],
     dependencies=[Depends(keycloak.decode)],
     responses={404: {"description": "Not found"}},
@@ -103,7 +103,7 @@ app.include_router(
 #IMPORANT: unsecured, use for ready ping only
 app.include_router(
     unsecured.router,
-    prefix="/rapi/v1",
+    prefix="/rims/api/v1",
     tags=['open'],   
     responses={404: {"description": "Not found"}},
 )
@@ -122,7 +122,7 @@ else:
 def entry_dev():
     logger.info("App starting in dev")
     logger.info(f"logging initiated at level: {logger.level}, {log_level_in}")
-    uvicorn.run(app, host="127.0.0.1", port=5000)
+    uvicorn.run(app, host="127.0.0.1", port=80) #backend on 80 to be consistent with nginx proxy in prod
 
 if __name__ == "__main__":
     entry_dev()
