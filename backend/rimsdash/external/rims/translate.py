@@ -6,7 +6,7 @@ from datetime import datetime
 import rimsdash.config as config
 import rimsdash.schemas as schemas
 
-from .clean import strip_username_brackets, fix_special_chars
+from .clean import rims_strip_username_brackets, rims_substitute_notatinos
 from rimsdash.models import SystemRight, ProjectRight, IStatus
 
 RIMS_DATE_FORMAT_1 = "%Y/%m/%d %H:%M:%S"
@@ -52,6 +52,13 @@ def write_rims_api_date(date: datetime):
     """
     return date.strftime('%Y-%m-%d')
 
+def rims_form_get_final_line(input: str):
+    """
+    RIMS form questions print three whitespace chars at EOL
+
+    Take final line from the input string to truncate question
+    """    
+    return input.rsplit('   ', 1)[-1]
 
 def parse_rims_date(rims_date: str):
     """
@@ -129,7 +136,7 @@ def validate_user_list(rims_user_list: list[dict]) -> list[dict]:
         _schema = schemas.UserCreateSchema(
             username = user['login'], 
             userid = user['id'], 
-            name = strip_username_brackets(user['name']),
+            name = rims_strip_username_brackets(user['name']),
             email = user['email'],
             group = user['group'],
             active = user['active'],
@@ -151,7 +158,7 @@ def validate_project_list(rims_project_list: list[dict]) -> list[dict]:
 
         _schema = schemas.project_schema.ProjectListTranslateSchema(
             id = project['ProjectRef'],
-            title = fix_special_chars(project['ProjectName']),
+            title = rims_substitute_notatinos(project['ProjectName']),
             phase = project['Phase'],
             active = project['Active'],
             bcode = project['Bcode'],
@@ -159,7 +166,7 @@ def validate_project_list(rims_project_list: list[dict]) -> list[dict]:
             type = project['ProjectType'],
             group = project['ProjectGroup'],
             core_id = project['CoreFacilityRef'],
-            description = fix_special_chars(project['Descr']),
+            description = rims_substitute_notatinos(project['Descr']),
         )
 
         result.append(_schema.to_dict())
@@ -366,7 +373,7 @@ def validate_user_projects_list(rims_projectrights_list: list[dict]) -> list[dic
 
     return result
 
-def trequest_extract_fields(request_data: dict, form_id: int) -> dict:
+def trequest_extract_fields_by_column(request_data: dict, form_id: int) -> dict:
     """
     extract desired fields from training request form data
     
@@ -389,6 +396,63 @@ def trequest_extract_fields(request_data: dict, form_id: int) -> dict:
     return result
 
 
+KNOWN_FORMS = {
+    15: 'UQMP OHS Checklist',
+    79: 'New Worker OHS Induction Checklist',
+    149: 'X-ray training request',
+}
+
+
+def trequest_extract_fields(request_data: dict, form_id: int) -> dict:
+    """
+    extract desired fields from training request form data
+    """    
+    trequests = []
+
+    if not form_id in KNOWN_FORMS:   #new worker induction form
+        logger.error(f"unrecognised form id: {form_id} at training form parser")
+    else:
+        localresult = {}
+        for pair in request_data:
+            try:
+                id = int(rims_link_extract_value(pair['Request ID']))
+
+                if localresult.get('id') == id:
+                    pass
+
+                elif localresult.get('id') is None:
+                    localresult['id'] = id
+
+                elif isinstance(id, int):
+                    trequests.append(localresult)
+                    localresult = {}
+                    localresult['id'] = id
+
+                else:
+                    raise ValueError(f'unexpected id encountered by training form parser {id}')
+
+                localresult[rims_form_get_final_line(pair['Question'])] = pair['Answer']
+
+            except:
+                logger.error(f"error parsing training form {pair['Request ID']}")
+    
+    #check for duplicates
+    seen = set()
+    result = []
+
+    for trequest in trequests:
+        id = trequest['id']
+        
+        if id in seen:
+            logger.error(f"Duplicate trequest id entries found for {trequest['id']}, discarding older version")
+        else:
+            result.append(trequest)
+        
+        seen.add(id)
+
+    return result
+
+
 
 def validate_trequest_list(rims_request_data: list[dict], form_id: int) -> list[dict]:
     """
@@ -402,7 +466,7 @@ def validate_trequest_list(rims_request_data: list[dict], form_id: int) -> list[
         schema = schemas.TrainingRequestReceiveFormDataSchema(
             id = int(rims_link_extract_key(request["Request ID"], 'trainreq')),
             date = parse_rims_date(request["Date"]),
-            user_fullname = strip_username_brackets(request["User"]),
+            user_fullname = rims_strip_username_brackets(request["User"]),
             form_data = trequest_extract_fields(request, form_id),
         )
 

@@ -82,6 +82,14 @@ def get_user_projects_list() -> list[dict]:
     return result
 
 
+def get_trequest_content_list_columns(form_id: int) -> list[dict]:
+
+    trequest_data = queries.get_trequest_content(form_id)
+
+    result = translate.validate_trequest_list(trequest_data, form_id)
+
+    return result
+
 def get_trequest_content_list(form_id: int) -> list[dict]:
 
     trequest_data = queries.get_trequest_content(form_id)

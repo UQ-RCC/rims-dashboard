@@ -433,8 +433,9 @@ def get_training_request_list() -> list[dict]:
     else:
         raise Exception('Not found')
 
+#form IDs: OHS = 79, UQMP = 15, XR = 149
 
-def get_trequest_content(form_id: int) -> list[dict]:
+def get_trequest_content_columns(form_id: int) -> list[dict]:
     """
     fetches list of training requests from RIMS
     """
@@ -458,3 +459,28 @@ def get_trequest_content(form_id: int) -> list[dict]:
             return response.json(strict=False)
     else:
         raise Exception('Not found')
+
+def get_trequest_content(form_id: int) -> list[dict]:
+    """
+    fetches list of training requests from RIMS
+    """
+    startdate = translate.write_rims_api_date(START_DATE)
+    enddate = translate.write_rims_api_date(datetime.datetime.now())
+
+    report_no=77  #training request form data with questions
+    url=f"{BASE_URL}API2/"
+    return_format=f"json"
+    payload=f"apikey={KEY}&action=Report{report_no}&startDate={startdate}&endDate={enddate}&formID={form_id}&dateformat=print&outformat={return_format}&coreid={CORE_ID}"
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    if response.ok:
+        if response.status_code == 204:
+            raise Exception('Not found')
+        else:
+            return response.json(strict=False)
+    else:
+        raise Exception('Not found')    

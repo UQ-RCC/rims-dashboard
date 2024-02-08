@@ -8,11 +8,12 @@ UQ_STAFF_PATTERN = r'\s*\(\s*uq[a-z]{3,5}[a-z0-9]{0,2}\s*\)'
 EXTERNAL_ID_PATTERN = r'\s*\(\s*[a-z0-9]+\.[a-z0-9]+\s*\)'
     #   brackets w/ lowercase/numbers + "." + lowercase/numbers
 
-def strip_username_brackets(name: str):
+def rims_strip_username_brackets(name: str):
     """
     remove usernames in brackets from user full names
 
-    NB: want to keep aliases/nicknames while removing username-formatted content
+    NB: want to keep aliases/nicknames while removing username-formatted content,
+        .: search for specific patterns rather than removing all brackets
     """
     pattern = UQ_STUDENT_PATTERN + '|' + UQ_STAFF_PATTERN + '|' + EXTERNAL_ID_PATTERN
 
@@ -23,7 +24,7 @@ def strip_username_brackets(name: str):
     else:
         return name
 
-#title/description cleanup
+#notatino patterns
 GENERAL_SPECIALCHAR_PATTERN = r'\[\[.*\]\]'
 SQUOTE_PATTERN = r'\[\[sqote\]\]'
 DQUOTE_PATTERN = r'\[\[dqote\]\]'
@@ -31,7 +32,7 @@ AMPERSAND_PATTERN = r'\[\[and\]\]'
 GREATERTHAN_PATTERN = r'\[\[gt\]\]'
 LESSTHAN_PATTERN = r'\[\[lt\]\]'
 
-def fix_special_chars(text: str):
+def rims_substitute_notatinos(text: str):
     """
     cleanup RIMS internal subtitutions for special chars
 

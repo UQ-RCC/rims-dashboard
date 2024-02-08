@@ -269,26 +269,27 @@ def sync_training_requests(db: Session = Depends(rdb.get_db)):
 
     #FUTURE
     #get list of unique form ids from database
-    form_id = 79
+    form_ids = config.get_csv_list("manual", "training_form_ids")
 
-    trequest_forms: list[dict] = rims.get_trequest_content_list(form_id)
+    for form_id in form_ids:
+        trequest_forms_for_id: list[dict] = rims.get_trequest_content_list(form_id)
 
-    for trform in trequest_forms:
-        try:
-            row = crud.trequest.get(db, trform['id'])
+        for trform in trequest_forms_for_id:
+            try:
+                row = crud.trequest.get(db, trform['id'])
 
-            if row is None:
-                logger.error(f"request {trform['id']} for user {trform['user_fullname']} not found in DB")
-                pass
-            else:
+                if row is None:
+                    logger.error(f"request {trform['id']} for user {trform['user_fullname']} not found in DB")
+                    pass
+                else:
 
-                logger.debug(f"adding form data to {trform['id']} for user {row.username}")
+                    logger.debug(f"adding form data to {trform['id']} for user {row.username}")
 
-                trequest_in = schemas.TrainingRequestAddFormDataSchema.parse_obj(trform)
+                    trequest_in = schemas.TrainingRequestAddFormDataSchema.parse_obj(trform)
 
-                crud.trequest.update(db, row, trequest_in)
-        except:
-            log_sync_error("trform", trform['id'])        
+                    crud.trequest.update(db, row, trequest_in)
+            except:
+                log_sync_error("trform", trform['id'])        
 
 def match_project_account_pair(projectaccount_list: list[dict], bcode: str, project_id: int) -> dict:
     """
@@ -654,6 +655,41 @@ def process_trequests(db: Session = Depends(rdb.get_db)):
         except:
             log_sync_error("trequest state", trequest.id)
 
+
+def rims_sync_batch_lists(db):
+    """
+    sync batchable report data only
+
+    NB: fairly quick
+    """    
+    logger.info(">>>>>>>>>>>> Begin syncing batch data from RIMS")
+    sync_systems(db)
+    sync_users(db)
+
+    #   FUTURE refactor these 
+    project_list = sync_projects(db)
+    projectaccount_list = sync_accounts(db)
+    sync_project_accounts(project_list, projectaccount_list, db)
+    #   /end refactor target
+
+    sync_user_rights(db)
+    sync_project_users(db)
+    sync_training_requests(db)
+
+    logger.info(">>>>>>>>>>>> Finished syncing batch data from RIMS")
+
+
+def rims_sync_individual(db):
+    """
+    sync additional data requiring individual calls
+
+    NB: slow!
+    """
+    logger.info(">>>>>>>>>>>> Begin syncing individual data from RIMS")
+    sync_user_admin(db, skip_existing = True)
+    logger.info(">>>>>>>>>>>> Finished syncing individual data from RIMS")
+
+
 def calc_states(db):
     """
     recalculate states only
@@ -662,8 +698,8 @@ def calc_states(db):
     process_projects(db)
     process_users(db)
     postprocess_projects(db)
-    postprocess_users(db)    
-    process_trequests(db)    
+    postprocess_users(db)
+    process_trequests(db) 
     logger.info(">>>>>>>>>>>> Finished calculating states")
 
 def dummy_sync(db):
@@ -733,31 +769,10 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
             __current = crud.sync.create(db, __start_schema)
 
             try:
-                logger.info(">>>>>>>>>>>> Begin syncing from RIMS")
-                if True:
-                    sync_systems(db)
-                    sync_users(db)
+                rims_sync_batch_lists(db)
+                rims_sync_individual(db)
+                calc_states(db)
 
-                    #   FUTURE refactor these 
-                    project_list = sync_projects(db)
-                    projectaccount_list = sync_accounts(db)
-                    sync_project_accounts(project_list, projectaccount_list, db)
-                    #   /end refactor target
-
-                    sync_user_rights(db)
-                    sync_project_users(db)
-                    sync_training_requests(db)
-                sync_user_admin(db, skip_existing = True)
-				
-                logger.info(">>>>>>>>>>>> Finished syncing from RIMS")
-
-                logger.info(">>>>>>>>>>>> Begin calculating states")
-                process_projects(db)
-                process_users(db)
-                postprocess_projects(db)
-                postprocess_users(db)
-                process_trequests(db)
-                logger.info(">>>>>>>>>>>> Finished calculating states")
                 __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type)
                 __updated = crud.sync.update(db, __current, __complete_schema)
                 logger.info(">>>>>>>>>>>> Completed full sync")
