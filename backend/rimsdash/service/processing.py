@@ -118,8 +118,8 @@ def sync_user_admin(db: Session = Depends(rdb.get_db), skip_existing: bool = Fal
     for __row in crud.user.get_all(db):
         try:
             if __row is not None:
-                if skip_existing and __row.admin is not None:
-                    pass
+                if skip_existing and __row.admin == False:
+                    logger.debug(f"admin sync: SKIP {__row.username}")
                 else:
                     logger.debug(f"admin sync: {__row.username}")
                     admin_dict = rims.get_admin_status(__row.username)
@@ -770,7 +770,9 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
 
             try:
                 rims_sync_batch_lists(db)
-                rims_sync_individual(db)
+
+                if True:
+                    rims_sync_individual(db)
                 calc_states(db)
 
                 __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type)
