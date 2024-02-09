@@ -122,7 +122,7 @@ else:
 def entry_dev():
     logger.info("App starting in dev")
     logger.info(f"logging initiated at level: {logger.level}, {log_level_in}")
-    uvicorn.run(app, host="127.0.0.1", port=80) #backend on 80 to be consistent with nginx proxy in prod
+    uvicorn.run(app, host="127.0.0.1", port=80) 
 
 if __name__ == "__main__":
     entry_dev()
