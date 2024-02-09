@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rimsdash-db
+  namespace: clowder2
+  labels:
+    app: rimsdash-db
+spec:
+  ports:
+    - name: postgresql
+      port: mydbport
+  selector:
+    role: rimsdash-db

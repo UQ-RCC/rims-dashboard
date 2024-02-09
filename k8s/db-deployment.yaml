@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rimsdash-db
+  namespace: clowder2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: rimsdash-db
+  template:
+    metadata:
+      labels:
+        role: rimsdash-db
+    spec:
+      containers:
+      - name: rimsdash-db
+        image: postgres:12
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: postgresql
+          containerPort: mydbport
+        envFrom:
+        - configMapRef:
+            name: rimsdash-db-env
+        - secretRef:
+            name: rimsdash-db
+        volumeMounts:
+        - name: rimsdash-db-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: rimsdash-db-data
+        persistentVolumeClaim:
+          claimName: pv-rimsdash-db

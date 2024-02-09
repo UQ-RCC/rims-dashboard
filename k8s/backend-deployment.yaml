@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rimsdash-api
+  namespace: clowder2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: rimsdash-api
+  template:
+    metadata:
+      labels:
+        role: rimsdash-api
+    spec:
+      containers:
+      - name: rimsdash-api
+        image: registry.rc.nectar.org.au/rcc-portals-a-private/apps-rimsdash-backend:latest
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: rimsdash-api-env
+        - secretRef:
+            name: rimsdash-api
+        - secretRef:
+            name: rimsdash-db
+        env:
+        - name: DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: rimsdash-db
+              key: POSTGRES_DB
+        ports:
+        - name: rapi
+          containerPort: 5000
+        volumeMounts:
+        - name: rimsdash-api-conf
+          mountPath: /app/conf/rimsdash.conf
+          subPath: rimsdash.conf
+      imagePullSecrets:
+      - name: harbour
+      volumes:
+      - name: rimsdash-api-conf
+        configMap:
+          name: rimsdash-api-conf
+          items:
+          - key: rimsdash.conf
+            path: rimsdash.conf

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rimsdash
+  namespace: clowder2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: rimsdash
+  template:
+    metadata:
+      labels:
+        role: rimsdash
+    spec:
+      containers:
+      - name: rimsdash
+        image: registry.rc.nectar.org.au/rcc-portals-a-private/apps-rimsdash-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - name: config-json
+          mountPath: /usr/share/nginx/html/config.json
+          subPath: config.json
+      imagePullSecrets:
+      - name: harbour
+      volumes:
+      - name: config-json
+        secret:
+          secretName: rimsdash
+          items:
+          - key: config.json
+            path: config.json

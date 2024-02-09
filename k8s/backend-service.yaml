@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rimsdash-api
+  namespace: clowder2
+spec:
+  ports:
+    - name: rapi
+      port: 5000
+  selector:
+    role: rimsdash-api
