@@ -4,16 +4,35 @@ version: '3.10'
 #----------------------
 services:
 
-  frontend:
+  ingress:
   #----------------------     
     build: 
-      context: ./frontend
-      dockerfile: Dockerfile.compose
+      context: ./ingress
+      dockerfile: Dockerfile
 
     command: nginx -g "daemon off;"
     
     ports:
     - 80:80
+    
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_healthy
+
+
+
+  frontend:
+  #----------------------     
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    command: nginx -g "daemon off;"
+    
+    expose:
+    - 80
     
     depends_on:
       backend:
@@ -26,12 +45,12 @@ services:
       dockerfile: Dockerfile
 
     expose:
-    - 8080
+    - 80
 
-    command: uvicorn rimsdash.main:app --host 0.0.0.0 --port 8080
+    command: uvicorn rimsdash.main:app --host 0.0.0.0 --port 80
 
     healthcheck:
-      test: curl --fail http://localhost:8080/rims/api/v1/ready || exit 1
+      test: curl --fail http://localhost:80/rims/api/v1/ready || exit 1
       interval: 5s
       timeout: 5s
       retries: 3
