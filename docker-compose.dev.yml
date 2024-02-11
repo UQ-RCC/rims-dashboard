@@ -6,63 +6,89 @@ services:
 
   frontend:
   #----------------------     
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.dev
 
-    command: nginx -g "daemon off;"
+    volumes:
+    - './frontend:/app'
+    - '/frontend/node_modules'
+
+    command: yarn serve --port 80
     
     ports:
     - 80:80
     
+    environment:
+    - CHOKIDAR_USEPOLLING=true
+
     depends_on:
       backend:
         condition: service_healthy
 
-
   backend: 
   #----------------------
-    build:  ./backend
-
-    command: uvicorn rimsdash.main:app --host 0.0.0.0 --port 5000
+    build:  
+      context: ./backend
+      dockerfile: Dockerfile
 
     ports:
-    - 5000:5000
+    - 8080:8080
+
+    command: uvicorn rimsdash.main:app --host 0.0.0.0 --port 8080
 
     healthcheck:
-      test: curl --fail http://localhost:5000/ || exit 1
+      test: curl --fail http://localhost:8080/rims/api/v1/ready || exit 1
       interval: 5s
       timeout: 5s
       retries: 3
       start_period: 5s      
 
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
   #----------------------
     image: postgres:12
 
     volumes:
-      - .rdb_postgres_data:/var/lib/postgresql/data/
+      - .rdb_postgres_data2:/var/lib/postgresql/data/
     
+    ports:
+    - mydbport:mydbport
+
     environment:
       - POSTGRES_USER_FILE=/run/secrets/db_user
       - POSTGRES_PASSWORD_FILE=/run/secrets/db_root_password
       - POSTGRES_DB_FILE=/run/secrets/db_name
-  
+    secrets:
+      - db_user
+      - db_name
+      - db_root_password
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+        #note: attempts to connect as root and throws error in log, seems to still work
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 #----------------------
 #----------------------
 secrets:
   db_user: 
     file: .secrets/db_user.txt
-  db_root_password: 
-    file: .secrets/db_root_password.txt
   db_name: 
     file: .secrets/db_name.txt
+  db_root_password: 
+    file: .secrets/db_root_password.txt    
 
 #----------------------
 #----------------------
 volumes:
-  rdb_postgres_data:
+  rdb_postgres_data2:
+  #rdb_postgres_data_prod:
     driver: local
 
 #----------------------

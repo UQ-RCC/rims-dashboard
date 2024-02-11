@@ -97,6 +97,7 @@ class TrainingRequestOutSchema(TrainingRequestBaseSchema):
     No references, terminates recursion
     """ 
     ...
+    form_data: Optional[dict] = Field(None, example={'key': 'value'})
     #use root_validator to add a computed property that will return via .dict() & .json()
     #   if not needed via json, use @property instead
     @root_validator
@@ -106,7 +107,12 @@ class TrainingRequestOutSchema(TrainingRequestBaseSchema):
         return values
         #   NB: operate via values dict rather than on self directly
 
-class TrainingRequestOutWithUserSchema(TrainingRequestOutSchema):
+
+class TrainingRequestOutWithFormSchema(TrainingRequestOutSchema):
+    ...
+    #form_data: Optional[dict] = Field(default_factory=dict, example={'key': 'value'})
+
+class TrainingRequestOutWithUserSchema(TrainingRequestOutWithFormSchema):
     """
     No references, terminates recursion
     """ 

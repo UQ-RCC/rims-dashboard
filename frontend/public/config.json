@@ -6,6 +6,6 @@
     "onLoad": "login-required",
     "minValidity": 10
   },
-  "backend": "/rims/api/",
+  "backend": "/rims/api",
   "signoutUrl": "https://cmm.centre.uq.edu.au/"
 }

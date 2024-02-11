@@ -96,4 +96,15 @@ export default {
         return converted_data
     },
 
+
+    async getProjectsForUser(username) {
+        let payload = {
+            'username': username
+        }
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/trequestuserprojects`, { params: payload } )
+        
+        return data
+    },
+
+
 }

@@ -90,8 +90,56 @@
             
             <template v-slot:expanded-item="{ item, headers }">
                 <td :colspan="headers.length">
-                    <v-card>
-                        <v-card-text class="style-expanded-table-text">( under construction )</v-card-text>
+                    <v-card class="style-expanded-table-card" style="font-size:0.8em">
+                        <div class="mx-6">
+                            <v-row>
+                                <v-col cols="6">
+                                    <v-card class="mx-2 my-4">     
+                                        <v-card-title class="style-expanded-card-title">Request details</v-card-title>                       
+                                        <v-card-text class="style-expanded-table-text">
+                                            <div>
+                                                <strong>ID</strong>:  {{ item.id }}
+                                            </div>
+                                            <div>
+                                                <strong>Date</strong>:  {{ item.date }}
+                                            </div>
+                                            <div>
+                                                <strong>New</strong>:  {{ item.new }}
+                                            </div>
+                                            <div>
+                                                <strong>Type</strong>:  {{ item.type }}
+                                            </div>                                            
+                                            <div>
+                                                <strong>form_name</strong>:  {{ item.form_name }}
+                                            </div>
+                                            <div>
+                                                <strong>username</strong>:  {{ item.username }}
+                                            </div>                           
+                                        </v-card-text> 
+                                    </v-card>
+                                    <v-card v-if="item.form_data">    
+                                        <v-card-title class="style-expanded-card-title">Form content</v-card-title>                                                                  
+                                        <v-card-text class="style-expanded-table-text">                
+                                            <div v-for="(value, key) in item.form_data" :key="key">
+                                                <div>
+                                                    <strong>{{ key }}</strong> : {{ value }}
+                                                </div>
+                                            </div>
+                                        </v-card-text>                            
+                                    </v-card>
+                                </v-col>
+                                <v-col cols="6">
+                                    <v-card>    
+                                        <v-card-title class="style-expanded-card-title">User</v-card-title>                              
+                                        <UserStatusTable :user="item.user"/>                          
+                                    </v-card> 
+                                    <v-card>    
+                                        <v-card-title class="style-expanded-card-title">Projects</v-card-title>                              
+                                        <UserStatusTable :user="item.user"/>                          
+                                    </v-card>                                     
+                                </v-col>
+                            </v-row>
+                        </div>
                     </v-card>
                 </td>
             </template>
@@ -101,14 +149,16 @@
 </template>
 
 
+
 <script>
     import Vue from 'vue'
     import VueLogger from 'vuejs-logger'
     //import RimsdashAPI from "@/api/RimsdashAPI"
     import TrainingRequestsAPI from "@/api/TrainingRequestsAPI"
     import StatusIndicatorLocal from '../components/StatusIndicatorLocal.vue'    
-    //import FeeForServiceIcon from '../components/FeeForServiceIcon.vue'   
+    import UserStatusTable from '../components/UserStatusTable.vue'   
     //import TrainingRequestCardExpanded from '../components/TrainingRequestCardExpanded.vue'   
+
 
     Vue.use(VueLogger)
 
@@ -116,6 +166,7 @@
         name: 'TrainingRequests',
         components:{
             StatusIndicatorLocal: StatusIndicatorLocal,
+            UserStatusTable: UserStatusTable,
             //FeeForServiceIcon: FeeForServiceIcon,
             //TrainingRequestCardExpanded: TrainingRequestCardExpanded,
         },           
@@ -239,7 +290,7 @@
                     Vue.$log.debug("awaiting details:  "  + trequest_id)
                     //trequest_details = await TrainingRequestsAPI.getAllTrainingRequests()[0]
                     trequest_details = await TrainingRequestsAPI.getTrainingRequestDetails(trequest_id)
-                    Vue.$log.debug("retrieved details:  "  + trequest_details.id)
+                    Vue.$log.debug("retrieved details:  "  + trequest_details.username)
                 } catch (error) {
                     Vue.$log.debug("API call getTrainingRequestDetails FAILED")                       
                 }             
@@ -247,6 +298,24 @@
                 return trequest_details
                 
             },
+
+            async retrieveProjectsForUser(username) {
+                Vue.$log.debug("retrieveProjectsForUser start " + username);
+
+                let user_projects = []
+
+                try {
+                    Vue.$log.debug("awaiting details:  "  + username)
+                    //trequest_details = await TrainingRequestsAPI.getAllTrainingRequests()[0]
+                    user_projects = await TrainingRequestsAPI.getProjectsForUser(username)
+                    Vue.$log.debug("retrieved details:  "  + user_projects[0].id)
+                } catch (error) {
+                    Vue.$log.debug("API call getTrainingRequestDetails FAILED")                       
+                }             
+
+                return user_projects
+                
+            },            
 
             async fetchTrainingRequestDetails(event) {
                 const item = event.item; 
@@ -258,6 +327,7 @@
                 trequest_details = await this.retrieveTrainingRequestDetails(item.id)
                 this.loading = false
 
+                Vue.$log.debug("returned" + JSON.stringify(item, null, 2));
                 const index = this.trequests.indexOf(item);
                 
                 //replace the trequest data with the fetched details incl. extra fields

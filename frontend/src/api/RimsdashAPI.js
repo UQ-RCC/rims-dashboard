@@ -6,7 +6,8 @@ export default {
     
     async checkBackend() {
         console.log("checking backend")
-        console.log("backend:  " + Vue.prototype.$Config.backend)
+        console.log("backend address:  " + Vue.prototype.$Config.backend)
+        console.log("querying:  " + `${Vue.prototype.$Config.backend}/v1/ready`)
         const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/ready`)
         return data
     },

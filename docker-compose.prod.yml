@@ -65,7 +65,7 @@ services:
     image: postgres:12
 
     volumes:
-      - .rdb_postgres_data_prod:/var/lib/postgresql/data/
+      - .rdb_postgres_data2:/var/lib/postgresql/data/
     
     environment:
       - POSTGRES_USER_FILE=/run/secrets/db_user
@@ -96,7 +96,8 @@ secrets:
 #----------------------
 #----------------------
 volumes:
-  rdb_postgres_data_prod:
+  rdb_postgres_data2:
+  #rdb_postgres_data_prod:
     driver: local
 
 #----------------------

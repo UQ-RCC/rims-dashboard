@@ -1,0 +1,18 @@
+#multi-stage
+#1) build with node 16
+#2) serve with nginx
+#builder
+FROM node:16.20.2 AS builder
+WORKDIR /app
+
+# Bundle app sources
+COPY package.json yarn.lock ./
+
+RUN yarn install
+
+COPY . .
+
+EXPOSE 80
+
+CMD yarn serve --port 80
+#ENTRYPOINT ["nginx", "-g", "daemon off;"]

@@ -1,4 +1,7 @@
 module.exports = {
     publicPath: '/rims/',
-    runtimeCompiler: true
+    runtimeCompiler: true,
+    devServer: {
+        port: 80
+    },
 };
