@@ -156,8 +156,8 @@ async def api_trequestsfilterbyuser(substring: str, db: Session = Depends(rdb.ge
         return FALLBACK_ERROR
 
 
-@router.get("/trequestuserprojects", response_model=schemas.trequest_schema.TrainingRequestOutWithUserStateSchema)
-async def api_trequestuserprojects(username: int, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
+@router.get("/trequestuserprojects", response_model=list[schemas.project_schema.ProjectOutWithStateSchema])
+async def api_trequestuserprojects(username: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
         has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
     except Exception as e:

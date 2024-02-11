@@ -93,7 +93,7 @@
                     <v-card class="style-expanded-table-card" style="font-size:0.8em">
                         <div class="mx-6">
                             <v-row>
-                                <v-col cols="6">
+                                <v-col cols="4">
                                     <v-card class="mx-2 my-4">     
                                         <v-card-title class="style-expanded-card-title">Request details</v-card-title>                       
                                         <v-card-text class="style-expanded-table-text">
@@ -128,14 +128,14 @@
                                         </v-card-text>                            
                                     </v-card>
                                 </v-col>
-                                <v-col cols="6">
+                                <v-col cols="8">
                                     <v-card>    
                                         <v-card-title class="style-expanded-card-title">User</v-card-title>                              
                                         <UserStatusTable :user="item.user"/>                          
                                     </v-card> 
                                     <v-card>    
                                         <v-card-title class="style-expanded-card-title">Projects</v-card-title>                              
-                                        <UserStatusTable :user="item.user"/>                          
+                                        <ProjectStatusTable :projects="item.projects"/>                          
                                     </v-card>                                     
                                 </v-col>
                             </v-row>
@@ -157,6 +157,7 @@
     import TrainingRequestsAPI from "@/api/TrainingRequestsAPI"
     import StatusIndicatorLocal from '../components/StatusIndicatorLocal.vue'    
     import UserStatusTable from '../components/UserStatusTable.vue'   
+    import ProjectStatusTable from '../components/ProjectStatusTable.vue'      
     //import TrainingRequestCardExpanded from '../components/TrainingRequestCardExpanded.vue'   
 
 
@@ -167,7 +168,7 @@
         components:{
             StatusIndicatorLocal: StatusIndicatorLocal,
             UserStatusTable: UserStatusTable,
-            //FeeForServiceIcon: FeeForServiceIcon,
+            ProjectStatusTable: ProjectStatusTable,
             //TrainingRequestCardExpanded: TrainingRequestCardExpanded,
         },           
         data() {
@@ -305,16 +306,14 @@
                 let user_projects = []
 
                 try {
-                    Vue.$log.debug("awaiting details:  "  + username)
+                    Vue.$log.debug("awaiting project details:  "  + username)
                     //trequest_details = await TrainingRequestsAPI.getAllTrainingRequests()[0]
                     user_projects = await TrainingRequestsAPI.getProjectsForUser(username)
-                    Vue.$log.debug("retrieved details:  "  + user_projects[0].id)
                 } catch (error) {
-                    Vue.$log.debug("API call getTrainingRequestDetails FAILED")                       
+                    Vue.$log.debug("API call retrieveProjectsForUser FAILED")                       
                 }             
-
+                Vue.$log.debug("retrieved project details:  "  + user_projects[0].id)
                 return user_projects
-                
             },            
 
             async fetchTrainingRequestDetails(event) {
@@ -322,14 +321,19 @@
 
                 Vue.$log.debug("fetching details for " + item.id);
                 let trequest_details = {}
+                let projects = []
 
                 this.loading = true
                 trequest_details = await this.retrieveTrainingRequestDetails(item.id)
                 this.loading = false
+                this.loading = true
+                projects = await this.retrieveProjectsForUser(item.username)
+                this.loading = false
 
-                Vue.$log.debug("returned" + JSON.stringify(item, null, 2));
+                trequest_details.projects = projects
+
                 const index = this.trequests.indexOf(item);
-                
+
                 //replace the trequest data with the fetched details incl. extra fields
                 //WARNING: these objects need to remain compatible
                 this.$set(this.trequests, index, trequest_details);

@@ -3,21 +3,21 @@
         <v-data-table    
             :headers="usersTableHeaders"
             :items="[user]"
-            item-key="userright.username"
+            item-key="username"
             class="elevation-1"
             :items-per-page="10"
-            :sort-by="['userright.admin','userright.username']"
-            height="300px" width="50%"
+            :sort-by="['username']"
+            height="auto" width="50%"
             hide-default-footer
             >
                 <template v-slot:item="{ item }">
                     <tr :class="itemRowBackground(item)">
-                        <td>{{ item.name }}</td>                                      
                         <td>
                             <a :href="`${item.url}`" target="_blank">
                             {{ item.username }}
                             </a>
                         </td>
+                        <td>{{ item.name }}</td>                           
                         <td>
                             <StatusIndicatorLocal :status="item.user_state.active" :pulse="false"/>
                         </td>   
@@ -66,8 +66,8 @@ export default {
     data() {
         return {
             usersTableHeaders: [
-                        { text: 'Name', value: 'name', width: '25%' },
-                        { text: 'Username', value: 'username', width: '8%' },
+                        { text: 'Username', value: 'username', width: '8%', sortable: false },
+                        { text: 'Name', value: 'name', width: '25%', sortable: false },
                         { text: 'Active', value: 'active', width: '8%', sortable: false },
                         { text: 'AIBN', value: 'aibn', width: '8%', sortable: false },
                         { text: 'Hawken', value: 'hawken', width: '8%', sortable: false },
