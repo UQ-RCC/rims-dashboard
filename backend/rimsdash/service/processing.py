@@ -269,7 +269,8 @@ def sync_training_requests(db: Session = Depends(rdb.get_db)):
 
     #FUTURE
     #get list of unique form ids from database
-    form_ids = config.get_csv_list("manual", "training_form_ids")
+    __form_ids = config.get_csv_list("manual", "training_form_ids")
+    form_ids = list(map(int, __form_ids))
 
     for form_id in form_ids:
         trequest_forms_for_id: list[dict] = rims.get_trequest_content_list(form_id)

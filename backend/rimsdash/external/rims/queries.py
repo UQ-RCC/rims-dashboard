@@ -280,7 +280,6 @@ def get_project_list(active_only = False) -> list[dict]:
 
     returns list of dicts
     """    
-    logger.debug("Querying projects")
 
     url = f"{BASE_URL}pumapi/"
 

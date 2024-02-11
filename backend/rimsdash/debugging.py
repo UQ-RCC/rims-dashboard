@@ -51,7 +51,7 @@ if False:
 
 print("STARTING")
 #service.processing.postprocess_projects(db)
-service.processing.primary_sync(db)
+service.processing.sync_projects(db)
 print("U done")
 
 

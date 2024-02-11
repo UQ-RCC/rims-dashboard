@@ -1,4 +1,5 @@
 import re 
+import copy
 import logging
 import json
 from datetime import datetime
@@ -81,28 +82,7 @@ def parse_rims_date(rims_date: str):
     finally:
         return result
 
-def validate_training_requests(rims_request_data: list[dict]) -> list[dict]:
-    """
-    validate return from system list report 
-        against system schema
-    """
-    result = []
 
-    for request in rims_request_data:
-
-        schema = schemas.TrainingRequestReceiveSchema(
-            id = request["reqId"],
-            date = parse_rims_date(request["reqDate"]),
-            new = request["reqNew"],
-            type = request["reqType"],
-            form_id = request["formId"],
-            form_name = request["formName"],
-            user_id = request["userId"],
-        )
-
-        result.append(schema.dict())
-    
-    return result
 
 def validate_systems(rims_system_data: list[dict]) -> list[dict]:
     """
@@ -373,11 +353,52 @@ def validate_user_projects_list(rims_projectrights_list: list[dict]) -> list[dic
 
     return result
 
+#UQMP OHS Checklist, New Worker OHS Induction Checklist, X-ray training request
+KNOWN_FORMS = {
+    15: 'UQMP',
+    79: 'OH&S',
+    149: 'X-ray',
+}
+
+def validate_training_requests(rims_request_data: list[dict]) -> list[dict]:
+    """
+    validate return from training request api list 
+    """
+    result = []
+
+    for request in rims_request_data:
+
+        #NB this might make more sense in services
+        if request["reqType"] is None or request["reqType"] == '':
+            try:
+                request_type = KNOWN_FORMS[int(request["formId"])]
+            except:
+                request_type = ''
+        else:
+            request_type = request["reqType"]
+
+        schema = schemas.TrainingRequestReceiveSchema(
+            id = request["reqId"],
+            date = parse_rims_date(request["reqDate"]),
+            new = request["reqNew"],
+            type = request_type,
+            form_id = request["formId"],
+            form_name = request["formName"],
+            user_id = request["userId"],
+        )
+
+        result.append(schema.dict())
+    
+    return result
+
+
 def trequest_extract_fields_by_column(request_data: dict, form_id: int) -> dict:
     """
     extract desired fields from training request form data
     
     temporary, this may need to be a whole module with own schema to handle multiple forms
+
+    DEPRECATED
     """    
     result = {}
     use_keys = []
@@ -396,26 +417,22 @@ def trequest_extract_fields_by_column(request_data: dict, form_id: int) -> dict:
     return result
 
 
-KNOWN_FORMS = {
-    15: 'UQMP OHS Checklist',
-    79: 'New Worker OHS Induction Checklist',
-    149: 'X-ray training request',
-}
-
-
-def trequest_extract_fields(request_data: dict, form_id: int) -> dict:
+def parse_tform_responses(request_data: list[dict]) -> list[dict]:
     """
-    extract desired fields from training request form data
-    """    
-    trequests = []
+    parse training form results and compress from:
 
-    if not form_id in KNOWN_FORMS:   #new worker induction form
-        logger.error(f"unrecognised form id: {form_id} at training form parser")
-    else:
-        localresult = {}
-        for pair in request_data:
+        [ {id, question, answer}, {id, question, answer}, {id, question, answer} ]
+    to:
+        [id, {q:a, q:a, q:a}]
+    
+    """    
+    tforms = []
+
+
+    localresult={}
+    for qa in request_data:
             try:
-                id = int(rims_link_extract_value(pair['Request ID']))
+                id = int(rims_link_extract_value(qa['Request ID']))
 
                 if localresult.get('id') == id:
                     pass
@@ -424,50 +441,67 @@ def trequest_extract_fields(request_data: dict, form_id: int) -> dict:
                     localresult['id'] = id
 
                 elif isinstance(id, int):
-                    trequests.append(localresult)
+                    tforms.append(localresult)
                     localresult = {}
                     localresult['id'] = id
 
                 else:
                     raise ValueError(f'unexpected id encountered by training form parser {id}')
 
-                localresult[rims_form_get_final_line(pair['Question'])] = pair['Answer']
+                localresult[rims_form_get_final_line(qa['Question'])] = qa['Answer']
 
             except:
-                logger.error(f"error parsing training form {pair['Request ID']}")
-    
+                logger.warn(f"error parsing training form {qa['Request ID']}")
+
     #check for duplicates
     seen = set()
     result = []
 
-    for trequest in trequests:
-        id = trequest['id']
+    for tform in tforms:
+        id = tform['id']
         
         if id in seen:
-            logger.error(f"Duplicate trequest id entries found for {trequest['id']}, discarding older version")
+            logger.warn(f"Duplicate trequest id entries found for {tform['id']}, discarding older version")
         else:
-            result.append(trequest)
+            result.append(tform)
         
         seen.add(id)
 
     return result
 
 
-
-def validate_trequest_list(rims_request_data: list[dict], form_id: int) -> list[dict]:
+def tform_data_by_id(tform_data: list[dict], tform_id: int) -> dict:
     """
-    validate return from system list report 
-        against system schema
+    find a tform by ID and return data 
+    """
+    for tform in tform_data:
+        try:
+            if tform['id'] == tform_id:
+                result = copy.deepcopy(tform)
+                del result['id']
+                return result
+            else:
+                pass
+        except:
+            logger.warn(f"failure locating data for training form {tform_id}")
+            return {}
+
+def validate_trequest_list(rims_request_data: list[dict], tform_data: list[dict]) -> list[dict]:
+    """
+    validate return from training request form report 
     """
     result = []
 
     for request in rims_request_data:
 
+        trequest_id = int(rims_link_extract_key(request["Request ID"], 'trainreq'))   
+        tform_content = tform_data_by_id(tform_data, trequest_id)
+
         schema = schemas.TrainingRequestReceiveFormDataSchema(
-            id = int(rims_link_extract_key(request["Request ID"], 'trainreq')),
+            id = trequest_id,
             date = parse_rims_date(request["Date"]),
             user_fullname = rims_strip_username_brackets(request["User"]),
-            form_data = trequest_extract_fields(request, form_id),
+            form_data = tform_content,
         )
 
         result.append(schema.dict())

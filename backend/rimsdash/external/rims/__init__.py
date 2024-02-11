@@ -94,6 +94,8 @@ def get_trequest_content_list(form_id: int) -> list[dict]:
 
     trequest_data = queries.get_trequest_content(form_id)
 
-    result = translate.validate_trequest_list(trequest_data, form_id)
+    tform_data=translate.parse_tform_responses(trequest_data)
+
+    result = translate.validate_trequest_list(trequest_data, tform_data)
 
     return result
