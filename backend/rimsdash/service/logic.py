@@ -143,9 +143,9 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateCreateSc
         if project.phase == 0:
             state.phase = IStatus.disabled
         elif project.phase == 1:
-            state.phase = IStatus.waiting
+            state.phase = IStatus.fail
         elif project.phase == 2:
-            state.phase = IStatus.waiting
+            state.phase = IStatus.fail
         elif project.phase == 3:
             state.phase = IStatus.ready
         elif project.phase == 4:
