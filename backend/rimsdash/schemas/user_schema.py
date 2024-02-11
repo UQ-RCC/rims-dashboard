@@ -88,6 +88,14 @@ class UserOutWithStateSchema(UserOutSchema):
     ...
     user_state: Optional[UserStateOutSchema]
 
+class UserOutWithProjectRightsSchema(UserOutSchema):
+    """
+
+    FUTURE: consider merging this with UserOutSchema 
+        and creating UserNoRefs for base only
+    """
+    ...
+    project_rights: Optional[list[ProjectUsersWithProjectSchema]]
 
 class UserOutRefsSchema(UserOutSchema):
     """
@@ -159,7 +167,9 @@ from .user_state_schema import UserStateOutSchema
 #update local schema with refs
 UserOutWithStateSchema.update_forward_refs()
 UserOutRefsSchema.update_forward_refs()
+UserOutWithProjectRightsSchema.update_forward_refs()
 UserForStateCheckSchema.update_forward_refs()
+
 
 
 

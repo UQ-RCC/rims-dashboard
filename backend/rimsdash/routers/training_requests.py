@@ -154,8 +154,28 @@ async def api_trequestsfilterbyuser(substring: str, db: Session = Depends(rdb.ge
         return result
     else:
         return FALLBACK_ERROR
-    
 
+
+@router.get("/trequestuserprojects", response_model=schemas.trequest_schema.TrainingRequestOutWithUserStateSchema)
+async def api_trequestuserprojects(user_id: int, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
+    try:
+        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": str(e)})
+
+    if has_access:
+        user = crud.user.get(db, user_id)
+
+        user_full = schemas.user_schema.UserOutWithProjectRightsSchema.from_orm(user)
+
+        result = []
+
+        for project_right in user_full.project_rights:
+            result.append(project_right.project)
+        
+        return result
+    else:
+        return FALLBACK_ERROR
 
 """
 UNUSED
