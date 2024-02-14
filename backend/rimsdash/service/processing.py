@@ -23,6 +23,8 @@ ACCEPTED_REALMS = {'admin', 'dashboard'}
 def lookup_keycloak_user_access(db: Session, keycloak_user: dict) -> bool:
     """
     extracts user from decoded keycloak token and checks their access
+
+    DEPRECATED
     """
     try:
         email = keycloak_user.get('email')

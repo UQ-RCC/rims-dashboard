@@ -15,7 +15,7 @@ import rimsdash.service as service
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
-FALLBACK_ERROR = JSONResponse(status_code=400, content={"message": "request not completed"})
+MESSAGE_DENIED = "access denied"
 
 @router.get("/user")
 async def get_user(user: dict = Depends(keycloak.decode)):
@@ -27,13 +27,58 @@ async def get_token(token: str = Depends(keycloak.oauth2_scheme)):
     logger.debug("Querying token")
     return token
 
+
+@router.get("/adminfromtoken", response_model=schemas.user_schema.UserAdminOutSchema)
+async def api_adminfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
+    """
+    return the admin status corresponding to the keycloak token
+    """
+    try:
+        has_access = service.security.lookup_user(db, keycloak_user)
+    except Exception as e:
+        logger.exception("Keycloak data not valid")
+        return JSONResponse(status_code=401, content={"message": str(e)})
+
+    if has_access:
+        __user = crud.user.get_by_email(db, email=keycloak_user.get('email')) 
+
+        result = schemas.user_schema.UserAdminOutSchema.from_orm(__user)
+
+        return result
+    else:
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
+
+@router.get("/userfromtoken", response_model=schemas.user_schema.UserSelfOutSchema)
+async def api_userfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
+    """
+    return the userdata corresponding to the keycloak token
+    """
+    try:
+        has_access = service.security.lookup_user(db, keycloak_user)
+    except Exception as e:
+        logger.exception("Keycloak data not valid")
+        return JSONResponse(status_code=401, content={"message": str(e)})
+
+    __user = crud.user.get_by_email(db, email=keycloak_user.get('email')) 
+
+    result = schemas.user_schema.UserSelfOutSchema.from_orm(__user)
+
+    #DEBUG
+    if False:
+        result.admin = False
+        logger.warn(f"TESTING: {__user.admin}, {result.admin}")
+
+    return result
+
 @router.get("/userfromemail", response_model=schemas.user_schema.UserOutSchema)
 async def api_userbyemail(email: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         __user = crud.user.get_by_email(db, email=email) 
@@ -42,15 +87,17 @@ async def api_userbyemail(email: str, db: Session = Depends(rdb.get_db), keycloa
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 @router.get("/checkadminbyemail", response_model=schemas.user_schema.UserReturnAdminSchema)
 async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         __user = crud.user.get_by_email(db, email=email) 
@@ -59,7 +106,8 @@ async def api_adminstatusbyemail(email: str, db: Session = Depends(rdb.get_db), 
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 @router.get("/checkwhitelistbyemail", response_model=schemas.WhitelistSchema)
 async def api_checkwhitelistbyemail(email: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
@@ -72,9 +120,10 @@ async def api_checkwhitelistbyemail(email: str, db: Session = Depends(rdb.get_db
     """
 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         __user = crud.user.get_by_email(db, email=email) 
@@ -89,7 +138,8 @@ async def api_checkwhitelistbyemail(email: str, db: Session = Depends(rdb.get_db
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 
 @router.get("/getadminlist")
@@ -101,9 +151,10 @@ async def api_adminslist(db: Session = Depends(rdb.get_db), keycloak_user: dict 
     """
 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         admins = crud.user.get_admins(db, admin_status=False)
@@ -115,4 +166,5 @@ async def api_adminslist(db: Session = Depends(rdb.get_db), keycloak_user: dict 
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})

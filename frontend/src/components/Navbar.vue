@@ -54,14 +54,14 @@
                     <v-list-item-title class="ml-n5">Home</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item to="/projects" v-if="this.has_access">
+                <v-list-item to="/projects" v-if="this.has_admin">
                     <v-list-item-icon>
                         <v-icon>mdi-poll-box</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title class="ml-n5">Projects</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item to="/trainingrequests" v-if="this.has_access">
+                <v-list-item to="/trainingrequests" v-if="this.has_admin">
                     <v-list-item-icon>
                         <v-icon>mdi-school</v-icon>
                     </v-list-item-icon>
@@ -93,7 +93,7 @@
         },
         data: () => ({
             drawer: true,
-            has_rims_admin: false,
+            user: { admin: false}
         }),
 
         computed: {
@@ -101,10 +101,17 @@
                 //note: this is an if-else using ? :
                 return this.$keycloak && this.$keycloak.idTokenParsed ? this.$keycloak.idTokenParsed.email  : ''
             },
-            has_dashboard_access: function() {
-                return this.$keycloak.hasRealmRole("dashboard")
-            },
+
+            has_admin(){
+                if ( ( this.user.admin == true ) ) {
+                    return true
+                }
+                else {
+                    return false
+                }
+            }
         },
+
         methods: {
             signout: function(){
                 // signout
@@ -114,14 +121,6 @@
                 this.drawer = !this.drawer
             },
 
-            has_access(){
-                if ( ( this.has_rims_admin ) || this.has_dashboard_access ) {
-                    return true
-                }
-                else {
-                    return false
-                }
-            }
         },
 
         mounted: async function() {
@@ -132,19 +131,24 @@
             const backend_ok = await RimsdashAPI.checkBackend()
             Vue.$log.info("NB backend connection OK: " + backend_ok.ok);      
 
-            Vue.$log.info("NB retrieving userdata: " + this.$keycloak.idTokenParsed.email);
-            const user_response = await RimsdashAPI.getUserByEmail(this.$keycloak.idTokenParsed.email)
-            this.user_data = user_response
-            Vue.$log.info("NB got userdata: " + user_response.email);
-
-            Vue.$log.info("NB retrieving admin: " + this.$keycloak.idTokenParsed.email);            
-            const admin_response = await RimsdashAPI.checkEmailIsAdmin(this.$keycloak.idTokenParsed.email)
-            this.has_rims_admin = admin_response.admin
-            Vue.$log.info("NB has admin: " + this.has_rims_admin)
+            Vue.$log.info("NB retrieving userdata from keycloak token: " + this.$keycloak.idTokenParsed.email);
             
-        },
-        
+            try {
+                const __user = await RimsdashAPI.getUserByToken()
+                this.user = __user
+                Vue.$log.info("NB got userdata: " + __user.email);
+                Vue.$log.info("NB got admin: " + __user.admin);                
+            }
+            catch (error) {
+                if (error.response && error.response.status === 401) {
+                    Vue.$log.error('Authentication error: Invalid token');      
+                } else {
+                    Vue.$log.error('Authentication error: ' + error.response);
+                }
+                //this.user = { email: this.$keycloak.idTokenParsed.email, admin: false }
+            }
 
+        },
     }
 
 </script>

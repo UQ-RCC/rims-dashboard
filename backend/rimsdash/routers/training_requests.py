@@ -39,16 +39,16 @@ class LoggingRoute(APIRoute):
 router = APIRouter(route_class=LoggingRoute)
 
 
-FALLBACK_ERROR = JSONResponse(status_code=400, content={"message": "request not completed"})
-
+MESSAGE_DENIED = "access denied"
 
 
 @router.get("/alltrequests", response_model=list[schemas.trequest_schema.TrainingRequestOutSchema])
 async def api_getalltrequests(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         trequests = crud.trequest.get_all(db)
@@ -60,14 +60,16 @@ async def api_getalltrequests(db: Session = Depends(rdb.get_db), keycloak_user: 
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
     
 @router.get("/alltrequestswithusers", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
 async def api_getalltrequestswithusers(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         trequests = crud.trequest.get_all(db)
@@ -79,14 +81,16 @@ async def api_getalltrequestswithusers(db: Session = Depends(rdb.get_db), keyclo
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
     
 @router.get("/trequestdetail", response_model=schemas.trequest_schema.TrainingRequestOutWithUserStateSchema)
 async def api_trequestdetail(trequest_id: int, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         trequest = crud.trequest.get(db, trequest_id)
@@ -96,15 +100,17 @@ async def api_trequestdetail(trequest_id: int, db: Session = Depends(rdb.get_db)
         print("received")
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
     
 #schemas.trequest_schema.TrainingRequestMinOutWithStateSchema
 @router.get("/trequestsfilterbyid", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
 async def api_trequestsfilterbyid(trequest_id: int, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         trequest = crud.trequest.get(db, trequest_id)
@@ -113,14 +119,16 @@ async def api_trequestsfilterbyid(trequest_id: int, db: Session = Depends(rdb.ge
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
     
 @router.get("/trequestsfilterbytype", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
 async def api_trequestsfilterbytype(search: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         logger.debug(f"received: {search}")
@@ -134,14 +142,16 @@ async def api_trequestsfilterbytype(search: str, db: Session = Depends(rdb.get_d
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
     
 @router.get("/trequestsfilterbyuser", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
 async def api_trequestsfilterbyuser(substring: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         trequests = crud.trequest.filter_by_user_anyname(db, substring=substring)
@@ -153,15 +163,17 @@ async def api_trequestsfilterbyuser(substring: str, db: Session = Depends(rdb.ge
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 
 @router.get("/trequestuserprojects", response_model=list[schemas.project_schema.ProjectOutWithStateSchema])
 async def api_trequestuserprojects(username: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         user = crud.user.get(db, username)
@@ -175,7 +187,8 @@ async def api_trequestuserprojects(username: str, db: Session = Depends(rdb.get_
         
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 """
 UNUSED
@@ -183,9 +196,10 @@ UNUSED
 @router.get("/trequestsfilterbynew", response_model=list[schemas.trequest_schema.TrainingRequestOutWithUserSchema])
 async def api_trequestsfilterbynew(search: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         __trequests = repo.trequest.filter_by_title(db, substring=search)
@@ -197,4 +211,5 @@ async def api_trequestsfilterbynew(search: str, db: Session = Depends(rdb.get_db
 
         return result
     else:
-        return FALLBACK_ERROR    
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})  

@@ -17,14 +17,15 @@ import rimsdash.service as service
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
-FALLBACK_ERROR = JSONResponse(status_code=400, content={"message": "request not completed"})
+MESSAGE_DENIED = "access denied"
 
 @router.get("/allprojectswithstates", response_model=list[schemas.project_schema.ProjectMinOutWithStateSchema])
 async def api_getallprojectswithstates(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         project_generator = generate.generate_projects(db)
@@ -36,14 +37,16 @@ async def api_getallprojectswithstates(db: Session = Depends(rdb.get_db), keyclo
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
     
 @router.get("/allprojectswithfullstates", response_model=list[schemas.project_schema.ProjectOutRefsSchema])
 async def api_getallprojectswithfullstates(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         project_generator = generate.generate_projects(db)
@@ -55,14 +58,16 @@ async def api_getallprojectswithfullstates(db: Session = Depends(rdb.get_db), ke
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 @router.get("/projectdetailwithusers", response_model=schemas.project_schema.ProjectOutRefsSchema)
 async def api_projectdetailwithusers(project_id: int, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         __project = crud.project.get(db, project_id)
@@ -71,15 +76,17 @@ async def api_projectdetailwithusers(project_id: int, db: Session = Depends(rdb.
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 #schemas.project_schema.ProjectMinOutWithStateSchema
 @router.get("/projectgetbyid", response_model=list[schemas.project_schema.ProjectMinOutWithStateSchema])
 async def api_projectgetbyid(project_id: int, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         __project = repo.project.get_by_id(db, project_id=project_id)
@@ -88,14 +95,16 @@ async def api_projectgetbyid(project_id: int, db: Session = Depends(rdb.get_db),
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 @router.get("/projectsgetbytitle", response_model=list[schemas.project_schema.ProjectMinOutWithStateSchema])
 async def api_projectsgetbytitle(search: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         __projects = repo.project.filter_by_title(db, substring=search)
@@ -107,14 +116,16 @@ async def api_projectsgetbytitle(search: str, db: Session = Depends(rdb.get_db),
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
     
 @router.get("/projectsgetbygroup", response_model=list[schemas.project_schema.ProjectMinOutWithStateSchema])
 async def api_projectsgetbygroup(search: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         logger.debug(f"received: {search}")
@@ -132,14 +143,16 @@ async def api_projectsgetbygroup(search: str, db: Session = Depends(rdb.get_db),
 
         return result
     else:
-        return FALLBACK_ERROR
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
 
 @router.get("/projectsgetbyuser", response_model=list[schemas.project_schema.ProjectMinOutWithStateSchema])
 async def api_projectsgetbyuser(search: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
-        has_access = service.processing.lookup_keycloak_user_access(db, keycloak_user)
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
     except Exception as e:
-        return JSONResponse(status_code=400, content={"message": str(e)})
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
         __projects = repo.project.filter_projects_by_user_allnames(db, substring=search)
@@ -151,4 +164,5 @@ async def api_projectsgetbyuser(search: str, db: Session = Depends(rdb.get_db), 
 
         return result
     else:
-        return FALLBACK_ERROR    
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED}) 

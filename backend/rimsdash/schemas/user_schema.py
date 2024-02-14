@@ -131,13 +131,12 @@ class UserMinOutSchema(BaseSchema):
             values['url'] = f'{RIMS_URL}/user/?user={values.get("userid")}'
         return values
 
+#-------------------------------------
+#Rebuilt from BaseSchema:
 
-#Minimum for datatable search
 class UserIdOnlyOutSchema(BaseSchema):
     """
-    base with 
-
-    WARNING: completely rebuilt from BaseSchema, not inherited
+    Minimum for datatable search
     """
     username: str
     name: str
@@ -146,9 +145,31 @@ class UserIdOnlyOutSchema(BaseSchema):
     class Config:
         orm_mode = True
 
+class UserSelfOutSchema(BaseSchema):
+    """
+    base info level for non-admin user accessing self
+    """     
+    username: str
+    name: str
+    userid: Optional[int]
+    email: str
+    active: bool
+    admin: bool = False
 
-#Mnalysis schema
+    class Config:
+        orm_mode = True
 
+class UserAdminOutSchema(BaseSchema):
+    """
+    returns admin status only
+    """
+    admin: bool = False
+    
+    class Config:
+        orm_mode = True
+
+#-------------------------------------
+#Analysis schema
 class UserForStateCheckSchema(UserOutSchema):
     """
     """
