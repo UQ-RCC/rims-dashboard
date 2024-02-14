@@ -45,6 +45,7 @@ def lookup_admin_rights(db: Session, keycloak_user: dict) -> bool:
     elif email is None:
         raise Exception(f"No user email id present in keycloak token")
     else:
+        logger.debug(f"User email is |{email}|")
         user = crud.user.get_by_email(db, email)
         
         if not user:
@@ -68,7 +69,9 @@ def lookup_user(db: Session, keycloak_user: dict) -> bool:
 
     try:
         email = keycloak_user.get('email')
+        logger.debug(f"User email is |{email}|")
         realm_access = keycloak_user.get('realm_access')
+        logger.debug(f"User realm is |{realm_access}|")
     except:
         raise Exception(f"Could not extract user from keycloak token")
 
@@ -81,8 +84,12 @@ def lookup_user(db: Session, keycloak_user: dict) -> bool:
     elif email is None:
         raise Exception(f"No user email id present in keycloak token")
     else:
-        user = crud.user.get_by_email(db, email)
-        
+        try:
+            user = crud.user.get_by_email(db, email)
+        except:
+            logger.debug(f"Error on email fetch, token content is |{keycloak_user}|")
+            raise Exception(f"Error searching for {email} in DB")
+
         if not user:
             raise Exception(f"Email {email} from keycloak token not found in DB")
 

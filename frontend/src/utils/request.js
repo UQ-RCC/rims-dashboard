@@ -68,10 +68,10 @@ service.interceptors.response.use(
         Vue.notify({
           group: 'sysnotif',
           type: 'warning',
-          title: 'Token expired',
-          text: 'Token expired! reload the window!'
+          title: 'Authentication failure',
+          text: String(error) + '<br/>Try refreshing the window, or check your credentials.<br/>'
         })
-        window.location.reload()
+        //window.location.reload()
       } else {
         // Vue.notify({
         //   group: 'sysnotif',
