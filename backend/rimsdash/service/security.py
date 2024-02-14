@@ -69,9 +69,11 @@ def lookup_user(db: Session, keycloak_user: dict) -> bool:
 
     try:
         email = keycloak_user.get('email')
-        logger.debug(f"User email is |{email}|")
+        logger.info(f"User email is |{email}|")
         realm_access = keycloak_user.get('realm_access')
-        logger.debug(f"User realm is |{realm_access}|")
+        logger.info(f"User realm is |{realm_access}|")
+        logger.info(f"Error on email fetch, token content is |{keycloak_user}|")
+        logger.info(f"session is |{db}|")
     except:
         raise Exception(f"Could not extract user from keycloak token")
 
@@ -87,7 +89,6 @@ def lookup_user(db: Session, keycloak_user: dict) -> bool:
         try:
             user = crud.user.get_by_email(db, email)
         except:
-            logger.debug(f"Error on email fetch, token content is |{keycloak_user}|")
             raise Exception(f"Error searching for {email} in DB")
 
         if not user:
