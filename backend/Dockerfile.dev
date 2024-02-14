@@ -1,0 +1,17 @@
+FROM python:3.10.6
+WORKDIR /app
+
+#set up the container
+RUN apt-get update && apt-get -y install \
+    vim \    
+    gcc
+
+RUN pip install --upgrade pip
+
+#copy and install requirements separately, to cache them for subsequent builds
+COPY ./setup.cfg /app
+COPY ./pyproject.toml /app
+RUN pip install -e /app
+
+#entrypoint
+CMD uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80

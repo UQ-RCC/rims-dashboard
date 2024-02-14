@@ -14,10 +14,10 @@ services:
     - './frontend:/app'
     - '/frontend/node_modules'
 
-    command: yarn serve --port 80
+    command: yarn serve --port 8080
     
     ports:
-    - 80:80
+    - 8080:8080
     
     environment:
     - CHOKIDAR_USEPOLLING=true
@@ -30,15 +30,20 @@ services:
   #----------------------
     build:  
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
 
     ports:
-    - 8080:8080
+    - 80:80
 
-    command: uvicorn rimsdash.main:app --host 0.0.0.0 --port 8080
+    volumes:
+    - './backend:/app'
+    - '/frontend/node_modules'
+
+
+    command: uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80
 
     healthcheck:
-      test: curl --fail http://localhost:8080/rims/api/v1/ready || exit 1
+      test: curl --fail http://localhost:80/rims/api/v1/ready || exit 1
       interval: 5s
       timeout: 5s
       retries: 3
@@ -53,7 +58,7 @@ services:
     image: postgres:12
 
     volumes:
-      - .rdb_postgres_data2:/var/lib/postgresql/data/
+      - .rdb_postgres_data_dev:/var/lib/postgresql/data/
     
     ports:
     - mydbport:mydbport
@@ -87,8 +92,7 @@ secrets:
 #----------------------
 #----------------------
 volumes:
-  rdb_postgres_data2:
-  #rdb_postgres_data_prod:
+  rdb_postgres_data_dev:
     driver: local
 
 #----------------------
