@@ -34,17 +34,26 @@ async def api_adminfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: d
     return the admin status corresponding to the keycloak token
     """
     try:
+        logger.info(f"Admin request for {keycloak_user.email}")
+    except:
+        pass
+
+    try:
         has_access = service.security.lookup_user(db, keycloak_user)
     except Exception as e:
         logger.exception("Keycloak data not valid")
         return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
-        __user = crud.user.get_by_email(db, email=keycloak_user.get('email')) 
+        try:
+            __user = crud.user.get_by_email(db, email=keycloak_user.get('email')) 
 
-        result = schemas.user_schema.UserAdminOutSchema.from_orm(__user)
-
-        return result
+            result = schemas.user_schema.UserAdminOutSchema.from_orm(__user)
+        except:
+            return JSONResponse(status_code=400, content={"message": str(e)})
+        
+        finally:
+            return result
     else:
         logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
         return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
@@ -55,21 +64,25 @@ async def api_userfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: di
     return the userdata corresponding to the keycloak token
     """
     try:
+        logger.info(f"Access request for {keycloak_user.get('email')}")
+    except:
+        pass
+
+    try:
         has_access = service.security.lookup_user(db, keycloak_user)
     except Exception as e:
         logger.exception("Keycloak data not valid")
         return JSONResponse(status_code=401, content={"message": str(e)})
 
-    __user = crud.user.get_by_email(db, email=keycloak_user.get('email')) 
+    try:
+        __user = crud.user.get_by_email(db, email=keycloak_user.get('email')) 
 
-    result = schemas.user_schema.UserSelfOutSchema.from_orm(__user)
-
-    #DEBUG
-    if False:
-        result.admin = False
-        logger.warn(f"TESTING: {__user.admin}, {result.admin}")
-
-    return result
+        result = schemas.user_schema.UserSelfOutSchema.from_orm(__user)
+    except:
+        return JSONResponse(status_code=400, content={"message": str(e)})
+    
+    finally:
+        return result
 
 @router.get("/userfromemail", response_model=schemas.user_schema.UserOutSchema)
 async def api_userbyemail(email: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):

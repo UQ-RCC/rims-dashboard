@@ -16,7 +16,8 @@ import rimsdash.service as service
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
-ACCEPTED_REALMS = {'admin', 'dashboard'}
+USE_REALM =(config.get('access_control', 'use_realm') == "True")    #string to bool
+ALLOWED_REALMS = config.get_csv_list('access_control', 'allowed_realms')
 
 OK_RESPONSE = JSONResponse(status_code=200, content={"message": "keycloak OK"})
 
@@ -32,22 +33,28 @@ def lookup_admin_rights(db: Session, keycloak_user: dict) -> bool:
 
     try:
         email = keycloak_user.get('email')
+        logger.debug(f"Querying access for |{email}|")
         realm_access = keycloak_user.get('realm_access')
     except:
         raise Exception(f"Could not extract user from keycloak token")
 
     #if the keycloak token has the appropriate realm (eg. admin), return ok
-    if realm_access and \
-        any ( realm in ACCEPTED_REALMS for realm in realm_access.get('roles') ):
+    if USE_REALM and realm_access is not None and \
+        any ( realm in ALLOWED_REALMS for realm in realm_access.get('roles') ):
+        logger.debug(f"Keycloak accepted by realm for {email}, {realm_access}")
         return True
     
-    #if the email exists, look it up and return its admin status in DB
+    #if the email does not exist, return error
     elif email is None:
         raise Exception(f"No user email id present in keycloak token")
+    
+    #else check RIMS access using email in token
     else:
-        logger.debug(f"User email is |{email}|")
-        user = crud.user.get_by_email(db, email)
-        
+        try:
+            user = crud.user.get_by_email(db, email=email)
+        except:
+            raise Exception(f"Error fetching {email} in DB")
+
         if not user:
             raise Exception(f"Email {email} from keycloak token not found in DB")
 
@@ -55,10 +62,11 @@ def lookup_admin_rights(db: Session, keycloak_user: dict) -> bool:
             raise Exception(f"Access denied for {user.username} {email}, admin={user.admin}")
 
         elif user.admin == True:
-            logger.debug(f"Keycloak ok for {user.username} {email}")
+            logger.debug(f"RIMS access OK for {user.username} {email}")
             return True
         else:
-            raise Exception(f"Unspecified error parsing keycloak token")
+            raise Exception(f"Unspecified error parsing keycloak token")  
+
 
 def lookup_user(db: Session, keycloak_user: dict) -> bool:
     """
@@ -66,40 +74,43 @@ def lookup_user(db: Session, keycloak_user: dict) -> bool:
     
     if admin = False, returns false instead of raising exception
     """
-
+    
     try:
         email = keycloak_user.get('email')
-        logger.info(f"User email is |{email}|")
+        logger.debug(f"Querying access for {email}")
         realm_access = keycloak_user.get('realm_access')
-        logger.info(f"User realm is |{realm_access}|")
-        logger.info(f"Error on email fetch, token content is |{keycloak_user}|")
-        logger.info(f"session is |{db}|")
     except:
         raise Exception(f"Could not extract user from keycloak token")
 
-    #if the keycloak token has the appropriate realm (eg. admin), return ok
-    if realm_access and \
-        any ( realm in ACCEPTED_REALMS for realm in realm_access.get('roles') ):
+    #if we are using realms, and token has appropriate realm, return ok
+
+    if USE_REALM and realm_access is not None and \
+        any ( realm in ALLOWED_REALMS for realm in realm_access.get('roles') ):
+        logger.debug(f"Access accepted by realm for {email}, {realm_access}")
         return True
-    
-    #if the email exists, look it up and return its admin status in DB
+
+    #if the email does not exist, return error
     elif email is None:
         raise Exception(f"No user email id present in keycloak token")
+    
+    #else check RIMS access using email in token
     else:
         try:
-            user = crud.user.get_by_email(db, email)
+            user = crud.user.get_by_email(db, email=email)
         except:
-            raise Exception(f"Error searching for {email} in DB")
+            raise Exception(f"Error fetching {email} in DB")
 
         if not user:
             raise Exception(f"Email {email} from keycloak token not found in DB")
 
         elif user.admin == False:
-            logger.info(f"Keycloak denied for {user.username} {email}, {user.admin == False}")
+            logger.debug(f"Unpriveleged access for {user.username} {email}, {user.admin == False}")
             return False
 
         elif user.admin == True:
-            logger.debug(f"Keycloak ok for {user.username} {email}")
+            logger.debug(f"RIMS access OK for {user.username} {email}")
             return True
         else:
             raise Exception(f"Unspecified error parsing keycloak token")        
+    
+    
