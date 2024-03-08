@@ -6,7 +6,7 @@ FROM node:16.20.2 AS builder
 WORKDIR /app
 
 # Bundle app sources
-COPY . .
+COPY . /app
 
 RUN yarn install && yarn run build
 

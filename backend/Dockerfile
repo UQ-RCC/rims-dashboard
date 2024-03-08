@@ -18,7 +18,6 @@ COPY . /app
 RUN pip install /app
 
 #copy any extra data, configs etc
-COPY data /app/data
 COPY conf/ app/conf
 
 #entrypoint

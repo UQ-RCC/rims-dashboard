@@ -61,7 +61,7 @@ services:
       - .rdb_postgres_data_dev:/var/lib/postgresql/data/
     
     ports:
-    - mydbport:mydbport
+    - 5432:5432
 
     environment:
       - POSTGRES_USER_FILE=/run/secrets/db_user

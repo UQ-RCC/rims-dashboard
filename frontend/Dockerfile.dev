@@ -10,9 +10,9 @@ COPY package.json yarn.lock ./
 
 RUN yarn install
 
-COPY . .
+COPY . /app
 
-EXPOSE 80
+EXPOSE 8080
 
-CMD yarn serve --port 80
+CMD yarn serve --port 8080
 #ENTRYPOINT ["nginx", "-g", "daemon off;"]
