@@ -8,9 +8,9 @@ WORKDIR /app
 # Bundle app sources
 COPY package.json yarn.lock ./
 
-RUN yarn install
-
 COPY . /app
+
+RUN yarn install
 
 EXPOSE 8080
 
