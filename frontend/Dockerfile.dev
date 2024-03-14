@@ -1,14 +1,8 @@
-#multi-stage
-#1) build with node 16
-#2) serve with nginx
-#builder
-FROM node:16.20.2 AS builder
+FROM node:16.20.2
 WORKDIR /app
 
-# Bundle app sources
-COPY package.json yarn.lock ./
-
-COPY . /app
+#compose binds frontend/ to /app/ as volume
+COPY package.json vue.config.js babel.config.js /app/
 
 RUN yarn install
 

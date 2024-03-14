@@ -8,9 +8,11 @@ RUN apt-get update && apt-get -y install \
 
 RUN pip install --upgrade pip
 
-#copy and install requirements separately, to cache them for subsequent builds
+#compose binds backend/ to /app/ as volume
+#can install directly without copying
 COPY ./setup.cfg /app
 COPY ./pyproject.toml /app
+
 RUN pip install -e /app
 
 #entrypoint
