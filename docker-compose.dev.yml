@@ -13,6 +13,7 @@ services:
     volumes:
     - './frontend:/app'
     - '/app/node_modules'
+    - '/app/yarn.lock'
     #name modules as a separate volume to avoid overwrite from local
 
     command: yarn serve --port 8080
