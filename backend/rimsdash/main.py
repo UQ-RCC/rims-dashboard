@@ -14,7 +14,7 @@ from rimsdash.routers import unsecured, navbar, projects, sync, training_request
 
 
 #logging setup
-log_level_in: str = config.get('logging', 'log_level')
+log_level_in: str = config.get('logging', 'log_level', default = "INFO")
 
 #set log level from config
 if "debug" in log_level_in.lower():

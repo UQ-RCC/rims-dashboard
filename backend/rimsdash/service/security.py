@@ -16,8 +16,8 @@ import rimsdash.service as service
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
-USE_REALM =(config.get('access_control', 'use_realm') == "True")    #string to bool
-ALLOWED_REALMS = config.get_csv_list('access_control', 'allowed_realms')
+USE_REALM =(config.get('access_control', 'use_realm', default = True) == "True")    #string to bool
+ALLOWED_REALMS = config.get_csv_list('access_control', 'allowed_realms', default = [] )
 
 OK_RESPONSE = JSONResponse(status_code=200, content={"message": "keycloak OK"})
 

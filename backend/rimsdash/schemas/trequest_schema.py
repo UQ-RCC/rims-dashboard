@@ -9,8 +9,8 @@ from rimsdash.models import IStatus
 from .base_schema import BaseSchema
 
 
-RIMS_URL = config.get('ppms', 'rims_url')
-CORE_ID = config.get('ppms', 'core_id')
+RIMS_URL = config.get('ppms', 'rims_url', required=True)
+CORE_ID = config.get('ppms', 'core_id', required=True)
 
 UserOutSchema = ForwardRef('UserOutSchema')
 UserOutWithStateSchema = ForwardRef('UserOutWithStateSchema')

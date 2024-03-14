@@ -7,12 +7,12 @@ import rimsdash.config as config
 
 from functools import lru_cache
 
-SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type')}://"
-                           f"{config.get('database', 'db_username')}:"
-                           f"{config.get('database', 'db_password')}@"
-                           f"{config.get('database', 'host')}:"
-                           f"{config.get('database', 'port')}/"
-                           f"{config.get('database', 'db_name')}")
+SQLALCHEMY_DATABASE_URL = (f"{config.get('database', 'type', required=True)}://"
+                            f"{config.get('database', 'db_username', required=True)}:"
+                            f"{config.get('database', 'db_password', required=True)}@"
+                            f"{config.get('database', 'host', required=True)}:"
+                            f"{config.get('database', 'port', required=True)}/"
+                            f"{config.get('database', 'db_name', required=True)}")
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={},

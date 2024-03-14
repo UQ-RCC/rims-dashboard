@@ -44,7 +44,7 @@ def get_project_details() -> list[dict]:
 
 def get_admin_status(username: str) -> dict:
 
-    _system_to_check = config.get('ppms','system_for_admin_check') 
+    _system_to_check = config.get('ppms','system_for_admin_check', required=True)
 
     result = False
 

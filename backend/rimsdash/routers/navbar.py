@@ -141,9 +141,9 @@ async def api_checkwhitelistbyemail(email: str, db: Session = Depends(rdb.get_db
     if has_access:
         __user = crud.user.get_by_email(db, email=email) 
 
-        whitelist=config.get_csv_list("manual","whitelist")
+        whitelist=config.get_csv_list("manual","whitelist", default=[])
 
-        status=(__user.email in whitelist or whitelist=='' or whitelist is None)
+        status=(__user.email in whitelist)
 
         result = schemas.WhitelistSchema(email=__user.email, whitelist=status)
         

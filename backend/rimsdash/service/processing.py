@@ -271,7 +271,7 @@ def sync_training_requests(db: Session = Depends(rdb.get_db)):
 
     #FUTURE
     #get list of unique form ids from database
-    __form_ids = config.get_csv_list("manual", "training_form_ids")
+    __form_ids = config.get_csv_list("manual", "training_form_ids", default = [])
     form_ids = list(map(int, __form_ids))
 
     for form_id in form_ids:
@@ -741,7 +741,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
             to be reduced by new reports when available
         """
 
-        if config.get('sync', 'recreate_db') == "True":
+        if config.get('sync', 'recreate_db', default=True) == "True":
             remake = True
         else:
             remake = False
@@ -750,7 +750,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
             logger.info("!!!!wipe and recreate DB")
             db = remake_db(db, force=remake)
         
-        sync_frequency_days = int(config.get('sync', 'full_sync_frequency'))
+        sync_frequency_days = int(config.get('sync', 'full_sync_frequency', default=1))
 
         try:
             __last = crud.sync.get_latest_completion(db)

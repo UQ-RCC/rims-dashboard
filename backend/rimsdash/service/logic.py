@@ -12,19 +12,8 @@ import rimsdash.utils.utils as utils
 
 logger = logging.getLogger('rimsdash')
 
-#FUTURE: move to config itself
-try:
-    EXTERNAL_AFFILIATIONS = config.get_csv_list('manual', 'external_affiliations')
-except:
-    EXTERNAL_AFFILIATIONS = []
-    logger.error("External affiliations could not be read from config")
-
-try:
-    UNLISTED_STAFF = config.get_csv_list('manual', 'unlisted_staff')
-except:
-    EXTERNAL_AFFILIATIONS = []    
-    logger.error("Unlisted staff could not be read from config")
-
+EXTERNAL_AFFILIATIONS = config.get_csv_list('manual', 'external_affiliations', default = [])
+UNLISTED_STAFF = config.get_csv_list('manual', 'unlisted_staff', default = [])
 
 #rims codes for each lab & access-level
 #NB: order MUST match

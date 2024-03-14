@@ -22,16 +22,22 @@ def get(section: str, option: str, default = None, os_env=True, required=False):
         return config.get(section, option, vars=cp_vars).strip()
     except:
         if required: 
-            raise Exception(f"option {option} is required in section {section}")
+            raise Exception(f"Required config field {option} not found in section {section}")
         else:
             return default
 
 
-def get_csv_list(section: str, option: str):
+def get_csv_list(section: str, option: str, required=False, default=None):
     """
     Tidies up a csv list
     """    
-    string_list = get(section, option)
-    string_list=string_list.replace(' ', '')
-    string_list=string_list.split(',')
-    return string_list
+    try:
+        string_list = get(section, option, required=required, default=default)
+        string_list=string_list.replace(' ', '')
+        string_list=string_list.split(',')
+        return string_list        
+    except:
+        if required:
+            raise Exception(f"Error reading csv list from config, {option} not found in section {section}")            
+        else:
+            return default

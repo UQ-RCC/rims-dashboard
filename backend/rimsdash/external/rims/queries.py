@@ -16,11 +16,11 @@ from rimsdash.schemas import SystemReceiveSchema, UserReceiveSchema
 
 logger = logging.getLogger('rimsdash')
 
-KEY=f"{config.get('ppms', 'api2_key')}"
-CORE_ID=f"{config.get('ppms', 'core_id')}"
-BASE_URL=f"{config.get('ppms','ppms_url')}"
+KEY=f"{config.get('ppms', 'api2_key', required=True)}"
+CORE_ID=f"{config.get('ppms', 'core_id', required=True)}"
+BASE_URL=f"{config.get('ppms','ppms_url', required=True)}"
 DATE_FORMAT='%Y-%m-%d'
-SEARCH_BEGIN_YEAR=int(config.get('ppms','search_begin_year'))
+SEARCH_BEGIN_YEAR=int(config.get('ppms','search_begin_year', default="2020"))
 
 START_DATE = datetime.datetime.strptime(f'01-01-{SEARCH_BEGIN_YEAR}', '%d-%m-%Y')
 
@@ -130,9 +130,7 @@ def get_systems() -> list[dict]:
     requests system ids from RIMS API
     """        
     url = f"{BASE_URL}pumapi/"
-    coreid=f"{config.get('ppms', 'core_id')}"
-    key=f"{config.get('ppms', 'api2_key')}"
-    payload=f"apikey={key}&action=getsystems"
+    payload=f"apikey={KEY}&action=getsystems"
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
     }

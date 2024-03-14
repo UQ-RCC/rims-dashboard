@@ -12,7 +12,7 @@ UQ_COLOURS={'purple':(81,36,122), 'lpurple':(150,42,139),'red':(230,38,69), 'blu
             'gold':(217,172,109), 'green':(46,168,54), 'orange':(235,96,43),\
             'yellow':(251,184,0), 'black':(0,0,0), 'white':(255,255,255) }
 
-Y_CUTOFF = int(config.get('visualisation','min_hours'))
+Y_CUTOFF = int(config.get('visualisation','min_hours', default=100))
 
 
 def usage_bar(usage):

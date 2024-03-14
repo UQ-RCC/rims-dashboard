@@ -8,19 +8,19 @@ from jose.exceptions import ExpiredSignatureError
 from rimsdash import config
 
 realm = KeycloakRealm(
-    server_url=config.get('keycloak', 'server_url'), 
-    realm_name=config.get('keycloak', 'realm_name')
+    server_url=config.get('keycloak', 'server_url', required=True), 
+    realm_name=config.get('keycloak', 'realm_name', required=True)
 )
 
 keycloak_openid = KeycloakOpenidConnect(
     realm=realm, 
-    client_id=config.get('keycloak', 'client_id'),
-    client_secret=config.get('keycloak', 'client_secret')
+    client_id=config.get('keycloak', 'client_id', required=True),
+    client_secret=config.get('keycloak', 'client_secret', required=True)
 )
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl=config.get('keycloak', 'authorization_url'),
-    tokenUrl=config.get('keycloak', 'token_url'),
+    authorizationUrl=config.get('keycloak', 'authorization_url', required=True),
+    tokenUrl=config.get('keycloak', 'token_url', required=True),
 )
 
 """
@@ -29,7 +29,7 @@ Decode the token
 def decode(token: str = Depends(oauth2_scheme)):
     KEYCLOAK_PUBLIC_KEY = (
         "-----BEGIN PUBLIC KEY-----\n"
-        + config.get('keycloak', 'public_key')
+        + config.get('keycloak', 'public_key', required=True)
         + "\n-----END PUBLIC KEY-----"
     )
     try:

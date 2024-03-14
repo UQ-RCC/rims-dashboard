@@ -5,7 +5,7 @@ import rimsdash.config as config
 
 from .base_schema import BaseSchema
 
-RIMS_URL = config.get('ppms', 'rims_url')
+RIMS_URL = config.get('ppms', 'rims_url', required=True)
 
 # forward refs to other schemas
 ProjectStateOutSchema=ForwardRef('ProjectStateOutSchema')

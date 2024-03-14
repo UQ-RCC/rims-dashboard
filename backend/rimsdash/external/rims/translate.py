@@ -14,7 +14,7 @@ RIMS_DATE_FORMAT_1 = "%Y/%m/%d %H:%M:%S"
 RIMS_DATE_FORMAT_2 = "%Y/%m/%d %H:%M"
 RIMS_DATE_FORMAT_3 = "%Y/%m/%d"
 
-CORE_NAME:str = config.get('ppms', 'core_name')
+CORE_NAME:str = config.get('ppms', 'core_name', required=True)
 
 logger = logging.getLogger('rimsdash')
 
