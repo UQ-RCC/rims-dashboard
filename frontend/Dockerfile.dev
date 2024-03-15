@@ -2,9 +2,12 @@ FROM node:16.20.2
 WORKDIR /app
 
 #compose binds frontend/ to /app/ as volume
-COPY package.json vue.config.js babel.config.js /app/
 
-RUN yarn install
+#copy config stuff to define layer checkpoint
+COPY package.json vue.config.js babel.config.js yarn.lock /app/
+
+#directory is shared with host in dev, don't modify lockfile
+RUN yarn install --frozen-lockfile
 
 EXPOSE 8080
 
