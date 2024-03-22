@@ -2,6 +2,9 @@ module.exports = {
     publicPath: '/rims/',
     runtimeCompiler: true,
     devServer: {
-        port: 80
+        port: 8080,
+        allowedHosts: [
+            'pitschitesting.local'
+        ]        
     },
 };
