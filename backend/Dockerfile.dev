@@ -13,7 +13,7 @@ RUN pip install --upgrade pip
 COPY ./setup.cfg /app
 COPY ./pyproject.toml /app
 
-RUN pip install -e /app
+RUN pip install -e /app[dev]
 
 COPY ./conf/rimsdash.conf /app/conf
 
