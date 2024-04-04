@@ -1,5 +1,5 @@
 import logging
-import os 
+import os, sys
 
 import rimsdash.db as rdb
 import rimsdash.config as config
@@ -12,16 +12,34 @@ import rimsdash.service as service
 import rimsdash.routers as routers
 import rimsdash.routers.manual_sync as updater
 
+import rimsdash.service.sync as sync
+
 from logging.handlers import TimedRotatingFileHandler
 from rimsdash.models import SystemRight, ProjectRight, SyncType
 
 
 #--------------------------------------------------------
+
 #logging setup
-log_level = logging.DEBUG
+log_level_in: str = config.get('logging', 'log_level', default = "INFO")
+
+#set log level from config
+if "debug" in log_level_in.lower():
+    log_level = logging.DEBUG
+elif "info" in log_level_in.lower():
+    log_level = logging.INFO
+elif "warn" in log_level_in.lower():
+    log_level = logging.WARN
+elif "error" in log_level_in.lower():
+    log_level = logging.ERROR
+else:
+    #default info
+    log_level = logging.INFO
 
 logger = logging.getLogger('rimsdash')
+
 logger.setLevel(log_level)
+
 log_file = config.get('logging', 'log_file', default = "/var/log/rimsdash/rimsdash.log")
 
 #   create the directory if it is missing
@@ -36,7 +54,19 @@ fh.setFormatter(formatter)
 #add handlers
 logger.addHandler(fh)
 logging.getLogger("uvicorn.access").addHandler(fh)
+logging.getLogger("uvicorn.error").addHandler(fh)
 logging.getLogger("uvicorn").addHandler(fh)
+
+#streamhandler
+sh = logging.StreamHandler(sys.stderr)  # Use sys.stderr for stderr
+sh.setLevel(log_level)
+sh.setFormatter(formatter)
+
+#add handlers
+logger.addHandler(sh)
+logging.getLogger("uvicorn.access").addHandler(sh)
+logging.getLogger("uvicorn.error").addHandler(sh)
+logging.getLogger("uvicorn").addHandler(sh)
 #--------------------------------------------------------
 
 db = rdb.get_session()
@@ -48,10 +78,18 @@ if False:
 
     db = rdb.get_session()
 
-
 print("STARTING")
-#service.processing.postprocess_projects(db)
-service.processing.sync_projects(db)
+
+if True:        
+    logger.info(">>>>>>>>>>>>Initialising DB")
+    rdb.init_db()
+else:
+    logger.info(">>>>>>>>>>>>DB already initialised")
+
+logger.info(">>>>>>>>>>>>Sync event triggered")
+with rdb.sessionmaker.context_session() as db:
+    sync.master.primary_sync(db, force=False)
+
 print("U done")
 
 

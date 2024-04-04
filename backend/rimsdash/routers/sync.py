@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi_utils.tasks import repeat_every
 
 import rimsdash.db as rdb
-import rimsdash.service.processing as processing
+import rimsdash.service.sync as sync
 
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
@@ -24,7 +24,7 @@ def sync_daily() -> None:
 
     logger.info(">>>>>>>>>>>>Sync event triggered")
     with rdb.sessionmaker.context_session() as db:
-            processing.primary_sync(db, force=False)
+            sync.master.primary_sync(db, force=False)
 
 
 

@@ -244,6 +244,10 @@ def validate_account_list(rims_account_data: list[dict]) -> list[dict]:
         #validate the project info
         #   skip if failed
         #   warn if failed on valid projaccount
+
+        if acc['Project ID'] == '':
+            continue
+
         try:
             __project_schema = schemas.project_schema.ProjectFromAccountSchema(
                 id = acc['Project ID'],

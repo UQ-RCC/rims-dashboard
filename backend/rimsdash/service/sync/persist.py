@@ -60,23 +60,23 @@ def user(user: dict, db: Session = Depends(rdb.get_db)):
     try:
         user_in = schemas.UserReceiveSchema(**user)
 
-        __row = crud.user.get(db, user['id'])
+        __row = crud.user.get(db, user['username'])
 
         if __row is None:
-            logger.debug(f"creating user {user['id']}")
+            logger.debug(f"creating user {user['username']}")
 
             crud.user.create(db, user_in)
 
         elif not user_in == schemas.UserReceiveSchema.from_orm(__row):
 
-            logger.debug(f"updating user {user['id']}")            
+            logger.debug(f"updating user {user['username']}")            
 
             crud.user.update(db, __row, user_in)
         else:
             logger.debug(f"unchanged user {user['username']}")
 
     except:
-        log_sync_error("user", user['id'])
+        log_sync_error("user", user['username'])
 
 
 def account(account: dict, db: Session = Depends(rdb.get_db)) -> list[dict]:
@@ -133,7 +133,7 @@ def project(project: dict, db: Session = Depends(rdb.get_db)):
 
             crud.project.update(db, __row, project_in)
         else:
-            logger.debug(f"unchanged project {project['projectname']}")
+            logger.debug(f"unchanged project {project['id']}")
 
     except:
         log_sync_error("project", project['id'])
@@ -162,7 +162,7 @@ def project_details(project: dict, db: Session = Depends(rdb.get_db)):
             crud.project.update(db, __row, project_in)
 
         else:
-            logger.debug(f"unchanged project details: {project['projectname']}")
+            logger.debug(f"unchanged project details: {project['id']}")
 
     except:
         log_sync_error("project", project['id'])
@@ -241,23 +241,23 @@ def project_account( project_account, db):
     try:
         projacc_in = schemas.ProjectAccountReceiveSchema(
             bcode = project_account['bcode'],
-            project_id = project_account['id'],
+            project_id = project_account['project_id'],
             valid = project_account['valid'],
         )
 
-        __row = crud.projectaccount.get(db, (project_account['bcode'], project_account['id']) )
+        __row = crud.projectaccount.get(db, (project_account['bcode'], project_account['project_id']) )
 
         if __row is None:
-            logger.debug(f"creating projectaccount {project_account['bcode']} for project {project_account['id']}")
+            logger.debug(f"creating projectaccount {project_account['bcode']} for project {project_account['project_id']}")
             crud.projectaccount.create(db, projacc_in)
         elif not projacc_in == schemas.ProjectAccountReceiveSchema.from_orm(__row):
-            logger.debug(f"updating projectaccount {project_account['bcode']} for project {project_account['id']}")        
+            logger.debug(f"updating projectaccount {project_account['bcode']} for project {project_account['project_id']}")        
             crud.projectaccount.update(db, __row, projacc_in)
         else:
-            logger.debug(f"no updates for projectaccount {project_account['bcode']}, project {project_account['id']}")
+            logger.debug(f"no updates for projectaccount {project_account['bcode']}, project {project_account['project_id']}")
             pass
     except:
-        log_sync_error("project_account", project_account['id']) 
+        log_sync_error("project_account", project_account['project_id']) 
 
 
 
