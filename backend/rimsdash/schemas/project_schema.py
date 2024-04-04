@@ -33,7 +33,7 @@ class ProjectBaseSchema(BaseSchema):
 class ProjectCreateSchema(ProjectBaseSchema):
     ...
 
-class ProjectReceiveSchema(ProjectCreateSchema):
+class ProjectReceiveSchema(ProjectBaseSchema):
     ...
 
 # Additional properties on initialise

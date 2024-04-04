@@ -4,7 +4,7 @@ import rimsdash.schemas as schemas
 
 from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
 
-from rimsdash.schemas import UserForStateCheckSchema, UserStateCreateSchema, ProjectStateCreateSchema, ProjectForStateCheckSchema, ProjectOutRefsSchema, ProjectStatePostProcessUpdateSchema, UserStatePostProcessUpdateSchema, UserOutRefsSchema
+from rimsdash.schemas import UserForStateCheckSchema, UserStateReceiveSchema, ProjectStateReceiveSchema, ProjectForStateCheckSchema, ProjectOutRefsSchema, ProjectStatePostProcessUpdateSchema, UserStatePostProcessUpdateSchema, UserOutRefsSchema
 
 
 import rimsdash.config as config
@@ -51,13 +51,13 @@ def get_rims_key(code: int):
     raise ValueError(f"code {code} not found in lab code lists")
 
 
-def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
+def process_user(user: UserForStateCheckSchema) -> UserStateReceiveSchema:
     """
     generate status result from user data
     """
 
     #initialise to labs not needed
-    state = UserStateCreateSchema(
+    state = UserStateReceiveSchema(
         username=user.username,
         access_hawken=IStatus.off,        
         access_aibn=IStatus.off,
@@ -121,11 +121,11 @@ def process_user(user: UserForStateCheckSchema) -> UserStateCreateSchema:
 
 
 
-def process_project(project: ProjectForStateCheckSchema) -> ProjectStateCreateSchema:
+def process_project(project: ProjectForStateCheckSchema) -> ProjectStateReceiveSchema:
     """
     generate status result from project data
     """
-    state = ProjectStateCreateSchema(project_id = project.id)
+    state = ProjectStateReceiveSchema(project_id = project.id)
 
     try:
         #phase

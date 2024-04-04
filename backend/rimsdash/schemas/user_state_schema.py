@@ -28,6 +28,9 @@ class UserStateUpdateSchema(UserStateBaseSchema):
     ...
 
 
+class UserStateReceiveSchema(UserStateBaseSchema):
+    ...
+
 
 
 class UserStateOutSchema(UserStateBaseSchema):

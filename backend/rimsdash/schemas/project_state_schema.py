@@ -28,6 +28,9 @@ class ProjectStateCreateSchema(ProjectStateBaseSchema):
 class ProjectStateUpdateSchema(ProjectStateBaseSchema):
     ...
 
+class ProjectStateReceiveSchema(ProjectStateBaseSchema):
+    ...
+
 
 class ProjectStateOutSchema(ProjectStateBaseSchema):
     """

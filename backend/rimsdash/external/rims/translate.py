@@ -93,7 +93,7 @@ def validate_systems(rims_system_data: list[dict]) -> list[dict]:
 
     for system in rims_system_data:
 
-        _schema = schemas.SystemCreateSchema(
+        _schema = schemas.SystemReceiveSchema(
             id = system["id"], 
             system_type = system["type"], 
             name = system["name"]
@@ -113,7 +113,7 @@ def validate_user_list(rims_user_list: list[dict]) -> list[dict]:
 
     for user in rims_user_list:
 
-        _schema = schemas.UserCreateSchema(
+        _schema = schemas.UserReceiveSchema(
             username = user['login'], 
             userid = user['id'], 
             name = rims_strip_username_brackets(user['name']),

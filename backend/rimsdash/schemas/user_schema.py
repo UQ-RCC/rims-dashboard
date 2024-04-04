@@ -36,6 +36,11 @@ class UserCreateSchema(UserBaseSchema):
 
 # Properties on update
 class UserUpdateSchema(UserBaseSchema):
+    userid: int    
+    ...
+
+class UserReceiveSchema(UserBaseSchema):
+    userid: int    
     ...
 
 # Properties on update

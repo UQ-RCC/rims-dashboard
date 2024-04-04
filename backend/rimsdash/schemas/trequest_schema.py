@@ -56,6 +56,9 @@ class TrainingRequestReceiveFormDataSchema(BaseSchema):
 
 
 # Properties on update
+class TrainingRequestReceiveSchema(TrainingRequestBaseSchema):
+    ...
+
 class TrainingRequestCreateSchema(TrainingRequestBaseSchema):
     ...
 
