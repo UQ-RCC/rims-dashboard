@@ -168,6 +168,132 @@ def project_details(project: dict, db: Session = Depends(rdb.get_db)):
         log_sync_error("project", project['id'])
 
 
+def project_account( project_account: dict, db: Session = Depends(rdb.get_db)):
+    """
+    update project_account association in DB
+
+    create if not already present
+    """    
+    try:
+        projacc_in = schemas.ProjectAccountReceiveSchema(
+            bcode = project_account['bcode'],
+            project_id = project_account['project_id'],
+            valid = project_account['valid'],
+        )
+
+        __row = crud.projectaccount.get(db, (project_account['bcode'], project_account['project_id']) )
+
+        if __row is None:
+            logger.debug(f"creating projectaccount {project_account['bcode']} for project {project_account['project_id']}")
+            crud.projectaccount.create(db, projacc_in)
+        elif not projacc_in == schemas.ProjectAccountReceiveSchema.from_orm(__row):
+            logger.debug(f"updating projectaccount {project_account['bcode']} for project {project_account['project_id']}")        
+            crud.projectaccount.update(db, __row, projacc_in)
+        else:
+            logger.debug(f"no updates for projectaccount {project_account['bcode']}, project {project_account['project_id']}")
+            pass
+    except:
+        log_sync_error("project_account", project_account['project_id']) 
+
+
+
+def admin_user(user_row: UserModel, db: Session = Depends(rdb.get_db), skip_existing: bool = False):
+    """
+    Sync admin status in DB to external RIMS DB
+
+    NB: input is DB row, not dict/schema
+    """
+
+    try:
+        if skip_existing and user_row.admin == False:
+            logger.debug(f"admin sync: skip non-admin {user_row.username}")
+        else:
+            logger.debug(f"admin sync: {user_row.username}")
+
+            try:
+                admin_dict = rims.get_admin_status(user_row.username)
+            except: 
+                log_sync_error("rims admin status", user_row.username)
+
+            user_admin_in = schemas.user_schema.UserUpdateAdminSchema(**admin_dict)
+
+            crud.user.update(db, user_row, user_admin_in)
+    except:
+        log_sync_error("user admin status", user_row.username)
+
+
+def user_right(user_right: dict, db: Session = Depends(rdb.get_db)):
+    """
+    update instrument user_right association in DB
+
+    create if not already present
+    """          
+    try:
+
+        #check both system and user exist
+        user = crud.user.get(db, user_right['username'])
+
+        if user is None:
+            logger.info(f"unrecognised user {user_right['username']} in rims user_rights_list")                     
+            return              
+
+        system = crud.system.get(db, user_right['system_id'])
+        if system is None:
+            logger.info(f"unrecognised system {user_right['system_id']} for user {user_right['username']}")                     
+            return  
+
+        __schema = schemas.SystemUserReceiveSchema(**user_right)
+        __row = crud.systemuser.get(db, (__schema.username, __schema.system_id))
+
+        if __row is None:
+            logger.debug(f"creating systemuser {__schema.username} : {__schema.system_id}")                
+            crud.systemuser.create(db, __schema)
+        elif not __schema == schemas.SystemUserReceiveSchema.from_orm(__row):
+            logger.debug(f"updating systemuser {__schema.username} : {__schema.system_id}")                  
+            crud.systemuser.update(db, __row, __schema)
+        else:
+            logger.debug(f"unchanged systemuser {__schema.username} : {__schema.system_id}")                    
+    except:
+        log_sync_error("systemuser", user_right['username'])
+
+
+def project_user(project_user: dict, db: Session = Depends(rdb.get_db)):
+    """
+    update project_user right association in DB
+
+    create if not already present
+    """
+    try:
+
+        #check both user and project exist
+        user = crud.user.get(db, project_user['username'])
+
+        if user is None:
+            logger.info(f"unrecognised user {project_user['username']} in rims user_projects_list")                     
+            return
+
+        project = crud.project.get(db, project_user['project_id'])
+        if project is None:
+            logger.info(f"unrecognised system {project_user['project_id']} for user {project_user['username']}")                     
+            return
+
+        __schema = schemas.ProjectUsersReceiveSchema(**project_user)
+        __row = crud.projectuser.get(db, (__schema.username, __schema.project_id))
+
+
+        if __row is None:
+            logger.debug(f"creating projectuser {__schema.username} : {__schema.project_id}")                
+            crud.systemuser.create(db, __schema)
+        elif not __schema == schemas.ProjectUsersReceiveSchema.from_orm(__row):
+            logger.debug(f"updating projectuser {__schema.username} : {__schema.project_id}")                  
+            crud.systemuser.update(db, __row, __schema)
+        else:
+            logger.debug(f"unchanged projectuser {__schema.username} : {__schema.project_id}") 
+
+    except:
+        log_sync_error("project_user", project_user['username'])    
+
+
 def training_request(trequest: dict, db: Session = Depends(rdb.get_db)):
     """
     update training_request record in DB
@@ -185,7 +311,7 @@ def training_request(trequest: dict, db: Session = Depends(rdb.get_db)):
             #add the username and create the schema
             trequest['username'] = __user.username
 
-            trequest_in = schemas.TrainingRequestReceiveSchema.parse_obj(trequest)
+            trequest_in = schemas.TrainingRequestCreateSchema.parse_obj(trequest)
 
             __row = crud.trequest.get(db, trequest['id'])
 
@@ -194,7 +320,7 @@ def training_request(trequest: dict, db: Session = Depends(rdb.get_db)):
 
                 crud.trequest.create(db, trequest_in)
 
-            elif not trequest_in == schemas.TrainingRequestReceiveSchema.from_orm(__row):
+            elif not trequest_in == schemas.TrainingRequestCreateSchema.from_orm(__row):
 
                 logger.debug(f"updating request {trequest['id']} for user {trequest['username']}")
 
@@ -207,7 +333,6 @@ def training_request(trequest: dict, db: Session = Depends(rdb.get_db)):
 
     except:
         log_sync_error("trequest", trequest['user_id'])
-
 
 
 def training_forms(trform: dict, db: Session = Depends(rdb.get_db)):
@@ -235,48 +360,3 @@ def training_forms(trform: dict, db: Session = Depends(rdb.get_db)):
 
     except:
         log_sync_error("trform", trform['id']) 
-
-
-def project_account( project_account, db):
-    try:
-        projacc_in = schemas.ProjectAccountReceiveSchema(
-            bcode = project_account['bcode'],
-            project_id = project_account['project_id'],
-            valid = project_account['valid'],
-        )
-
-        __row = crud.projectaccount.get(db, (project_account['bcode'], project_account['project_id']) )
-
-        if __row is None:
-            logger.debug(f"creating projectaccount {project_account['bcode']} for project {project_account['project_id']}")
-            crud.projectaccount.create(db, projacc_in)
-        elif not projacc_in == schemas.ProjectAccountReceiveSchema.from_orm(__row):
-            logger.debug(f"updating projectaccount {project_account['bcode']} for project {project_account['project_id']}")        
-            crud.projectaccount.update(db, __row, projacc_in)
-        else:
-            logger.debug(f"no updates for projectaccount {project_account['bcode']}, project {project_account['project_id']}")
-            pass
-    except:
-        log_sync_error("project_account", project_account['project_id']) 
-
-
-
-def admin_user(user_row: UserModel, admin_dict: dict, db: Session = Depends(rdb.get_db), skip_existing: bool = False):
-    """
-    Sync admin status in DB to external RIMS DB
-
-    NB: input is DB row, not dict/schema
-    """
-
-    try:
-        if user_row is not None:
-            if skip_existing and user_row.admin == False:
-                logger.debug(f"admin sync: skip non-admin {user_row.username}")
-            else:
-                logger.debug(f"admin sync: {user_row.username}")
-
-                user_admin_in = schemas.user_schema.UserUpdateAdminSchema(**admin_dict)
-
-                crud.user.update(db, user_row, user_admin_in)
-    except:
-        log_sync_error("user admin status", user_row.username)

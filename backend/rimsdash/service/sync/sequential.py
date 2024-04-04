@@ -20,9 +20,4 @@ def admin_users(db: Session = Depends(rdb.get_db), skip_existing: bool = False):
     logger.info(f"Syncing admin status")
 
     for user_row in crud.user.get_all(db):
-        try:
-           admin_dict = rims.get_admin_status(user_row.username)
-        except: 
-            log_sync_error("rims admin status", user_row.username)
-
-        persist.admin_user(user_row, admin_dict, db, skip_existing = skip_existing)
+        persist.admin_user(user_row, db, skip_existing = skip_existing)
