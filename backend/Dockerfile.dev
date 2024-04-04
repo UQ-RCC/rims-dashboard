@@ -13,6 +13,13 @@ RUN pip install --upgrade pip
 COPY ./setup.cfg /app
 COPY ./pyproject.toml /app
 
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+
+RUN pip install debugpy
+
+#debugpy port
+EXPOSE 5678
+
 RUN pip install -e /app[dev]
 
 COPY ./conf/rimsdash.conf /app/conf

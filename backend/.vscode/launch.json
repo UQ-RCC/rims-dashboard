@@ -1,0 +1,17 @@
+{
+    // 
+    // FOR USE WITHIN docker dev container
+    //
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "pythonPath": "/usr/local/bin/python",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

@@ -34,13 +34,18 @@ services:
       dockerfile: Dockerfile.dev
 
     ports:
+    #app backend
     - 127.0.0.1:80:80
+    #debugpy
+    - 127.0.0.1:5678:5678    
+    #jupyternotes
     - 127.0.0.1:8888:8888    
 
     volumes:
     - './backend:/app'
 
-    command: uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80
+    command: ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 & uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80"]
+    #uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80
 
     healthcheck:
       test: curl --fail http://localhost:80/rims/api/v1/ready || exit 1
