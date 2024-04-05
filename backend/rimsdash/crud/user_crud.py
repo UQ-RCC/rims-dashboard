@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+from rimsdash.models import AdminRight
 from rimsdash.crud.base_crud import CRUDBase
 from rimsdash.models.user_models import UserModel
 from rimsdash.schemas.user_schema import UserCreateSchema, UserUpdateSchema
@@ -22,7 +23,7 @@ class CRUDUser(CRUDBase[UserModel, UserCreateSchema, UserUpdateSchema]):
     def get_all(self, db: Session) -> Optional[list[UserModel]]:
         return db.query(UserModel).all()
     
-    def get_admins(self, db: Session, *, admin_status: bool = True) -> Optional[list[UserModel]]:
+    def get_admins(self, db: Session, *, admin_status: AdminRight = AdminRight.admin) -> Optional[list[UserModel]]:
         return db.query(UserModel).filter(UserModel.admin == admin_status).all()
 
     def get_by_email(self, db: Session, *, email: str) -> Optional[UserModel]:

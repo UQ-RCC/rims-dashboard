@@ -93,7 +93,7 @@
         },
         data: () => ({
             drawer: true,
-            user: { admin: false}
+            user: { admin: "User"}
         }),
 
         computed: {
@@ -103,7 +103,7 @@
             },
 
             has_admin(){
-                if ( ( this.user.admin == true ) ) {
+                if ( ( this.user.admin == "Admin" ) ) {
                     return true
                 }
                 else {

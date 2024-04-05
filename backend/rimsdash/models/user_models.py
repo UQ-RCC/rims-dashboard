@@ -2,7 +2,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, JSON, Float
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import relationship
 
-from .base_model import Base
+from .base_model import Base, AdminRight
 #from .systemuser_models import SystemUserModel
 
 class UserModel(Base):
@@ -13,7 +13,8 @@ class UserModel(Base):
     email = Column(String, primary_key=False, index=False, nullable=False)
     group = Column(String, primary_key=False, index=False, nullable=False)
     active = Column(Boolean, primary_key=False, index=False, nullable=False, default=False)
-    admin = Column(Boolean, primary_key=False, index=False, nullable=True)
+#    admin = Column(Boolean, primary_key=False, index=False, nullable=True)
+    admin = Column(Enum(AdminRight), primary_key=False, index=False, nullable=True)
     #rights = Column(MutableDict.as_mutable(JSON), primary_key=False, index=False, nullable=True, default={})
     #   strings to avoid circular import - ie. SystemUserModel.user    
     system_rights = relationship('SystemUserModel', back_populates='user')

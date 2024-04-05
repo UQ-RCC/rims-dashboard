@@ -74,6 +74,15 @@ class ProjectRight(Enum):
     owner = 'PO'
     admin = 'PA'
 
+class AdminRight(Enum):
+    """
+    enum for RIMS used rights
+    """    
+    admin = 'Admin'
+    previous = 'PreviousAdmin'
+    user = 'User'
+    none = 'None'    
+
 
 class SyncType(Enum):
     """

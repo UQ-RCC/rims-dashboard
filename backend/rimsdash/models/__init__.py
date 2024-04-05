@@ -1,4 +1,4 @@
-from .base_model import IStatus, SystemRight, ProjectRight, SyncType
+from .base_model import IStatus, SystemRight, ProjectRight, SyncType, AdminRight
 from .user_models import UserModel
 from .project_models import ProjectModel
 from .system_models import SystemModel

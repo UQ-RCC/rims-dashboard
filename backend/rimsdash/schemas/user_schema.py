@@ -3,7 +3,7 @@ from pydantic import root_validator, Field
 
 import rimsdash.config as config
 
-from rimsdash.models import SystemRight
+from rimsdash.models import SystemRight, AdminRight
 
 from .base_schema import BaseSchema
 
@@ -45,7 +45,7 @@ class UserReceiveSchema(UserBaseSchema):
 
 # Properties on update
 class UserUpdateAdminSchema(BaseSchema):
-    admin: Optional[bool]
+    admin: AdminRight
 
     class Config:
         orm_mode = True
@@ -57,7 +57,7 @@ class UserReceiveSchema(UserBaseSchema):
 # return schema
 
 class UserReturnAdminSchema(BaseSchema):
-    admin: Optional[bool] = False
+    admin: AdminRight = AdminRight.none
 
     class Config:
         orm_mode = True
@@ -73,7 +73,7 @@ class UserOutSchema(UserBaseSchema):
     base export, no references
     """ 
     ...
-    admin: Optional[bool] = False
+    admin: Optional[AdminRight] = AdminRight.none
 
     #use root_validator to add a computed property that will return via .dict() & .json()
     #   @property is cleaner for direct access only
@@ -124,7 +124,7 @@ class UserMinOutSchema(BaseSchema):
     userid: int
     group: str
     active: bool
-    admin: Optional[bool] = False
+    admin: Optional[AdminRight] = AdminRight.none
 
     class Config:
         orm_mode = True
@@ -159,7 +159,7 @@ class UserSelfOutSchema(BaseSchema):
     userid: Optional[int]
     email: str
     active: bool
-    admin: bool = False
+    admin: AdminRight = AdminRight.none
 
     class Config:
         orm_mode = True
@@ -168,7 +168,7 @@ class UserAdminOutSchema(BaseSchema):
     """
     returns admin status only
     """
-    admin: bool = False
+    admin: AdminRight = AdminRight.none
     
     class Config:
         orm_mode = True

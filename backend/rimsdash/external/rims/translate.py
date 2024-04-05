@@ -8,7 +8,7 @@ import rimsdash.config as config
 import rimsdash.schemas as schemas
 
 from .clean import rims_strip_username_brackets, rims_substitute_notatinos
-from rimsdash.models import SystemRight, ProjectRight, IStatus
+from rimsdash.models import SystemRight, ProjectRight, IStatus, AdminRight
 
 RIMS_DATE_FORMAT_1 = "%Y/%m/%d %H:%M:%S"
 RIMS_DATE_FORMAT_2 = "%Y/%m/%d %H:%M"
@@ -159,15 +159,15 @@ def validate_admin_check(rights_dict: dict) -> dict:
     validate admin status API return
     """
 
-    #default to False
+    #default to user
     result = schemas.user_schema.UserUpdateAdminSchema(
-        admin=False
+        admin=AdminRight.user
     )
 
     try:
         if rights_dict['rights']=='OK' and rights_dict['admin']==True:
             result = schemas.user_schema.UserUpdateAdminSchema(
-                admin=True
+                admin=AdminRight.admin
             )
     
     finally:

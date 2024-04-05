@@ -46,8 +46,6 @@ def get_admin_status(username: str) -> dict:
 
     _system_to_check = config.get('ppms','system_for_admin_check', required=True)
 
-    result = False
-
     _rights_dict = queries.get_admin_rights(username, _system_to_check)
 
     result = translate.validate_admin_check(_rights_dict)

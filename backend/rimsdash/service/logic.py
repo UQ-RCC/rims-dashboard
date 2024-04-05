@@ -2,7 +2,7 @@ import logging
 
 import rimsdash.schemas as schemas
 
-from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
+from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight, AdminRight
 
 from rimsdash.schemas import UserForStateCheckSchema, UserStateInitSchema, ProjectStateInitSchema, ProjectForStateCheckSchema, ProjectOutRefsSchema, ProjectStatePostProcessUpdateSchema, UserStatePostProcessUpdateSchema, UserOutRefsSchema
 
@@ -96,7 +96,7 @@ def process_user(user: UserForStateCheckSchema) -> UserStateInitSchema:
                     state.access_pitschi = IStatus.ready
 
         #admin pitschi cheat
-        if user.admin == True:
+        if user.admin == AdminRight.admin:
             state.access_pitschi = IStatus.ready
 
         if user.active == True:
@@ -202,10 +202,13 @@ def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProces
         )
 
     try:
-        #look for a non-admin user 
+
+        #project with only staff automatically ok
         for user_right in project.user_rights:
+            
             _user_state = user_right.user.user_state
-            if user_right.user.admin == True:
+
+            if not user_right.user.admin == AdminRight.admin:
                 continue
             elif _user_state.ok_user == IStatus.ready:
                 project_state.ok_user = IStatus.ready
@@ -241,7 +244,7 @@ def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchem
                 user_state.ok_project = IStatus.ready
                 break
 
-        if user.admin == True:
+        if user.admin == AdminRight.admin:
             user_state.ok_project = IStatus.off
 
         if user_state.ok_user == IStatus.ready \
@@ -263,7 +266,7 @@ def process_trequest(trequest: schemas.TrainingRequestForProcessingSchema) -> sc
         user_state = trequest.user.user_state
 
         #good if user ok and has project that is ok, or is staff
-        if ( user_state.ok_all == IStatus.ready ) or trequest.user.admin == True:
+        if ( user_state.ok_all == IStatus.ready ) or trequest.user.admin == AdminRight.admin:
             return_trequest.state = IStatus.ready
 
     except:

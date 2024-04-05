@@ -145,7 +145,7 @@ export default {
     },  
     methods: {
         itemRowBackground: function (item) {
-                return item.user.admin == false ? 'style-row-user' : 'style-row-admin'
+                return item.user.admin != "Admin" ? 'style-row-user' : 'style-row-admin'
             },
     }
 }

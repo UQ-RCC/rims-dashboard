@@ -12,7 +12,7 @@ import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 import rimsdash.service.logic as logic
 
-from rimsdash.models import SystemRight, ProjectRight, SyncType
+from rimsdash.models import SystemRight, ProjectRight, SyncType, AdminRight
 from rimsdash.models.user_models import UserModel
 
 from .utils import log_sync_error, match_project_account_pair
@@ -205,7 +205,7 @@ def admin_user(user_row: UserModel, db: Session = Depends(rdb.get_db), skip_exis
     """
 
     try:
-        if skip_existing and user_row.admin == False:
+        if skip_existing and not user_row.admin == AdminRight.admin:
             logger.debug(f"admin sync: skip non-admin {user_row.username}")
         else:
             logger.debug(f"admin sync: {user_row.username}")

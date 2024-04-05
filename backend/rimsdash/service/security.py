@@ -13,6 +13,8 @@ import rimsdash.schemas as schemas
 import rimsdash.utils.keycloak as keycloak
 import rimsdash.service as service
 
+from rimsdash.models import AdminRight
+
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
@@ -28,7 +30,8 @@ def lookup_admin_rights(db: Session, keycloak_user: dict) -> bool:
     """
     extracts user from decoded keycloak token and checks their access
 
-    Any failure needs to raise exception
+    returns True if user has admin/realm access, otherwise raises exception
+
     """
 
     try:
@@ -58,10 +61,10 @@ def lookup_admin_rights(db: Session, keycloak_user: dict) -> bool:
         if not user:
             raise Exception(f"Email {email} from keycloak token not found in DB")
 
-        elif user.admin == False:
-            raise Exception(f"Access denied for {user.username} {email}, admin={user.admin}")
+        elif not user.admin == AdminRight.admin:
+            raise Exception(f"Access denied for non-admin user {user.username} {email}, admin={user.admin}")
 
-        elif user.admin == True:
+        elif user.admin == AdminRight.admin:
             logger.debug(f"RIMS access OK for {user.username} {email}")
             return True
         else:
@@ -72,7 +75,8 @@ def lookup_user(db: Session, keycloak_user: dict) -> bool:
     """
     extracts user from decoded keycloak token and checks their access
     
-    if admin = False, returns false instead of raising exception
+    returns True if user has admin/realm access, otherwise returns False
+
     """
     
     try:
@@ -103,11 +107,11 @@ def lookup_user(db: Session, keycloak_user: dict) -> bool:
         if not user:
             raise Exception(f"Email {email} from keycloak token not found in DB")
 
-        elif user.admin == False:
-            logger.debug(f"Unpriveleged access for {user.username} {email}, {user.admin == False}")
+        elif not user.admin == AdminRight.admin:
+            logger.debug(f"Unpriveleged access for {user.username} {email}, admin={user.admin}")
             return False
 
-        elif user.admin == True:
+        elif user.admin == AdminRight.admin:
             logger.debug(f"RIMS access OK for {user.username} {email}")
             return True
         else:

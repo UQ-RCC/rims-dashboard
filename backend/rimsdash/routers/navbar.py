@@ -12,6 +12,8 @@ import rimsdash.schemas as schemas
 import rimsdash.utils.keycloak as keycloak
 import rimsdash.service as service
 
+from rimsdash.models import AdminRight
+
 router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
@@ -170,7 +172,7 @@ async def api_adminslist(db: Session = Depends(rdb.get_db), keycloak_user: dict 
         return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
-        admins = crud.user.get_admins(db, admin_status=False)
+        admins = crud.user.get_admins(db, admin_status=AdminRight.admin)
 
         result = []
 
