@@ -18,10 +18,6 @@ from .utils import log_sync_error
 
 logger = logging.getLogger('rimsdash')
 
-#sessionmaker = FastAPISessionMaker(SQLALCHEMY_DATABASE_URL)
-
-ACCEPTED_REALMS = {'admin', 'dashboard'}
-
 
 def process_projects(db: Session = Depends(rdb.get_db)):
     """
@@ -32,20 +28,27 @@ def process_projects(db: Session = Depends(rdb.get_db)):
 
     for project in projects:
         try:
-            logger.debug(f"project state: {project.id}")
             project_schema = schemas.ProjectForStateCheckSchema.from_orm(project)
 
-            project_state = logic.process_project(project_schema)
+            project_state: schemas.ProjectStateInitSchema = logic.process_project(project_schema)
 
             _row = crud.project_state.get(db, project.id)
 
-            #FUTURE: need to sort out create vs update, much simpler if can unify
             if _row is None:
-                project_state = schemas.ProjectStateReceiveSchema.validate(project_state)
+                logger.debug(f'writing state for project {project.id}')                    
+                project_state = schemas.ProjectStateInitSchema.validate(project_state)
                 crud.project_state.create(db, project_state)
-            else:
-                project_state = schemas.ProjectStateUpdateSchema.validate(project_state)
+
+            elif not schemas.ProjectStateProcessSchema.validate(project_state) \
+                    == schemas.ProjectStateProcessSchema.from_orm(_row):
+
+                logger.debug(f'updating state for project {project.id}')                  
+                project_state = schemas.ProjectStateInitSchema.validate(project_state)
                 crud.project_state.update(db, _row, project_state)
+
+            else:
+                logger.debug(f'unchanged state for project {project.id}')                  
+                pass
         except:
             log_sync_error("project state", project.id)
 
@@ -57,20 +60,27 @@ def process_users(db: Session = Depends(rdb.get_db)):
 
     for user in users:
         try:
-            logger.debug(f"user state: {user.username}")
             user_schema = schemas.UserForStateCheckSchema.from_orm(user)
 
-            user_state = logic.process_user(user_schema)
+            user_state: schemas.UserStateInitSchema = logic.process_user(user_schema)
 
             _row = crud.user_state.get(db, user.username)
 
-            #FUTURE: need to sort out create vs update, much simpler if can unify
             if _row is None:
-                user_state = schemas.UserStateReceiveSchema.validate(user_state)
+                logger.debug(f'writing state for user {user.username}')                 
+                user_state = schemas.UserStateInitSchema.validate(user_state)
                 crud.user_state.create(db, user_state)
-            else:
-                user_state = schemas.UserStateUpdateSchema.validate(user_state)
+
+            elif not schemas.UserStateProcessSchema.validate(user_state) \
+                    == schemas.UserStateProcessSchema.from_orm(_row):
+
+                logger.debug(f'updating state for user {user.username}') 
+                user_state = schemas.UserStateInitSchema.validate(user_state)
                 crud.user_state.update(db, _row, user_state)
+
+            else:
+                logger.debug(f'unchanged state for user {user.username}')                 
+                pass
         except:
             log_sync_error("user state", user.username)
 
@@ -80,18 +90,25 @@ def postprocess_projects(db: Session = Depends(rdb.get_db)):
 
     for project in projects:
         try:
-            logger.debug(f'posprocessing proj {project.id}')
             project_schema = schemas.ProjectOutRefsSchema.from_orm(project)
 
-            project_state_updated = logic.postprocess_project(project_schema)
-
+            project_state_updated: schemas.ProjectStatePostProcessUpdateSchema \
+                    = logic.postprocess_project(project_schema)
+            
+            project_state = schemas.ProjectStatePostProcessUpdateSchema.validate(project_state_updated)
+            
             _row = crud.project_state.get(db, project.id)
 
-            if _row is not None:
-                project_state = schemas.ProjectStatePostProcessUpdateSchema.validate(project_state_updated)
+            if _row is None:
+                logger.warn(f'project-state {project.id} not found in database during postprocessing')
+
+            elif not project_state == schemas.ProjectStatePostProcessUpdateSchema.from_orm(_row):
+                logger.debug(f'writing post-state for project {project.id}')                
                 crud.project_state.update(db, _row, project_state)
+
             else:
-                logger.warn(f'project-state {project.id} not found in database after update')
+                logger.debug(f'unchanged post-state for project {project.id}')                    
+                pass
         except:
             log_sync_error("project post-state", project.id)
 
@@ -101,20 +118,26 @@ def postprocess_users(db: Session = Depends(rdb.get_db)):
 
     for user in users:
         try:
-            logger.debug(f'posprocessing user {user.username}')
             user_schema = schemas.UserOutRefsSchema.from_orm(user)
 
             user_state_updated = logic.postprocess_user(user_schema)
+            user_state = schemas.UserStatePostProcessUpdateSchema.validate(user_state_updated)
 
             _row = crud.user_state.get(db, user.username)
 
-            if _row is not None:
-                user_state = schemas.UserStatePostProcessUpdateSchema.validate(user_state_updated)
-                crud.project_state.update(db, _row, user_state)
-            else:
+            if _row is None:
                 logger.warn(f'user-state {user.username} not found in database after update')
+
+            elif not user_state == schemas.UserStatePostProcessUpdateSchema.from_orm(_row):
+                logger.debug(f'writing post-state for user {user.username}')
+                crud.project_state.update(db, _row, user_state)
+
+            else:
+                logger.debug(f'unchanged post-state for user {user.username}')                
+                pass
         except:
             log_sync_error("user post-state", user.username)
+
 
 def process_trequests(db: Session = Depends(rdb.get_db)):
     
@@ -122,7 +145,7 @@ def process_trequests(db: Session = Depends(rdb.get_db)):
 
     for trequest in trequests:
         try:
-            logger.debug(f'posprocessing training request  {trequest.id}')
+
             trequest_schema = schemas.TrainingRequestForProcessingSchema.from_orm(trequest)
 
             trequest_updated: schemas.TrainingRequestUpdateStateSchema \
@@ -130,9 +153,15 @@ def process_trequests(db: Session = Depends(rdb.get_db)):
 
             _row = crud.trequest.get(db, trequest.id)
 
-            if _row is not None:
-                crud.trequest.update(db, _row, trequest_updated)
-            else:
+            if _row is None:
                 logger.warn(f'training request {trequest.id} absent in DB on attempted update')
+
+            elif not trequest_updated == schemas.TrainingRequestUpdateStateSchema.from_orm(_row):
+                logger.debug(f'updating state for trequest  {trequest.id}')
+                crud.trequest.update(db, _row, trequest_updated)
+
+            else:
+                logger.debug(f'unchanged state for trequest  {trequest.id}')
+                pass
         except:
             log_sync_error("trequest state", trequest.id)

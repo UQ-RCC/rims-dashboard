@@ -4,7 +4,7 @@ import rimsdash.schemas as schemas
 
 from rimsdash.models import IStatus, UserStateModel, ProjectStateModel, SystemRight
 
-from rimsdash.schemas import UserForStateCheckSchema, UserStateReceiveSchema, ProjectStateReceiveSchema, ProjectForStateCheckSchema, ProjectOutRefsSchema, ProjectStatePostProcessUpdateSchema, UserStatePostProcessUpdateSchema, UserOutRefsSchema
+from rimsdash.schemas import UserForStateCheckSchema, UserStateInitSchema, ProjectStateInitSchema, ProjectForStateCheckSchema, ProjectOutRefsSchema, ProjectStatePostProcessUpdateSchema, UserStatePostProcessUpdateSchema, UserOutRefsSchema
 
 
 import rimsdash.config as config
@@ -51,13 +51,13 @@ def get_rims_key(code: int):
     raise ValueError(f"code {code} not found in lab code lists")
 
 
-def process_user(user: UserForStateCheckSchema) -> UserStateReceiveSchema:
+def process_user(user: UserForStateCheckSchema) -> UserStateInitSchema:
     """
     generate status result from user data
     """
 
     #initialise to labs not needed
-    state = UserStateReceiveSchema(
+    state = UserStateInitSchema(
         username=user.username,
         access_hawken=IStatus.off,        
         access_aibn=IStatus.off,
@@ -104,15 +104,15 @@ def process_user(user: UserForStateCheckSchema) -> UserStateReceiveSchema:
         else:
             state.active = IStatus.disabled
         
-        if state.active == IStatus.ready and \
-            state.access_pitschi == IStatus.ready \
+        if state.active in [ IStatus.off, IStatus.ready ] and \
+            state.access_pitschi in [ IStatus.off, IStatus.ready ] \
             and any(
-                (labstate == IStatus.ready or labstate == IStatus.extended) for \
+                (labstate in [ IStatus.ready, IStatus.extended ] ) for \
                 labstate in [ state.access_hawken, state.access_aibn, state.access_chem, state.access_qbp ]
         ):
-            state.ok = IStatus.ready
+            state.ok_user = IStatus.ready
         else:
-            state.ok = IStatus.fail
+            state.ok_user = IStatus.fail
     except:
         logger.error(f"error generating user state for {user.username}")
 
@@ -121,16 +121,16 @@ def process_user(user: UserForStateCheckSchema) -> UserStateReceiveSchema:
 
 
 
-def process_project(project: ProjectForStateCheckSchema) -> ProjectStateReceiveSchema:
+def process_project(project: ProjectForStateCheckSchema) -> ProjectStateInitSchema:
     """
     generate status result from project data
     """
-    state = ProjectStateReceiveSchema(project_id = project.id)
+    state = ProjectStateInitSchema(project_id = project.id)
 
     try:
         #phase
         if project.phase == 0:
-            state.phase = IStatus.disabled
+            state.phase = IStatus.fail
         elif project.phase == 1:
             state.phase = IStatus.fail
         elif project.phase == 2:
@@ -174,21 +174,85 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateReceiveS
 
         #set overall from other states
         all_ready = \
-            state.active == IStatus.ready and \
-            state.billing == IStatus.ready and \
-            state.ohs == IStatus.ready and \
-            state.rdm == IStatus.ready and \
-            state.phase == IStatus.ready
+            state.active in [ IStatus.off, IStatus.ready ] and \
+            state.billing in [ IStatus.off, IStatus.ready ] and \
+            state.ohs in [ IStatus.off, IStatus.ready ] and \
+            state.rdm in [ IStatus.off, IStatus.ready ] and \
+            state.phase in [ IStatus.off, IStatus.ready ]
 
         if all_ready:
-            state.ok = IStatus.ready
+            state.ok_project = IStatus.ready
         else:
-            state.ok = IStatus.fail
+            state.ok_project = IStatus.fail
     except:
         logger.error(f"error generating project state for {project.id}")
 
     finally:
         return state
+
+
+
+def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProcessUpdateSchema:
+    
+    project_state = ProjectStatePostProcessUpdateSchema(
+            project_id = project.id, 
+            ok_project = project.project_state.ok_project,             
+            ok_user = IStatus.fail,
+            ok_all = IStatus.fail,
+        )
+
+    try:
+        #look for a non-admin user 
+        for user_right in project.user_rights:
+            _user_state = user_right.user.user_state
+            if user_right.user.admin == True:
+                continue
+            elif _user_state.ok_user == IStatus.ready:
+                project_state.ok_user = IStatus.ready
+
+        if project.type == "Fee for Service":
+            project_state.ok_user = IStatus.off
+
+        if project_state.ok_project == IStatus.ready \
+                and (project_state.ok_user in [ IStatus.off, IStatus.ready ] ):
+            project_state.ok_all = IStatus.ready
+
+    except:
+        logger.error(f"error post-processing project state {project.id}")
+    
+    finally:
+        return project_state
+
+
+def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchema:
+    
+    user_state = UserStatePostProcessUpdateSchema(
+        username = user.username, 
+        ok_user = user.user_state.ok_user,
+        ok_project = IStatus.fail,
+        ok_all = IStatus.fail,
+    )
+
+    try:
+        for project_right in user.project_rights:
+            __project_state = project_right.project.project_state
+
+            if __project_state.ok_project == IStatus.ready:
+                user_state.ok_project = IStatus.ready
+                break
+
+        if user.admin == True:
+            user_state.ok_project = IStatus.off
+
+        if user_state.ok_user == IStatus.ready \
+                and (user_state.ok_project in [ IStatus.off, IStatus.ready ] ):
+            user_state.ok_all = IStatus.ready
+
+    except:
+        logger.error(f"error post-processing user state {user.username}")
+
+    finally:
+        return user_state
 
 
 def process_trequest(trequest: schemas.TrainingRequestForProcessingSchema) -> schemas.TrainingRequestUpdateStateSchema:
@@ -199,53 +263,11 @@ def process_trequest(trequest: schemas.TrainingRequestForProcessingSchema) -> sc
         user_state = trequest.user.user_state
 
         #good if user ok and has project that is ok, or is staff
-        if ( user_state.ok == IStatus.ready and user_state.ok_project == IStatus.ready ) or trequest.user.admin == True:
+        if ( user_state.ok_all == IStatus.ready ) or trequest.user.admin == True:
             return_trequest.state = IStatus.ready
+
     except:
         logger.error(f"error generating trequest state for {trequest.id}")
 
     finally:
         return return_trequest
-
-
-def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProcessUpdateSchema:
-    
-    return_state = ProjectStatePostProcessUpdateSchema(project_id = project.id, ok_user = IStatus.fail )
-
-    try:
-        #look for a non-admin user 
-        for user_right in project.user_rights:
-            _user_state = user_right.user.user_state
-            if user_right.user.admin == True:
-                continue
-            elif _user_state.ok == IStatus.ready:
-                return_state.ok_user = IStatus.ready
-
-        if project.type == "Fee for Service":
-            return_state.ok_user = IStatus.off
-    except:
-        logger.error(f"error post-processing project state {project.id}")
-    
-    finally:
-        return return_state
-
-
-def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchema:
-    
-    return_state = UserStatePostProcessUpdateSchema(
-        username = user.username, 
-        ok_project = IStatus.fail,
-    )
-
-    try:
-        for project_right in user.project_rights:
-            __project_state = project_right.project.project_state
-            if user.admin == True:
-                return_state.ok_project = IStatus.off
-            elif __project_state.ok == IStatus.ready:
-                return_state.ok_project = IStatus.ready
-    except:
-        logger.error(f"error post-processing user state {user.username}")
-
-    finally:
-        return return_state

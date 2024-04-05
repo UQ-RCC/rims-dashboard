@@ -11,26 +11,50 @@ ProjectOutInfoSchema=ForwardRef('ProjectOutInfoSchema')
 
 class ProjectStateBaseSchema(BaseSchema):
     project_id: int
-    ok: IStatus = IStatus.none
     active: IStatus = IStatus.none
     billing: IStatus = IStatus.none
     ohs: IStatus = IStatus.none
     rdm: IStatus = IStatus.none
     phase: IStatus = IStatus.none
+    ok_project: IStatus = IStatus.none  
     ok_user: IStatus = IStatus.none
+    ok_all: IStatus = IStatus.none    
 
     class Config:
         orm_mode = True
 
-class ProjectStateCreateSchema(ProjectStateBaseSchema):
+#crud
+
+class ProjectStateInitSchema(ProjectStateBaseSchema):
     ...
 
-class ProjectStateUpdateSchema(ProjectStateBaseSchema):
+class ProjectStateCreateSchema(ProjectStateInitSchema):
     ...
 
-class ProjectStateReceiveSchema(ProjectStateBaseSchema):
+class ProjectStateUpdateSchema(ProjectStateInitSchema):
     ...
 
+class ProjectStateProcessSchema(BaseSchema):
+    project_id: int
+    active: IStatus = IStatus.none
+    billing: IStatus = IStatus.none
+    ohs: IStatus = IStatus.none
+    rdm: IStatus = IStatus.none
+    phase: IStatus = IStatus.none
+    ok_project: IStatus = IStatus.none      
+
+    class Config:
+        orm_mode = True
+
+class ProjectStatePostProcessUpdateSchema(BaseSchema):
+    project_id: int
+    ok_user: IStatus = IStatus.none
+    ok_all: IStatus = IStatus.none
+
+    class Config:
+        orm_mode = True
+
+#presentation
 
 class ProjectStateOutSchema(ProjectStateBaseSchema):
     """
@@ -52,12 +76,7 @@ class ProjectStateOutFullRefsSchema(ProjectStateBaseSchema):
     project: ProjectOutInfoSchema
 
 
-class ProjectStatePostProcessUpdateSchema(BaseSchema):
-    project_id: int
-    ok_user: IStatus = IStatus.none
 
-    class Config:
-        orm_mode = True
 
 
 

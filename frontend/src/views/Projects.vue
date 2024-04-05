@@ -109,7 +109,7 @@
                         <StatusIndicatorLocal :status="item.project_state.ok_user" :pulse="false"/>
                     </td> 
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state.ok" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.all_ok" :pulse="false"/>
                     </td> 
                 </tr> 
             </template> 

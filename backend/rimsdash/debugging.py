@@ -80,16 +80,17 @@ if False:
 
 print("STARTING")
 
-if True:        
-    logger.info(">>>>>>>>>>>>Initialising DB")
-    rdb.init_db()
-else:
-    logger.info(">>>>>>>>>>>>DB already initialised")
+#if True:        
+#    logger.info(">>>>>>>>>>>>Initialising DB")
+#    rdb.init_db()
+#else:
+#    logger.info(">>>>>>>>>>>>DB already initialised")
 
-logger.info(">>>>>>>>>>>>Sync event triggered")
+#logger.info(">>>>>>>>>>>>Sync event triggered")
+
 with rdb.sessionmaker.context_session() as db:
-    sync.master.primary_sync(db, force=False)
+    sync.processing.process_trequests(db) 
 
-print("U done")
+print("COMPLETE")
 
 

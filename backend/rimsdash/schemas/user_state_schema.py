@@ -9,29 +9,54 @@ UserOutSchema=ForwardRef('UserOutSchema')
 
 class UserStateBaseSchema(BaseSchema):
     username: str
-    ok: IStatus = IStatus.none
     active: IStatus = IStatus.none
     access_aibn: IStatus = IStatus.none
     access_hawken: IStatus = IStatus.none
     access_chem: IStatus = IStatus.none
     access_qbp: IStatus = IStatus.none
     access_pitschi: IStatus = IStatus.none 
+    ok_user: IStatus = IStatus.none
     ok_project: IStatus = IStatus.none
+    ok_all: IStatus = IStatus.none
 
     class Config:
         orm_mode = True
 
-class UserStateCreateSchema(UserStateBaseSchema):
+#crud
+        
+class UserStateInitSchema(UserStateBaseSchema):
     ...
 
-class UserStateUpdateSchema(UserStateBaseSchema):
+class UserStateCreateSchema(UserStateInitSchema):
     ...
 
-
-class UserStateReceiveSchema(UserStateBaseSchema):
+class UserStateUpdateSchema(UserStateInitSchema):
     ...
 
+class UserStateProcessSchema(BaseSchema):
+    username: str
+    active: IStatus = IStatus.none
+    access_aibn: IStatus = IStatus.none
+    access_hawken: IStatus = IStatus.none
+    access_chem: IStatus = IStatus.none
+    access_qbp: IStatus = IStatus.none
+    access_pitschi: IStatus = IStatus.none
+    ok_user: IStatus = IStatus.none  
 
+    class Config:
+        orm_mode = True    
+
+class UserStatePostProcessUpdateSchema(BaseSchema):
+    username: str
+    ok_user: IStatus = IStatus.none
+    ok_project: IStatus = IStatus.none
+    ok_all: IStatus = IStatus.none
+
+    class Config:
+        orm_mode = True
+
+
+#presentation
 
 class UserStateOutSchema(UserStateBaseSchema):
     """
@@ -41,18 +66,10 @@ class UserStateOutSchema(UserStateBaseSchema):
 
 class UserStateOutInfoSchema(UserStateBaseSchema):
     """
-    No onward references, terminates recursion
+    includes user details
     """
     user: UserOutSchema
 
-
-
-class UserStatePostProcessUpdateSchema(BaseSchema):
-    username: str
-    ok_project: IStatus = IStatus.none
-
-    class Config:
-        orm_mode = True
 
 
 from .user_schema import UserOutSchema
