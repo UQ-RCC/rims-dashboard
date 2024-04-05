@@ -44,8 +44,8 @@ services:
     volumes:
     - './backend:/app'
 
-    command: ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 & uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80"]
-    #uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80
+    #command: ["sh", "-c", "python -m debugpy --wait-for-client --listen 0.0.0.0:5678 & uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80"]
+    command: uvicorn rimsdash.main:app --reload --host 0.0.0.0 --port 80
 
     healthcheck:
       test: curl --fail http://localhost:80/rims/api/v1/ready || exit 1
