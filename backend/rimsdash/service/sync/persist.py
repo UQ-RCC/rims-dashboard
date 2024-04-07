@@ -205,10 +205,9 @@ def admin_user(user_row: UserModel, db: Session = Depends(rdb.get_db), skip_exis
     """
 
     try:
-        if skip_existing and not user_row.admin == AdminRight.admin:
-            logger.debug(f"admin sync: skip non-admin {user_row.username}")
+        if skip_existing and user_row.admin in [ AdminRight.user, AdminRight.previous ]  :
+            logger.debug(f"admin sync: skip {user_row.username}, existing rights: {user_row.admin} ")
         else:
-            logger.debug(f"admin sync: {user_row.username}")
 
             try:
                 admin_dict = rims.get_admin_status(user_row.username)
@@ -216,6 +215,8 @@ def admin_user(user_row: UserModel, db: Session = Depends(rdb.get_db), skip_exis
                 log_sync_error("rims admin status", user_row.username)
 
             user_admin_in = schemas.user_schema.UserUpdateAdminSchema(**admin_dict)
+
+            logger.debug(f"admin sync: updating {user_row.username}, rights: {user_admin_in.admin}")
 
             crud.user.update(db, user_row, user_admin_in)
     except:
