@@ -89,7 +89,7 @@ print("STARTING")
 #logger.info(">>>>>>>>>>>>Sync event triggered")
 
 with rdb.sessionmaker.context_session() as db:
-    sync.processing.process_trequests(db) 
+    sync.batch.user_rights(db)
 
 print("COMPLETE")
 

@@ -284,10 +284,10 @@ def project_user(project_user: dict, db: Session = Depends(rdb.get_db)):
 
         if __row is None:
             logger.debug(f"creating projectuser {__schema.username} : {__schema.project_id}")                
-            crud.systemuser.create(db, __schema)
+            crud.projectuser.create(db, __schema)
         elif not __schema == schemas.ProjectUsersReceiveSchema.from_orm(__row):
             logger.debug(f"updating projectuser {__schema.username} : {__schema.project_id}")                  
-            crud.systemuser.update(db, __row, __schema)
+            crud.projectuser.update(db, __row, __schema)
         else:
             logger.debug(f"unchanged projectuser {__schema.username} : {__schema.project_id}") 
 

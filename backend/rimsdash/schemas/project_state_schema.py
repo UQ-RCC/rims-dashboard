@@ -48,6 +48,7 @@ class ProjectStateProcessSchema(BaseSchema):
 
 class ProjectStatePostProcessUpdateSchema(BaseSchema):
     project_id: int
+    ok_project: IStatus = IStatus.none
     ok_user: IStatus = IStatus.none
     ok_all: IStatus = IStatus.none
 
