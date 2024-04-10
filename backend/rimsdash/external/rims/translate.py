@@ -16,6 +16,7 @@ RIMS_DATE_FORMAT_2 = "%Y/%m/%d %H:%M"
 RIMS_DATE_FORMAT_3 = "%Y/%m/%d"
 
 CORE_NAME:str = config.get('ppms', 'core_name', required=True)
+PREVIOUS_STAFF_USERNAMES:list = config.get_csv_list('manual','unlisted_staff')
 
 logger = logging.getLogger('rimsdash')
 
@@ -169,6 +170,11 @@ def validate_admin_check(rights_dict: dict) -> dict:
         if rights_dict['rights']=='OK' and rights_dict['admin']==True:
             result = schemas.user_schema.UserUpdateAdminSchema(
                 admin=AdminRight.admin
+            )
+            
+        elif rights_dict['login'] in PREVIOUS_STAFF_USERNAMES:
+            result = schemas.user_schema.UserUpdateAdminSchema(
+                admin=AdminRight.previous
             )
     
     finally:

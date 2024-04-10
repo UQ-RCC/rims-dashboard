@@ -54,22 +54,23 @@
                         <v-data-table    
                         :headers="usersTableHeaders"
                         :items="item.user_rights"
-                        item-key="userright.username"
+                        item-key="username"
                         class="elevation-1"
                         :items-per-page="10"
-                        :sort-by="['userright.admin','userright.username']"
+                        :sort-by="['admin']"
+                        :sort-desc="true"
                         height="300px" width="50%"
                         hide-default-footer
                         >
                             <template v-slot:item="{ item }">
                                 <tr :class="itemRowBackground(item)">
-                                    <td>{{ item.user.name }}</td>                                      
+                                    <td>{{ item.user.admin }}</td>                                      
                                     <td>
                                         <a :href="`${item.user.url}`" target="_blank">
                                         {{ item.user.username }}
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="col_lh-divider">
                                         <StatusIndicatorLocal :status="item.user.user_state.active" :pulse="false"/>
                                     </td>   
                                     <td>
@@ -87,12 +88,9 @@
                                     <td>
                                         <StatusIndicatorLocal :status="item.user.user_state.access_pitschi" :pulse="false"/>
                                     </td>
-                                    <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state.ok_project" :pulse="false"/>
-                                    </td>                                                                                                         
-                                    <td>
-                                        <StatusIndicatorLocal :status="item.user.user_state.all_ok" :pulse="false"/>
-                                    </td>                                 
+                                    <td class="col_lh-divider">
+                                        <StatusIndicatorLocal :status="item.user.user_state.ok_user" :pulse="false"/>
+                                    </td>                          
                                 </tr>
                             </template>
                         </v-data-table>
@@ -128,14 +126,14 @@ export default {
             usersTableHeaders: [
                         { text: 'Name', value: 'name', width: '25%' },
                         { text: 'Username', value: 'username', width: '8%' },
-                        { text: 'Active', value: 'active', width: '8%', sortable: false },
-                        { text: 'AIBN', value: 'aibn', width: '8%', sortable: false },
-                        { text: 'Hawken', value: 'hawken', width: '8%', sortable: false },
-                        { text: 'Chem', value: 'chem', width: '8%', sortable: false },
-                        { text: 'QBP', value: 'qbp', width: '8%', sortable: false },
-                        { text: 'Pitschi', value: 'pitschi', width: '8%', sortable: false },                    
-                        { text: 'Project', value: 'project', width: '8%', sortable: false },                     
-                        { text: 'OK', value: 'ok', width: '8%', sortable: false },                    
+                        { text: 'Active', value: 'user_state.active', width: '8%', sortable: false },
+                        { text: 'AIBN', value: 'user_state.access_aibn', width: '8%', sortable: false },
+                        { text: 'Hawken', value: 'user_state.access_hawken', width: '8%', sortable: false },
+                        { text: 'Chem', value: 'user_state.access_chem', width: '8%', sortable: false },
+                        { text: 'QBP', value: 'user_state.access_qbp', width: '8%', sortable: false },
+                        { text: 'Pitschi', value: 'user_state.access_pitschi', width: '8%', sortable: false },
+                        { text: 'User', value: 'user_state.ok_user', width: '8%', sortable: false },
+                        { text: '', value: 'admin', class: 'd-none', sortable: true }, // hidden column for sort, not working yet
                     ],
         }
     },
@@ -145,14 +143,14 @@ export default {
     },  
     methods: {
         itemRowBackground: function (item) {
-                return item.user.admin != "Admin" ? 'style-row-user' : 'style-row-admin'
+                return ( item.user.admin == "Admin" || item.user.admin == "PreviousAdmin" ) ? 'style-row-admin' : 'style-row-user'
             },
     }
 }
 
 </script>
 
-<style>
+<style scoped>
     .style-row-user {
         background: rgb(255,255,255) !important;
     }
@@ -179,6 +177,14 @@ export default {
     
     .style-expanded-card-text {
         line-height: 0.8em;
+    }
+
+    .col_lh-divider {
+        border-left: 1.5px solid lightgray;
+    }
+
+    .d-none {
+        display: none;
     }
 
 </style>

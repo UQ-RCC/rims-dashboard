@@ -130,7 +130,7 @@ def postprocess_users(db: Session = Depends(rdb.get_db)):
 
             elif not user_state == schemas.UserStatePostProcessUpdateSchema.from_orm(_row):
                 logger.debug(f'writing post-state for user {user.username}')
-                crud.project_state.update(db, _row, user_state)
+                crud.user_state.update(db, _row, user_state)
 
             else:
                 logger.debug(f'unchanged post-state for user {user.username}')                

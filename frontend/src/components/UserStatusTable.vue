@@ -19,6 +19,9 @@
                         </td>
                         <td>{{ item.name }}</td>                           
                         <td>
+                            <StatusIndicatorLocal :status="item.user_state.ok_all" :pulse="false"/>
+                        </td>                           
+                        <td class="col_lh-divider">
                             <StatusIndicatorLocal :status="item.user_state.active" :pulse="false"/>
                         </td>   
                         <td>
@@ -37,10 +40,10 @@
                             <StatusIndicatorLocal :status="item.user_state.access_pitschi" :pulse="false"/>
                         </td>
                         <td>
-                            <StatusIndicatorLocal :status="item.user_state.ok_project" :pulse="false"/>
+                            <StatusIndicatorLocal :status="item.user_state.ok_user" :pulse="false"/>
                         </td>                                                                                                         
-                        <td>
-                            <StatusIndicatorLocal :status="item.user_state.all_ok" :pulse="false"/>
+                        <td class="col_lh-divider">
+                            <StatusIndicatorLocal :status="item.user_state.ok_project" :pulse="false"/>
                         </td>                                 
                     </tr>
                 </template>
@@ -68,14 +71,15 @@ export default {
             usersTableHeaders: [
                         { text: 'Username', value: 'username', width: '8%', sortable: false },
                         { text: 'Name', value: 'name', width: '25%', sortable: false },
+                        { text: 'Ready', value: 'active', width: '8%', sortable: false },
                         { text: 'Active', value: 'active', width: '8%', sortable: false },
                         { text: 'AIBN', value: 'aibn', width: '8%', sortable: false },
                         { text: 'Hawken', value: 'hawken', width: '8%', sortable: false },
                         { text: 'Chem', value: 'chem', width: '8%', sortable: false },
                         { text: 'QBP', value: 'qbp', width: '8%', sortable: false },
-                        { text: 'Pitschi', value: 'pitschi', width: '8%', sortable: false },                    
-                        { text: 'Project', value: 'project', width: '8%', sortable: false },                     
-                        { text: 'OK', value: 'ok', width: '8%', sortable: false },                    
+                        { text: 'Pitschi', value: 'pitschi', width: '8%', sortable: false },
+                        { text: 'User', value: 'project', width: '8%', sortable: false },
+                        { text: 'Project', value: 'ok', width: '8%', sortable: false },                    
                     ],
         }
     },
@@ -84,7 +88,7 @@ export default {
     },  
     methods: {
         itemRowBackground: function (item) {
-                return item.admin != "Admin" ? 'style-row-user' : 'style-row-admin'
+                return ( item.admin == "Admin" || item.admin == "PreviousAdmin" ) ? 'style-row-admin' : 'style-row-user'
             },
     }
 }

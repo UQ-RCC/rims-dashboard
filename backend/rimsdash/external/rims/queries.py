@@ -319,7 +319,7 @@ def get_admin_rights(login: str, sysid: int):
             _text = response.text.strip()
             _lines = _text.split('\r\n')
             if not _lines == ['']:
-                permissions = { 'rights': _lines[0], 'admin': False }
+                permissions = { 'login':login, 'rights': _lines[0], 'admin': False }
                 try:
                     if _lines[1] == 'ADM':
                          permissions['admin'] = True

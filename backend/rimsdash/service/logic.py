@@ -203,16 +203,22 @@ def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProces
 
     try:
 
-        #project with only staff automatically ok
+        admin_only_project = True
+
+        #search for non-admin users
+        #   if non-admin user is ok, project is user_ok
         for user_right in project.user_rights:
             
-            _user_state = user_right.user.user_state
+            if not ( user_right.user.admin == AdminRight.admin or user_right.user.admin == AdminRight.previous ):
 
-            if not user_right.user.admin == AdminRight.admin:
-                continue
-            elif _user_state.ok_user == IStatus.ready:
-                project_state.ok_user = IStatus.ready
+                admin_only_project = False
+                
+                if user_right.user.user_state.ok_user == IStatus.ready:
+                    project_state.ok_user = IStatus.ready
 
+        if admin_only_project:
+            project_state.ok_user = IStatus.ready
+            
         if project.type == "Fee for Service":
             project_state.ok_user = IStatus.off
 

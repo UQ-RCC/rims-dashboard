@@ -89,8 +89,20 @@ print("STARTING")
 #logger.info(">>>>>>>>>>>>Sync event triggered")
 
 with rdb.sessionmaker.context_session() as db:
-    sync.batch.user_rights(db)
 
-print("COMPLETE")
+    #sync.processing.postprocess_projects(db)
+    #sync.processing.postprocess_users(db)
+    #sync.sequential.admin_users(db)
+
+    #sync.master.calc_states(db)
+
+    __project = crud.project.get(db, 3151)
+
+    result = schemas.project_schema.ProjectOutRefsSchema.from_orm(__project)
+
+#    for right in result.user_rights:
+#        print(f"{right.user.username}, {right.user.user_state.ok_all}")
+
+    print("COMPLETE")
 
 

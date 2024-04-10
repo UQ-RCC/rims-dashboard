@@ -24,6 +24,9 @@
                             <FeeForServiceIcon :value="item.type" />
                         </td>
                         <td>
+                            <StatusIndicatorLocal :status="item.project_state.ok_all" :pulse="false"/>
+                        </td>                      
+                        <td class="col_lh-divider">
                             <StatusIndicatorLocal :status="item.project_state.active" :pulse="false"/>
                         </td>   
                         <td>
@@ -39,11 +42,11 @@
                             <StatusIndicatorLocal :status="item.project_state.phase" :pulse="false"/>
                         </td>
                         <td>
-                            <StatusIndicatorLocal :status="item.project_state.ok_user" :pulse="false"/>
+                            <StatusIndicatorLocal :status="item.project_state.ok_project" :pulse="false"/>
                         </td> 
-                        <td>
-                            <StatusIndicatorLocal :status="item.project_state.all_ok" :pulse="false"/>
-                        </td>                                
+                        <td class="col_lh-divider">
+                            <StatusIndicatorLocal :status="item.project_state.ok_user" :pulse="false"/>
+                        </td>                               
                     </tr>
                 </template>
         </v-data-table>
@@ -73,13 +76,14 @@ export default {
                     { text: 'Title', value: 'title', width: '30%', sortable: false },
                     { text: 'Group', value: 'group', width: '10%', sortable: false },
                     { text: 'Type', value: 'type', width: '7%', sortable: false },
+                    { text: 'Ready', value: 'active', width: '7%', sortable: false },
                     { text: 'Active', value: 'active', width: '7%', sortable: false },
                     { text: 'Billing', value: 'billing', width: '7%', sortable: false },
                     { text: 'OHS', value: 'ohs', width: '7%', sortable: false },
                     { text: 'RDM', value: 'rdm', width: '7%', sortable: false },
                     { text: 'Phase', value: 'phase', width: '7%', sortable: false },
-                    { text: 'User', value: 'user', width: '7%', sortable: false },                    
-                    { text: 'OK', value: 'ok', width: '7%', sortable: false },                    
+                    { text: 'Project', value: 'user', width: '7%', sortable: false },             
+                    { text: 'User', value: 'ok', width: '7%', sortable: false },                      
                 ],
         }
     },
@@ -91,7 +95,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
     .style-row-user {
         background: rgb(255,255,255) !important;
     }
@@ -119,5 +123,9 @@ export default {
     .style-expanded-card-text {
         line-height: 0.8em;
     }
+
+    .col_lh-divider {
+        border-left: 1.5px solid lightgray;
+    }    
 
 </style>
