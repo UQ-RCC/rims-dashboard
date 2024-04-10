@@ -8,6 +8,7 @@ import rimsdash.config as config
 import rimsdash.schemas as schemas
 
 from .clean import rims_strip_username_brackets, rims_substitute_notatinos
+from .finalise import consolidate_duplicate_rights
 from rimsdash.models import SystemRight, ProjectRight, IStatus, AdminRight
 
 RIMS_DATE_FORMAT_1 = "%Y/%m/%d %H:%M:%S"
@@ -309,6 +310,8 @@ def validate_user_rights_list(rims_rights_list: list[dict]) -> list[dict]:
 
     for user in rims_rights_list:
 
+        user_result = []
+
         __username = user['username']
         __rights_list = json.loads(user['Data'])
 
@@ -322,9 +325,14 @@ def validate_user_rights_list(rims_rights_list: list[dict]) -> list[dict]:
                     system_id=__system_id, 
                     status=__status
                 )
-                result.append(__schema.dict())
+                user_result.append(__schema.dict())
             except:
                 logger.info(f"error translating userright: {user['username']}, {right['SystemID']}")
+
+        #postprocess this user to remove duplicates
+        user_result_keep = consolidate_duplicate_rights(user_result)
+
+        result.extend(user_result_keep)
 
     return result
 

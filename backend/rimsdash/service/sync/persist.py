@@ -250,8 +250,12 @@ def user_right(user_right: dict, db: Session = Depends(rdb.get_db)):
             logger.debug(f"creating systemuser {__schema.username} : {__schema.system_id}")                
             crud.systemuser.create(db, __schema)
         elif not __schema == schemas.SystemUserReceiveSchema.from_orm(__row):
-            logger.debug(f"updating systemuser {__schema.username} : {__schema.system_id}")                  
+            logger.debug(f"PRE {__row.username} : {__row.system_id}, {__row.status}")  
+            logger.debug(f"NEW {__schema.username} : {__schema.system_id}, {__schema.status}")                  
             crud.systemuser.update(db, __row, __schema)
+            logger.debug(f"POST {__row.username} : {__row.system_id}, {__row.status}")
+            #__debug = crud.systemuser.get(db, (__schema.username, __schema.system_id))
+            #logger.debug(f"FETCH {__debug.username} : {__debug.system_id}, {__debug.status}")
         else:
             logger.debug(f"unchanged systemuser {__schema.username} : {__schema.system_id}")                    
     except:

@@ -183,6 +183,9 @@ def user_rights(db: Session = Depends(rdb.get_db)):
     for user_right in user_rights_list:
         persist.user_right(user_right, db)
 
+        if user_right['username'] == 'uqlcase3':
+            print(user_right['username'], user_right['system_id'], user_right['status'])
+
 
 def project_users(db: Session = Depends(rdb.get_db)):
     """

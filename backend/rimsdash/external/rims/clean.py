@@ -49,3 +49,9 @@ def rims_substitute_notatinos(text: str):
         result = re.sub(LESSTHAN_PATTERN, '<', result)                
 
     return result
+
+
+
+
+    
+
