@@ -4,7 +4,9 @@ Copyright (c) 2018 Javier Diaz Chamorro
 -->
 
 <template>
-    <span class="status-indicator" :[status]="true" :pulse="pulse"></span>
+    <span class="status-indicator" :[status]="true" :pulse="pulse" :border="border">
+      <span class="status-label">{{ label }}</span>
+    </span>      
   </template>
   <script>
   export default {
@@ -19,6 +21,14 @@ Copyright (c) 2018 Javier Diaz Chamorro
         },
       },
       pulse: {
+        type: Boolean,
+        default: false,
+      },
+      label: {
+        type: String,
+        default: '',
+      },
+      border: {
         type: Boolean,
         default: false,
       },

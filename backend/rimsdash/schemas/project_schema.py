@@ -130,6 +130,7 @@ class ProjectMinOutSchema(BaseSchema):
     id: int
     title: str
     group: str
+    phase: int
     coreid: int = 2
     type: str = None
 

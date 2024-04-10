@@ -91,7 +91,7 @@
                         <FeeForServiceIcon :value="item.type" />
                     </td>
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state.ok_all" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.ok_all" :pulse="true"/>
                     </td>                      
                     <td class="col_lh-divider">
                         <StatusIndicatorLocal :status="item.project_state.active" :pulse="false"/>
@@ -106,7 +106,7 @@
                         <StatusIndicatorLocal :status="item.project_state.rdm" :pulse="false"/>
                     </td>                                                           
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state.phase" :pulse="false"/>
+                        <StatusIndicatorLocal :status="item.project_state.phase" :pulse="false" :label="item.phase"/>
                     </td>
                     <td>
                         <StatusIndicatorLocal :status="item.project_state.ok_project" :pulse="false"/>

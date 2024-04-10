@@ -10,6 +10,8 @@ Copyright (c) 2018 Javier Diaz Chamorro
     --status-indicator-size: 20px;
     --status-indicator-animation-duration: 2s;
   
+    --status-indicator-label-size: 12px;
+
     --status-indicator-color: rgb(216, 226, 233);
     --status-indicator-color-semi: rgba(216, 226, 233, .5);
     --status-indicator-color-transparent: rgba(216, 226, 233, 0);
@@ -79,6 +81,9 @@ Copyright (c) 2018 Javier Diaz Chamorro
     height: var(--status-indicator-size);
     background-color: var(--status-indicator-color);
   }
+  .status-indicator[border] {
+    border: 2px solid black;
+  }
   
   .status-indicator[pulse] {
     animation-name: status-indicator-pulse;
@@ -88,6 +93,15 @@ Copyright (c) 2018 Javier Diaz Chamorro
       animation-direction: normal;
       animation-delay: 0;
       animation-fill-mode: none;
+  }
+
+  .status-label {
+    position: relative;
+    top: 0%;
+    left: 33%;
+    transform: translate(-0%, -0%);
+    color: white;
+    font-size: var(--status-indicator-label-size);
   }
 
   .status-indicator[off] {
