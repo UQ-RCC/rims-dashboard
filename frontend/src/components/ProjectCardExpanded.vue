@@ -57,14 +57,14 @@
                         item-key="username"
                         class="elevation-1"
                         :items-per-page="10"
-                        :sort-by="['admin']"
-                        :sort-desc="true"
+                        :sort-by="['user.admin']"
+                        :sort-desc="[true]"
                         height="300px" width="50%"
                         hide-default-footer
                         >
                             <template v-slot:item="{ item }">
                                 <tr :class="itemRowBackground(item)">
-                                    <td>{{ item.user.admin }}</td>                                      
+                                    <td>{{ item.user.name }}</td>                                      
                                     <td>
                                         <a :href="`${item.user.url}`" target="_blank">
                                         {{ item.user.username }}
@@ -90,7 +90,7 @@
                                     </td>
                                     <td class="col_lh-divider">
                                         <StatusIndicatorLocal :status="item.user.user_state.ok_user" :pulse="false"/>
-                                    </td>                          
+                                    </td>                                                             
                                 </tr>
                             </template>
                         </v-data-table>
@@ -124,8 +124,8 @@ export default {
     data() {
         return {
             usersTableHeaders: [
-                        { text: 'Name', value: 'name', width: '25%' },
-                        { text: 'Username', value: 'username', width: '8%' },
+                        { text: 'Name', value: 'user.name', width: '25%', sortable: true },
+                        { text: 'Username', value: 'user.username', width: '8%', sortable: true },
                         { text: 'Active', value: 'user_state.active', width: '8%', sortable: false },
                         { text: 'AIBN', value: 'user_state.access_aibn', width: '8%', sortable: false },
                         { text: 'Hawken', value: 'user_state.access_hawken', width: '8%', sortable: false },
@@ -133,7 +133,7 @@ export default {
                         { text: 'QBP', value: 'user_state.access_qbp', width: '8%', sortable: false },
                         { text: 'Pitschi', value: 'user_state.access_pitschi', width: '8%', sortable: false },
                         { text: 'User', value: 'user_state.ok_user', width: '8%', sortable: false },
-                        { text: '', value: 'admin', class: 'd-none', sortable: true }, // hidden column for sort, not working yet
+                        { text: '', value: 'user.admin', class: 'd-none', sortable: true }, // hidden column for sort, not working yet, class: 'd-none',
                     ],
         }
     },

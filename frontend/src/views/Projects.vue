@@ -78,7 +78,7 @@
                 @item-expanded="fetchProjectDetails($event)"
         >
             <template v-slot:item="{ item, expand, isExpanded }">
-                 <tr class="style-row-project" @click="expand(!isExpanded)" >
+                 <tr class="style-row-project" @click.stop="expand(!isExpanded)" >
                     <td></td>
                     <td>
                         <a :href="`${item.url}`" target="_blank">
@@ -106,7 +106,7 @@
                         <StatusIndicatorLocal :status="item.project_state.rdm" :pulse="false"/>
                     </td>                                                           
                     <td>
-                        <StatusIndicatorLocal :status="item.project_state.phase" :pulse="false" :label="item.phase"/>
+                        <StatusIndicatorLocal :status="item.project_state.phase" :pulse="false" :label="item.phase.toString()"/>
                     </td>
                     <td>
                         <StatusIndicatorLocal :status="item.project_state.ok_project" :pulse="false"/>
@@ -163,18 +163,18 @@
                 filteredFullName: null,
 
                 projectsTableHeaders: [
-                    { text: 'Id', value: 'id', width: '5%', sortable: false },
-                    { text: 'Title', value: 'title', width: '30%', sortable: false },
-                    { text: 'Group', value: 'group', width: '10%', sortable: false },
-                    { text: 'Type', value: 'type', width: '7%', sortable: false },
-                    { text: 'Ready', value: 'active', width: '7%', sortable: false },
-                    { text: 'Active', value: 'active', width: '7%', sortable: false },
-                    { text: 'Billing', value: 'billing', width: '7%', sortable: false },
-                    { text: 'OHS', value: 'ohs', width: '7%', sortable: false },
-                    { text: 'RDM', value: 'rdm', width: '7%', sortable: false },
-                    { text: 'Phase', value: 'phase', width: '7%', sortable: false },
-                    { text: 'Project', value: 'user', width: '7%', sortable: false },             
-                    { text: 'User', value: 'ok', width: '7%', sortable: false },   
+                    { text: 'Id', value: 'id', width: '5%', sortable: true },
+                    { text: 'Title', value: 'title', width: '30%', sortable: true },
+                    { text: 'Group', value: 'group', width: '10%', sortable: true },
+                    { text: 'Type', value: 'type', width: '7%', sortable: true },
+                    { text: 'Ready', value: 'project_state.ok_all', width: '7%', sortable: true },
+                    { text: 'Active', value: 'project_state.active', width: '7%', sortable: true },
+                    { text: 'Billing', value: 'project_state.billing', width: '7%', sortable: true },
+                    { text: 'OHS', value: 'project_state.ohs', width: '7%', sortable: true },
+                    { text: 'RDM', value: 'project_state.rdm', width: '7%', sortable: true },
+                    { text: 'Phase', value: 'phase', width: '7%', sortable: true },
+                    { text: 'Project', value: 'project_state.ok_user', width: '7%', sortable: true },             
+                    { text: 'User', value: 'project_state.ok_project', width: '7%', sortable: true },   
                 ],
 
                 numberRules: [
@@ -310,8 +310,7 @@
 
                 try {
                     project_details = await ProjectsAPI.getProjectDetails(project_id)
-                    Vue.$log.debug("retrieved details:  "  + project_details.id)                     
-                    Vue.$log.debug(project_details.user_rights[0].user.user_state)    
+                    Vue.$log.debug("retrieved details:  "  + project_details.id)
                 } catch (error) {
                     Vue.$log.debug("API call getProjectDetails FAILED")                       
                 }             
@@ -324,6 +323,7 @@
                 const item = event.item; 
 
                 Vue.$log.debug("fetching details for " + item.id);
+                Vue.$log.debug("expanded " + this.expanded);
                 let project_details = {}
 
                 this.loading = true
