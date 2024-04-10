@@ -64,7 +64,7 @@
                         >
                             <template v-slot:item="{ item }">
                                 <tr :class="itemRowBackground(item)">
-                                    <td>{{ item.user.name }}</td>                                      
+                                    <td class="truncate">{{ item.user.name }}</td>                                      
                                     <td>
                                         <a :href="`${item.user.url}`" target="_blank">
                                         {{ item.user.username }}
@@ -151,6 +151,15 @@ export default {
 </script>
 
 <style scoped>
+
+    .truncate {
+            max-width: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
     .style-row-user {
         background: rgb(255,255,255) !important;
     }

@@ -67,18 +67,19 @@
                 :items="projects"
                 item-key="id"
                 class="elevation-1"
+                height="auto" width="100%"                
                 :items-per-page="15"
-                :sort-by="['id']"
-                :sort-desc="[true]"
-                height="auto" width="100%"
+                :sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
                 show-expand
                 :single-expand="true"
                 :expanded.sync="expanded"
                 :footer-props="{ itemsPerPageOptions: [15, 30, 50, 100, -1] }"
+                @click:row="handleRowClick"
                 @item-expanded="fetchProjectDetails($event)"
         >
             <template v-slot:item="{ item, expand, isExpanded }">
-                 <tr class="style-row-project" @click.stop="expand(!isExpanded)" >
+                 <tr class="style-row-project" @click="handleRowClick(expand, isExpanded)" >
                     <td></td>
                     <td>
                         <a :href="`${item.url}`" target="_blank">
@@ -90,28 +91,28 @@
                     <td>
                         <FeeForServiceIcon :value="item.type" />
                     </td>
-                    <td>
+                    <td class="col_lh-divider centre-content">
                         <StatusIndicatorLocal :status="item.project_state.ok_all" :pulse="true"/>
                     </td>                      
-                    <td class="col_lh-divider">
+                    <td class="col_lh-divider centre-content">
                         <StatusIndicatorLocal :status="item.project_state.active" :pulse="false"/>
                     </td>   
-                    <td>
+                    <td class="centre-content">
                         <StatusIndicatorLocal :status="item.project_state.billing" :pulse="false"/>
                     </td>  
-                    <td>
+                    <td class="centre-content">
                         <StatusIndicatorLocal :status="item.project_state.ohs" :pulse="false"/>
                     </td>   
-                    <td>
+                    <td class="centre-content">
                         <StatusIndicatorLocal :status="item.project_state.rdm" :pulse="false"/>
                     </td>                                                           
-                    <td>
+                    <td class="centre-content">
                         <StatusIndicatorLocal :status="item.project_state.phase" :pulse="false" :label="item.phase.toString()"/>
                     </td>
-                    <td>
+                    <td class="centre-content">
                         <StatusIndicatorLocal :status="item.project_state.ok_project" :pulse="false"/>
                     </td> 
-                    <td class="col_lh-divider">
+                    <td class="col_lh-divider centre-content">
                         <StatusIndicatorLocal :status="item.project_state.ok_user" :pulse="false"/>
                     </td> 
                 </tr> 
@@ -149,10 +150,8 @@
         data() {
             return {
 
-                expanded: [],
-                //expanded_data: {},
-                singleExpand: true,
 
+                //initialisation
                 loading: false,
 
                 projects: [],
@@ -162,19 +161,29 @@
                 filteredGroup: null,
                 filteredFullName: null,
 
+                //datatable setup
+                expanded: [],
+                singleExpand: true,
+
+                defaultSortBy: ['id'],
+                sortBy: ['id'],
+
+                defaultSortDesc: [true],                
+                sortDesc: [true],
+
                 projectsTableHeaders: [
-                    { text: 'Id', value: 'id', width: '5%', sortable: true },
-                    { text: 'Title', value: 'title', width: '30%', sortable: true },
+                    { text: 'Id', value: 'id', width: '4%', sortable: true },
+                    { text: 'Title', value: 'title', width: '25%', sortable: true },
                     { text: 'Group', value: 'group', width: '10%', sortable: true },
-                    { text: 'Type', value: 'type', width: '7%', sortable: true },
-                    { text: 'Ready', value: 'project_state.ok_all', width: '7%', sortable: true },
-                    { text: 'Active', value: 'project_state.active', width: '7%', sortable: true },
-                    { text: 'Billing', value: 'project_state.billing', width: '7%', sortable: true },
-                    { text: 'OHS', value: 'project_state.ohs', width: '7%', sortable: true },
-                    { text: 'RDM', value: 'project_state.rdm', width: '7%', sortable: true },
-                    { text: 'Phase', value: 'phase', width: '7%', sortable: true },
-                    { text: 'Project', value: 'project_state.ok_user', width: '7%', sortable: true },             
-                    { text: 'User', value: 'project_state.ok_project', width: '7%', sortable: true },   
+                    { text: 'Type', value: 'type', width: '6%', sortable: true },
+                    { text: 'Ready', value: 'project_state.ok_all', width: '6%', sortable: true, align: 'left' },
+                    { text: 'Active', value: 'project_state.active', width: '6%', sortable: true, align: 'left' },
+                    { text: 'Billing', value: 'project_state.billing', width: '6%', sortable: true, align: 'left' },
+                    { text: 'OHS', value: 'project_state.ohs', width: '6%', sortable: true, align: 'left' },
+                    { text: 'RDM', value: 'project_state.rdm', width: '6%', sortable: true, align: 'left' },
+                    { text: 'Phase', value: 'phase', width: '7%', sortable: true, align: 'left' },
+                    { text: 'Project', value: 'project_state.ok_user', width: '6%', sortable: true, align: 'left' },             
+                    { text: 'User', value: 'project_state.ok_project', width: '6%', sortable: true, align: 'left' },   
                 ],
 
                 numberRules: [
@@ -183,7 +192,25 @@
 
             }
         },
+        watch: {
+            sortBy(newVal) {
+                if (newVal.length === 0) {
+                    this.sortBy = [ ...this.defaultSortBy ];
+                }
+            },
+            sortDesc(newVal) {
+                if (newVal.length === 0) {
+                    this.sortDesc = [...this.defaultSortDesc ];
+                }            
+            },
+        },
         methods: {
+
+            handleRowClick(expand, isExpanded) {
+                //allows @click.row to be separated from @click expand, preventing table from re-rendering
+                expand(!isExpanded);
+            },
+
             async refresh(){
                 Vue.$log.debug("P refreshing ...")
                 this.loading = true
@@ -364,6 +391,7 @@
 <style scoped>
 
     .truncate200 {
+        /* unused */        
         max-width: 200px;
         white-space: nowrap;
         overflow: hidden;
@@ -377,20 +405,29 @@
         text-overflow: ellipsis;
     }
 
+    .centre-content {
+        /* not centering correctly */
+        /*display: flex;*/
+        justify-content: center;    
+        align-items: center;
+    }    
+
     .align-clear-btn {
         height: auto; /* Adjust the button height as needed */
         margin-top: 18px;
-    }
-
-    .col_rh-divider {
-        border-right: 1px solid lightgray;
     }
 
     .col_lh-divider {
         border-left: 1.5px solid lightgray;
     }
 
+    .col_rh-divider {
+        /* unused */        
+        border-right: 1px solid lightgray;
+    }
+
     .col_both-divider {
+        /* unused */        
         border-left: 1px solid lightgray;
         border-right: 1px solid lightgray;
     }    
