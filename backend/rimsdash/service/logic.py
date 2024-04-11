@@ -63,7 +63,7 @@ def process_user(user: UserForStateCheckSchema) -> UserStateInitSchema:
         access_aibn=IStatus.off,
         access_chem=IStatus.off,
         access_qbp=IStatus.off,        
-        access_pitschi=IStatus.fail,
+        access_pitschi=IStatus.incomplete,
     )
 
     try:
@@ -102,7 +102,7 @@ def process_user(user: UserForStateCheckSchema) -> UserStateInitSchema:
         if user.active == True:
             state.active = IStatus.ready
         else:
-            state.active = IStatus.disabled
+            state.active = IStatus.incomplete
         
         if state.active in [ IStatus.off, IStatus.ready ] and \
             state.access_pitschi in [ IStatus.off, IStatus.ready ] \
@@ -112,7 +112,7 @@ def process_user(user: UserForStateCheckSchema) -> UserStateInitSchema:
         ):
             state.ok_user = IStatus.ready
         else:
-            state.ok_user = IStatus.fail
+            state.ok_user = IStatus.incomplete
     except:
         logger.error(f"error generating user state for {user.username}")
 
@@ -130,23 +130,23 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateInitSche
     try:
         #phase
         if project.phase == 0:
-            state.phase = IStatus.fail
+            state.phase = IStatus.incomplete
         elif project.phase == 1:
-            state.phase = IStatus.fail
+            state.phase = IStatus.incomplete
         elif project.phase == 2:
-            state.phase = IStatus.fail
+            state.phase = IStatus.incomplete
         elif project.phase == 3:
             state.phase = IStatus.ready
         elif project.phase == 4:
-            state.phase = IStatus.disabled            
+            state.phase = IStatus.incomplete            
         else:
-            state.phase = IStatus.fail
+            state.phase = IStatus.incomplete
 
         #activity status
         if project.active == True:
             state.active = IStatus.ready
         else:
-            state.active = IStatus.disabled
+            state.active = IStatus.incomplete
 
         
         #billing
@@ -157,9 +157,9 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateInitSche
                 if project.project_account[0].valid == True:
                     state.billing = IStatus.ready
                 elif project.project_account[0].valid == False:
-                    state.billing = IStatus.fail
+                    state.billing = IStatus.incomplete
             except:
-                state.billing = IStatus.disabled                        
+                state.billing = IStatus.incomplete                        
             
 
         #FUTURE: if has rights in any lab
@@ -170,7 +170,7 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateInitSche
         if project.qcollection is not None and not project.qcollection == '':
             state.rdm = IStatus.ready    
         else:
-            state.rdm = IStatus.disabled
+            state.rdm = IStatus.incomplete
 
         #set overall from other states
         all_ready = \
@@ -183,7 +183,7 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateInitSche
         if all_ready:
             state.ok_project = IStatus.ready
         else:
-            state.ok_project = IStatus.fail
+            state.ok_project = IStatus.incomplete
     except:
         logger.error(f"error generating project state for {project.id}")
 
@@ -197,8 +197,8 @@ def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProces
     project_state = ProjectStatePostProcessUpdateSchema(
             project_id = project.id, 
             ok_project = project.project_state.ok_project,             
-            ok_user = IStatus.fail,
-            ok_all = IStatus.fail,
+            ok_user = IStatus.incomplete,
+            ok_all = IStatus.incomplete,
         )
 
     try:
@@ -238,8 +238,8 @@ def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchem
     user_state = UserStatePostProcessUpdateSchema(
         username = user.username, 
         ok_user = user.user_state.ok_user,
-        ok_project = IStatus.fail,
-        ok_all = IStatus.fail,
+        ok_project = IStatus.incomplete,
+        ok_all = IStatus.incomplete,
     )
 
     try:
@@ -266,7 +266,7 @@ def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchem
 
 def process_trequest(trequest: schemas.TrainingRequestForProcessingSchema) -> schemas.TrainingRequestUpdateStateSchema:
     
-    return_trequest = schemas.TrainingRequestUpdateStateSchema(id = trequest.id, state = IStatus.fail )
+    return_trequest = schemas.TrainingRequestUpdateStateSchema(id = trequest.id, state = IStatus.incomplete )
 
     try:
         user_state = trequest.user.user_state

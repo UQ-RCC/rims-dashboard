@@ -12,7 +12,7 @@ def consolidate_duplicate_rights(user_rights: list[dict]) -> list[dict]:
     """
 
     #use the Enum indexes, as declared, for the sort key
-    user_rights_sorted = sorted(user_rights, key=lambda d: list(SystemRight).index(d['status']), reverse=True)
+    user_rights_sorted = sorted(user_rights, key=lambda d: list(SystemRight).index(d['status']), reverse=False)
 
     systems_encountered = []
     result = []

@@ -43,18 +43,25 @@ class IStatus(Enum):
     """
     enum for indicator state values
     """    
+    none = '0_none'
+    incomplete = '1_incomplete'
+    warn = '2_warn'
+    off = '3_off'
+    ready = '4_ready'
+    extended = '5_extended'
+
     #in progress------- 
-    off = 'off'
-    incomplete = 'incomplete'
-    waiting = 'waiting'
-    ready = 'ready'
-    extended = 'extended'
-    disabled = 'disabled'
+    #off = 'off'
+    #incomplete = 'incomplete'
+    #waiting = 'waiting'
+    #ready = 'ready'
+    #extended = 'extended'
+    #disabled = 'disabled'
     #error------------
-    warn = 'warn'
-    fail = 'fail'
-    na = 'na'
-    none = 'none'
+    #warn = 'warn'
+    #fail = 'fail'
+    #na = 'na'
+    #none = 'none'
 
 class SystemRight(Enum):
     """
@@ -78,11 +85,11 @@ class AdminRight(Enum):
     """
     enum for RIMS used rights
     """    
-    admin = 'Admin'
-    previous = 'PreviousAdmin'
+    none = 'None'  
     user = 'User'
-    none = 'None'    
-
+    previous = 'PreviousAdmin'
+    admin = 'Admin'
+ 
 
 class SyncType(Enum):
     """

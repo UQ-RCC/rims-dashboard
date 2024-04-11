@@ -4,38 +4,66 @@ Copyright (c) 2018 Javier Diaz Chamorro
 -->
 
 <template>
-    <span class="status-indicator" :[status]="true" :pulse="pulse" :border="border">
+    <span class="status-indicator" :[modifiedStatus]="true" :pulse="pulse" :border="border">
       <span class="status-label">{{ label }}</span>
     </span>      
-  </template>
-  <script>
-  export default {
-    name: 'StatusIndicator',
-    props: {
-      status: {
-        type: String,
-        default: '',
-        validator(value) {
-          if (value === '') return true;
-          return ['off', 'incomplete', 'waiting', 'waiting_external', 'ready', 'extended', 'disabled', 'warn', 'fail', 'na', 'none' ].indexOf(value) !== -1;
-        },
-      },
-      pulse: {
-        type: Boolean,
-        default: false,
-      },
-      label: {
-        type: String,
-        default: '',
-      },
-      border: {
-        type: Boolean,
-        default: false,
+</template>
+
+
+<script>
+
+export default 
+{
+  name: 'StatusIndicator',
+
+  props: 
+  {
+    status: 
+    {
+      type: String,
+      default: '',
+      validator(value) 
+      {
+        if (value === '') return true;
+        return ['none', 'incomplete', 'off', 'ready', 'extended', 'warn', ].indexOf(value) !== -1;
       },
     },
-  };
-  </script>
-  <style src="../assets/status-indicator.css"></style>
+    pulse: 
+    {
+      type: Boolean,
+      default: false,
+    },
+    label: 
+    {
+      type: String,
+      default: '',
+    },
+    border: 
+    {
+      type: Boolean,
+      default: false,
+    },
+  },
+  
+  computed:
+  {
+    modifiedStatus() 
+    {
+      if (this.status.includes('_')) 
+      {
+        return this.status.split('_')[1];  
+      } 
+      else 
+      {
+        return this.status
+      }
+    },
+  },
+}
+
+</script>
+
+<style src="../assets/status-indicator.css"></style>
 
 
 <!--

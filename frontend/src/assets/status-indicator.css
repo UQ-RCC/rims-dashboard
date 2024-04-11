@@ -81,6 +81,7 @@ Copyright (c) 2018 Javier Diaz Chamorro
     height: var(--status-indicator-size);
     background-color: var(--status-indicator-color);
   }
+  
   .status-indicator[border] {
     border: 2px solid black;
   }
@@ -104,91 +105,6 @@ Copyright (c) 2018 Javier Diaz Chamorro
     font-size: var(--status-indicator-label-size);
   }
 
-  .status-indicator[off] {
-    background-color: var(--status-indicator-color-off);
-  }
-  
-  .status-indicator[off][pulse] {
-    animation-name: status-indicator-pulse-off;
-  }  
-  
-  .status-indicator[incomplete] {
-    background-color: var(--status-indicator-color-off);
-  }
-  
-  .status-indicator[incomplete][pulse] {
-    animation-name: status-indicator-pulse-off;
-  }  
-
-  .status-indicator[extended] {
-    background-color: var(--status-indicator-color-extended);
-  }
-  
-  .status-indicator[extended][pulse] {
-    animation-name: status-indicator-pulse-extended;
-  }
-  
-  .status-indicator[ready] {
-    background-color: var(--status-indicator-color-ready);
-    animation-name: status-indicator-pulse-ready;
-  }
-  
-  .status-indicator[ready][pulse] {
-    animation-name: status-indicator-pulse-ready;
-  }
-  
-  .status-indicator[warn] {
-    background-color: var(--status-indicator-color-warn);
-  }
-  
-  .status-indicator[warn][pulse] {
-    animation-name: status-indicator-pulse-warn;
-  }
-
-  .status-indicator[waiting] {
-    background-color: var(--status-indicator-color-warn);
-  }
-  
-  .status-indicator[waiting][pulse] {
-    animation-name: status-indicator-pulse-warn;
-  }  
-
-  .status-indicator[waiting_external] {
-    background-color: var(--status-indicator-color-warn);
-  }
-  
-  .status-indicator[waiting_external][pulse] {
-    animation-name: status-indicator-pulse-warn;
-  }  
-
-  
-  .status-indicator[fail] {
-    background-color: var(--status-indicator-color-fail);
-    animation-name: status-indicator-pulse-fail;
-  }
-  
-  .status-indicator[fail][pulse] {
-    animation-name: status-indicator-pulse-fail;
-  }
-
-  .status-indicator[disabled] {
-    background-color: var(--status-indicator-color-fail);
-    animation-name: status-indicator-pulse-fail;
-  }
-  
-  .status-indicator[disabled][pulse] {
-    animation-name: status-indicator-pulse-fail;
-  }
-
-  .status-indicator[na] {
-    background-color: var(--status-indicator-color-fail);
-    animation-name: status-indicator-pulse-fail;
-  }
-  
-  .status-indicator[na][pulse] {
-    animation-name: status-indicator-pulse-fail;
-  }
-
   .status-indicator[none] {
     background-color: var(--status-indicator-color-fail);
     animation-name: status-indicator-pulse-fail;
@@ -198,6 +114,47 @@ Copyright (c) 2018 Javier Diaz Chamorro
     animation-name: status-indicator-pulse-fail;
   }
 
+  .status-indicator[incomplete] {
+    background-color: var(--status-indicator-color-fail);
+  }
+  
+  .status-indicator[incomplete][pulse] {
+    animation-name: status-indicator-pulse-fail;
+  }  
+
+  .status-indicator[warn] {
+    background-color: var(--status-indicator-color-warn);
+  }
+  
+  .status-indicator[warn][pulse] {
+    animation-name: status-indicator-pulse-warn;
+  }  
+
+  .status-indicator[off] {
+    background-color: var(--status-indicator-color-off);
+  }
+  
+  .status-indicator[off][pulse] {
+    animation-name: status-indicator-pulse-off;
+  }  
+
+  .status-indicator[ready] {
+    background-color: var(--status-indicator-color-ready);
+    animation-name: status-indicator-pulse-ready;
+  }
+  
+  .status-indicator[ready][pulse] {
+    animation-name: status-indicator-pulse-ready;
+  }
+
+  .status-indicator[extended] {
+    background-color: var(--status-indicator-color-extended);
+  }
+  
+  .status-indicator[extended][pulse] {
+    animation-name: status-indicator-pulse-extended;
+  }  
+  
 
 
 /*

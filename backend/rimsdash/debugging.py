@@ -72,7 +72,7 @@ logging.getLogger("uvicorn").addHandler(sh)
 db = rdb.get_session()
 
 #drop and restart
-if False:
+if True:
     rdb.drop_db(force=True)
     rdb.init_db()    
 
@@ -88,21 +88,21 @@ print("STARTING")
 
 #logger.info(">>>>>>>>>>>>Sync event triggered")
 
-with rdb.sessionmaker.context_session() as db:
+#with rdb.sessionmaker.context_session() as db:
 
     #sync.processing.postprocess_projects(db)
-    #sync.processing.postprocess_users(db)
+    #sync.processing.process_users(db)
     #sync.sequential.admin_users(db)
 
     #sync.master.calc_states(db)
 
-    __project = crud.project.get(db, 3151)
+    #__project = crud.project.get(db, 3151)
 
-    result = schemas.project_schema.ProjectOutRefsSchema.from_orm(__project)
+    #result = schemas.project_schema.ProjectOutRefsSchema.from_orm(__project)
 
 #    for right in result.user_rights:
 #        print(f"{right.user.username}, {right.user.user_state.ok_all}")
 
-    print("COMPLETE")
+#    print("COMPLETE")
 
 
