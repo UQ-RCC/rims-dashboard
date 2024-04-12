@@ -25,7 +25,7 @@ export default
       validator(value) 
       {
         if (value === '') return true;
-        return ['none', 'incomplete', 'off', 'ready', 'extended', 'warn', ].indexOf(value) !== -1;
+        return ['0_none', '1_incomplete', '2_warn', '3_off', '4_ready', '5_extended', ].indexOf(value) !== -1;
       },
     },
     pulse: 

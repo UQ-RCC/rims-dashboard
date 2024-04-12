@@ -75,9 +75,6 @@
                 </v-btn>
             </div> -->
         </v-navigation-drawer>
-
-        
-        
     </div>
 </template>
 

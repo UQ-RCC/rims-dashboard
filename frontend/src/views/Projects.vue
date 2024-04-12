@@ -67,14 +67,14 @@
                 :items="projects"
                 item-key="id"
                 class="elevation-1"
-                height="auto" width="100%"                
-                :items-per-page="15"
+                height="auto" width="100%"
+                :items-per-page="tableItemsPerPage"
                 :sort-by.sync="sortBy"
                 :sort-desc.sync="sortDesc"
                 show-expand
                 :single-expand="true"
                 :expanded.sync="expanded"
-                :footer-props="{ itemsPerPageOptions: [15, 30, 50, 100, -1] }"
+                :footer-props="{ itemsPerPageOptions: tableRowOptions }"
                 @click:row="handleRowClick"
                 @item-expanded="fetchProjectDetails($event)"
         >
@@ -138,10 +138,13 @@
     import FeeForServiceIcon from '../components/FeeForServiceIcon.vue'   
     import ProjectCardExpanded from '../components/ProjectCardExpanded.vue'   
 
+    import { tablePerPageSetupMixin } from '../mixins/tablePerPageSetupMixin';
+
     Vue.use(VueLogger)
 
     export default {
         name: 'Projects',
+        mixins: [tablePerPageSetupMixin],
         components:{
             StatusIndicatorLocal: StatusIndicatorLocal,
             FeeForServiceIcon: FeeForServiceIcon,
@@ -182,8 +185,8 @@
                     { text: 'OHS', value: 'project_state.ohs', width: '6%', sortable: true, align: 'left' },
                     { text: 'RDM', value: 'project_state.rdm', width: '6%', sortable: true, align: 'left' },
                     { text: 'Phase', value: 'phase', width: '7%', sortable: true, align: 'left' },
-                    { text: 'Project', value: 'project_state.ok_user', width: '6%', sortable: true, align: 'left' },             
-                    { text: 'User', value: 'project_state.ok_project', width: '6%', sortable: true, align: 'left' },   
+                    { text: 'Project', value: 'project_state.ok_project', width: '6%', sortable: true, align: 'left' },             
+                    { text: 'User', value: 'project_state.ok_user', width: '6%', sortable: true, align: 'left' },   
                 ],
 
                 numberRules: [

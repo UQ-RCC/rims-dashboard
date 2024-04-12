@@ -56,14 +56,14 @@
                 :items="trequests"
                 item-key="id"
                 class="elevation-1"
-                :items-per-page="15"
+                :items-per-page="tableItemsPerPage"
                 :sort-by="['id']"
                 :sort-desc="[true]"
                 height="auto" width="100%"
                 show-expand
                 :single-expand="true"
                 :expanded.sync="expanded"
-                :footer-props="{ itemsPerPageOptions: [15, 30, 50, 100, -1] }"
+                :footer-props="{ itemsPerPageOptions: tableRowOptions }"
                 @item-expanded="fetchTrainingRequestDetails($event)"
         >
             <template v-slot:item="{ item, expand, isExpanded }">
@@ -158,13 +158,14 @@
     import StatusIndicatorLocal from '../components/StatusIndicatorLocal.vue'    
     import UserStatusTable from '../components/UserStatusTable.vue'   
     import ProjectStatusTable from '../components/ProjectStatusTable.vue'      
-    //import TrainingRequestCardExpanded from '../components/TrainingRequestCardExpanded.vue'   
+    import { tablePerPageSetupMixin } from '../mixins/tablePerPageSetupMixin';  
 
 
     Vue.use(VueLogger)
 
     export default {
         name: 'TrainingRequests',
+        mixins: [tablePerPageSetupMixin],        
         components:{
             StatusIndicatorLocal: StatusIndicatorLocal,
             UserStatusTable: UserStatusTable,

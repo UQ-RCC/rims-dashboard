@@ -99,10 +99,14 @@ Copyright (c) 2018 Javier Diaz Chamorro
   .status-label {
     position: relative;
     top: 0%;
-    left: 33%;
+    left: 0%;
     transform: translate(-0%, -0%);
     color: white;
     font-size: var(--status-indicator-label-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 110%;
   }
 
   .status-indicator[none] {
