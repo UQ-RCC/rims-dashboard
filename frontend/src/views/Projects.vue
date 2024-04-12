@@ -91,28 +91,28 @@
                     <td>
                         <FeeForServiceIcon :value="item.type" />
                     </td>
-                    <td class="col_lh-divider centre-content">
-                        <StatusIndicatorLocal :status="item.project_state.ok_all" :pulse="true"/>
+                    <td class="col_both-divider centre-content .sync_pulses">
+                        <StatusIndicatorLocal :status="item.project_state.ok_all" :pulse="false" :border="false"/>
                     </td>                      
-                    <td class="col_lh-divider centre-content">
+                    <td >
                         <StatusIndicatorLocal :status="item.project_state.active" :pulse="false"/>
                     </td>   
-                    <td class="centre-content">
+                    <td >
                         <StatusIndicatorLocal :status="item.project_state.billing" :pulse="false"/>
                     </td>  
-                    <td class="centre-content">
+                    <td >
                         <StatusIndicatorLocal :status="item.project_state.ohs" :pulse="false"/>
                     </td>   
-                    <td class="centre-content">
+                    <td >
                         <StatusIndicatorLocal :status="item.project_state.rdm" :pulse="false"/>
                     </td>                                                           
-                    <td class="centre-content">
+                    <td >
                         <StatusIndicatorLocal :status="item.project_state.phase" :pulse="false" :label="item.phase.toString()"/>
                     </td>
-                    <td class="centre-content">
+                    <td >
                         <StatusIndicatorLocal :status="item.project_state.ok_project" :pulse="false"/>
                     </td> 
-                    <td class="col_lh-divider centre-content">
+                    <td class="col_both-divider centre-content">
                         <StatusIndicatorLocal :status="item.project_state.ok_user" :pulse="false"/>
                     </td> 
                 </tr> 
@@ -179,14 +179,14 @@
                     { text: 'Title', value: 'title', width: '25%', sortable: true },
                     { text: 'Group', value: 'group', width: '10%', sortable: true },
                     { text: 'Type', value: 'type', width: '6%', sortable: true },
-                    { text: 'Ready', value: 'project_state.ok_all', width: '6%', sortable: true, align: 'left' },
+                    { text: 'Ready', value: 'project_state.ok_all', width: '6%', sortable: true, align: 'center' },
                     { text: 'Active', value: 'project_state.active', width: '6%', sortable: true, align: 'left' },
                     { text: 'Billing', value: 'project_state.billing', width: '6%', sortable: true, align: 'left' },
                     { text: 'OHS', value: 'project_state.ohs', width: '6%', sortable: true, align: 'left' },
                     { text: 'RDM', value: 'project_state.rdm', width: '6%', sortable: true, align: 'left' },
-                    { text: 'Phase', value: 'phase', width: '7%', sortable: true, align: 'left' },
+                    { text: 'Phase', value: 'phase', width: '6%', sortable: true, align: 'left' },
                     { text: 'Project', value: 'project_state.ok_project', width: '6%', sortable: true, align: 'left' },             
-                    { text: 'User', value: 'project_state.ok_user', width: '6%', sortable: true, align: 'left' },   
+                    { text: 'User', value: 'project_state.ok_user', width: '6%', sortable: true, align: 'center' },   
                 ],
 
                 numberRules: [
@@ -391,7 +391,8 @@
     }
 </script>
 
-<style scoped>
+<style>
+    /*scoped causes last col, first row to be out of scope. must be global for now */
 
     .truncate200 {
         /* unused */        
@@ -410,7 +411,7 @@
 
     .centre-content {
         /* not centering correctly */
-        /*display: flex;*/
+        display: flex;
         justify-content: center;    
         align-items: center;
     }    
@@ -429,8 +430,11 @@
         border-right: 1px solid lightgray;
     }
 
-    .col_both-divider {
-        /* unused */        
+    .sync_pulses {
+        /* no styles, class exists to tag for watcher */
+    }
+
+    .col_both-divider {     
         border-left: 1px solid lightgray;
         border-right: 1px solid lightgray;
     }    

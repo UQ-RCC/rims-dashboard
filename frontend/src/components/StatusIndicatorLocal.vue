@@ -4,7 +4,7 @@ Copyright (c) 2018 Javier Diaz Chamorro
 -->
 
 <template>
-    <span class="status-indicator" :[modifiedStatus]="true" :pulse="pulse" :border="border">
+    <span class="status-indicator" :[modifiedStatus]="true" :pulse="pulse" :border="border" :oversize="oversize">
       <span class="status-label">{{ label }}</span>
     </span>      
 </template>
@@ -28,6 +28,11 @@ export default
         return ['0_none', '1_incomplete', '2_warn', '3_off', '4_ready', '5_extended', ].indexOf(value) !== -1;
       },
     },
+    oversize: 
+    {
+      type: Boolean,
+      default: false,
+    },    
     pulse: 
     {
       type: Boolean,

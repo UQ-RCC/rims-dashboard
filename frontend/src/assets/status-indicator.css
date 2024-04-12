@@ -83,8 +83,14 @@ Copyright (c) 2018 Javier Diaz Chamorro
   }
   
   .status-indicator[border] {
-    border: 2px solid black;
+    box-sizing: border-box;    
+    border: 2px solid gray
   }
+
+  .status-indicator[oversize] {
+    width: calc(var(--status-indicator-size)*1.05);
+    height: calc(var(--status-indicator-size)*1.05);
+  }  
   
   .status-indicator[pulse] {
     animation-name: status-indicator-pulse;
