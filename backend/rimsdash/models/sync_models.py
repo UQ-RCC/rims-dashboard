@@ -3,7 +3,7 @@ from enum import Enum
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum, DateTime, Date, Time, Interval, ForeignKeyConstraint, null
 from datetime import datetime
 
-from .base_model import Base, SyncType
+from .base_model import Base, SyncType, SyncStatus
 
 
 class SyncModel(Base):
@@ -13,3 +13,4 @@ class SyncModel(Base):
     start_time = Column(DateTime, nullable=True)
     end_time = Column(DateTime, nullable=True)
     complete = Column(Boolean, default=False)
+    status = Column(Enum(SyncStatus), default=SyncStatus.none)

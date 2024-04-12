@@ -69,7 +69,7 @@ def calc_states(db):
     processing.process_trequests(db) 
     logger.info(">>>>>>>>>>>> Finished calculating states")
 
-def dummy_sync(db, sync_type: SyncType = SyncType.minor):
+def dummy_sync(db, sync_type: SyncType = SyncType.update):
     """
     add dummy sync to DB
     """

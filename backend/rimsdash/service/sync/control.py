@@ -14,7 +14,7 @@ import rimsdash.schemas as schemas
 import rimsdash.crud as crud
 import rimsdash.service.logic as logic
 
-from rimsdash.models import SystemRight, ProjectRight, SyncType
+from rimsdash.models import SystemRight, ProjectRight, SyncType, SyncStatus
 
 from .utils import log_sync_error
 
@@ -26,8 +26,6 @@ import rimsdash.service.sync.sequential as sequential
 import rimsdash.service.sync.master as master
 
 logger = logging.getLogger('rimsdash')
-
-WIPE_DB_ON_FULL_SYNC = bool(config.get('sync', 'wipe_db_on_full_sync', default=7))
 
 SYNC_WAIT_FULL_DAYS = int(config.get('sync', 'sync_wait_full_days', default=7))
 SYNC_WAIT_FULL_GRACE = 12   #hours
@@ -54,33 +52,45 @@ def remake_db(db: Session = Depends(rdb.get_db), force=False):
 
 
 
-def run_sync(db: Session = Depends(rdb.get_db), sync_type: SyncType = SyncType.minor, force=False, rebuild=False):
+def run_sync(db: Session = Depends(rdb.get_db), sync_type: SyncType = SyncType.update, force=False):
 
     try:
         logger.info(f">>>>>>>>>>>> sync event triggered, type {sync_type}")
 
-        last = access.sync.get_last_sync(db, accept_minor = (sync_type == SyncType.minor))
-        
-        if sync_type == SyncType.minor and last is None:
-            logger.warn(f">>>>>>>>>>>> WARNING: no recent sync found, upgrading to full sync")
+        #check type
+        if sync_type not in [ SyncType.update, SyncType.full, SyncType.rebuild ]:
+            raise ValueError(f"Sync type {sync_type} not recognised, aborting")
+
+        #check for other active syncs
+        active_sync_events: list = access.sync.get_all_ongoing_syncs(db)
+
+        if len(active_sync_events) > 0:
+            raise ValueError(f"{len(active_sync_events)} ongoing sync events found, cancelling new sync event")            
+
+        #get last completed sync and its timedelta
+        last = access.sync.get_last_sync(db, match_status=SyncStatus.complete, accept_minor = (sync_type == SyncType.update), )
+
+        delta: datetime.timedelta = access.sync.get_sync_delta(last)
+
+        if last is None:
+            logger.warn(f">>>>>>>>>>>> WARNING: no recent sync found, performing full sync")
             sync_type = SyncType.full
 
-        delta: datetime.timedelta = access.sync.get_last_sync_delta(db, accept_minor = (sync_type == SyncType.minor))
-        #FUTURE: also check for concurrent other sync events (ie. recent begin but no end)
-
-        if sync_type == SyncType.full:
+        #calc acceptable timedelta
+        if sync_type in [ SyncType.full, SyncType.rebuild ]:
             accepted_delta = datetime.timedelta(days=SYNC_WAIT_FULL_DAYS) - datetime.timedelta(hours=SYNC_WAIT_FULL_GRACE)
-        elif sync_type == SyncType.minor:
+        elif sync_type == SyncType.update:
             accepted_delta = datetime.timedelta(hours=SYNC_WAIT_MINOR_HOURS) - datetime.timedelta(hours=SYNC_WAIT_MINOR_GRACE)
         else:
             raise ValueError(f"Sync type {sync_type} not recognised, aborting")
 
+        #perform the sync
         if force or (delta >= accepted_delta):
             logger.info(f">>>>>>>>>>>> Begin sync, type {sync_type}")
 
-            if sync_type == SyncType.full and rebuild:
-                logger.warn(">>>>>>>>>>>> DELETING DB PRIOR TO FULL SYNC")
-                db = remake_db(db, force=rebuild)
+            if sync_type == SyncType.rebuild:
+                logger.warn(">>>>>>>>>>>> DROPPING AND REBUILDING DB DURING SYNC")
+                db = remake_db(db, force=True)
 
             sync_start_schema = schemas.sync_schema.SyncCreateSchema(sync_type=sync_type)
             current_event = crud.sync.create(db, sync_start_schema)
@@ -88,22 +98,30 @@ def run_sync(db: Session = Depends(rdb.get_db), sync_type: SyncType = SyncType.m
             try:
                 master.rims_sync_batch_lists(db)
 
-                master.rims_sync_individual(db, skip_existing = (sync_type == SyncType.minor))
+                master.rims_sync_individual(db, skip_existing = (sync_type == SyncType.update))
 
                 master.calc_states(db)
 
                 sync_complete_schema = schemas.sync_schema.SyncCompleteSchema(id=current_event.id, sync_type=current_event.sync_type)
-                crud.sync.update(db, current_event, sync_complete_schema)
+                current_event = crud.sync.update(db, current_event, sync_complete_schema)
                 logger.info(f">>>>>>>>>>>> Completed sync, type {sync_type}")
             
             except:
                 logger.error(f"!!!!! ERROR: Sync failed, type: {sync_type}")
-                sync_complete_schema = schemas.sync_schema.SyncCompleteSchema(id=current_event.id, sync_type=current_event.sync_type, complete=False)
-                crud.sync.update(db, current_event, sync_complete_schema)
+                sync_complete_schema = schemas.sync_schema.SyncCompleteSchema(id=current_event.id, sync_type=current_event.sync_type, status=SyncStatus.failed)
+                current_event = crud.sync.update(db, current_event, sync_complete_schema)
+
+            finally:
+                if current_event.status == SyncStatus.in_progress:
+                    logger.error(f"!!!!! ERROR: sync not completed, type: {sync_type}, assigning failed")
+                    sync_complete_schema = schemas.sync_schema.SyncCompleteSchema(id=current_event.id, sync_type=current_event.sync_type, status=SyncStatus.failed)
+                    crud.sync.update(db, current_event, sync_complete_schema)
+                else:
+                    pass
 
         else:
             logger.warn(">>>>>>>>>>>> sync event skipped, time difference less than sync frequency")
 
     except Exception as e:
-        logger.error(f"!!!!! ERROR: Sync event unsuccessful, type: {sync_type}")        
+        logger.error(f"!!!!! ERROR: Sync trigger unsuccessful, type: {sync_type}")        
         logger.error(f"exception content: {str(e)}")

@@ -70,7 +70,7 @@ async def api_manualsyncupdate(db: Session = Depends(rdb.get_db), keycloak_user:
         return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
-        service.sync.control.run_sync(db, sync_type = SyncType.minor, force=True)
+        service.sync.control.run_sync(db, sync_type = SyncType.update, force=True)
 
     else:
         logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")

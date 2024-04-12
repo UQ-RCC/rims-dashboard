@@ -12,7 +12,8 @@ import rimsdash.service as service
 import rimsdash.routers as routers
 import rimsdash.routers.manual_sync as updater
 
-import rimsdash.service.sync as sync
+import service.sync as sync
+import service.access as access
 
 from logging.handlers import TimedRotatingFileHandler
 from rimsdash.models import SystemRight, ProjectRight, SyncType
@@ -72,13 +73,15 @@ logging.getLogger("uvicorn").addHandler(sh)
 db = rdb.get_session()
 
 #drop and restart
-if False:
+if True:
     rdb.drop_db(force=True)
     rdb.init_db()    
 
     db = rdb.get_session()
 
-import service.access as access
+syncs = crud.sync.get_all(db)
+
+#sync.control.run_sync(db, sync_type = SyncType.rebuild)
 
 print("STARTING")
 

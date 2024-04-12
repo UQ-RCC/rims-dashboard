@@ -38,7 +38,6 @@ class Base:
         return cls.__name__.lower()
     """
 
-
 class IStatus(Enum):
     """
     enum for indicator state values
@@ -96,6 +95,16 @@ class SyncType(Enum):
     enum for sync types
     """
     none = 'none'
-    minor = 'minor'
+    individual = 'individual'
+    update = 'update'
     full = 'full'
-    report_only = 'report_only' 
+    rebuild = 'rebuild'
+
+class SyncStatus(Enum):
+    """
+    enum for sync types
+    """
+    none = 'none'
+    in_progress = 'in_progress'
+    complete = 'complete'
+    failed = 'failed'
