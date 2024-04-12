@@ -117,4 +117,26 @@ def lookup_user(db: Session, keycloak_user: dict) -> bool:
         else:
             raise Exception(f"Unspecified error parsing keycloak token")        
     
-    
+
+def lookup_realm_rights(db: Session, keycloak_user: dict) -> bool:
+    """
+    extracts user from decoded keycloak token and checks their access
+
+    returns True if user has admin/realm access, otherwise raises exception
+
+    """
+
+    try:
+        email = keycloak_user.get('email')
+        logger.debug(f"Querying access for |{email}|")
+        realm_access = keycloak_user.get('realm_access')
+    except:
+        raise Exception(f"Could not extract user from keycloak token")
+
+    #if the keycloak token has the appropriate realm (eg. admin), return ok
+    if USE_REALM and realm_access is not None and \
+        any ( realm in ALLOWED_REALMS for realm in realm_access.get('roles') ):
+        logger.debug(f"Keycloak accepted by realm for {email}, {realm_access}")
+        return True
+    else:
+        raise Exception(f"Superuser access denied for user {email}, realms {realm_access.get('roles')} not accepted" )

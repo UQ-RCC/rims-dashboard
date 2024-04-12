@@ -46,7 +46,7 @@ def rims_sync_batch_lists(db):
     logger.info(">>>>>>>>>>>> Finished syncing batch data from RIMS")
 
 
-def rims_sync_individual(db):
+def rims_sync_individual(db, skip_existing = True):
     """
     sync additional data requiring individual calls
 
@@ -69,13 +69,13 @@ def calc_states(db):
     processing.process_trequests(db) 
     logger.info(">>>>>>>>>>>> Finished calculating states")
 
-def dummy_sync(db):
+def dummy_sync(db, sync_type: SyncType = SyncType.minor):
     """
     add dummy sync to DB
     """
     logger.info(">>>>>>>>>>>> DEV adding fake sync to DB")
     #FUTURE: add a dummy sync type to models/base_model
-    __start_schema = schemas.SyncCreateSchema(sync_type=SyncType.full)
+    __start_schema = schemas.SyncCreateSchema(sync_type=sync_type)
     __current = crud.sync.create(db, __start_schema)
 
     __complete_schema = schemas.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type)
@@ -85,7 +85,7 @@ def dummy_sync(db):
     logger.info(">>>>>>>>>>>> DEV finished adding fake sync to DB")
 
 
-def remake_db(db, force=False):
+def remake_db(db: Session = Depends(rdb.get_db), force=False):
     if force == True:
         rdb.drop_db(force=True)
 
@@ -97,59 +97,58 @@ def remake_db(db, force=False):
 
 
 def primary_sync(db: Session = Depends(rdb.get_db), force=False):
-        """
-        perform full sync
+    """
+    perform full sync
 
-        WARNING: many RIMS API calls (6k+)
-            to be reduced by new reports when available
-        """
+    DEPRECATED
+    """
 
-        if config.get('sync', 'recreate_db', default=True) == "True":
-            remake = True
-        else:
-            remake = False
+    if config.get('sync', 'recreate_db', default=True) == "True":
+        remake = True
+    else:
+        remake = False
 
-        if remake:
-            logger.info("!!!!wipe and recreate DB")
-            db = remake_db(db, force=remake)
+    if remake:
+        logger.info("!!!!wipe and recreate DB")
+        db = remake_db(db, force=remake)
+    
+    sync_frequency_days = int(config.get('sync', 'full_sync_frequency', default=1))
+
+    try:
+        __last = crud.sync.get_latest_completion(db)
+    except:
+        __last = None
+
+            #FUTURE update the time delta here to allow sync at -5 min
+
+    try:
+        time_since_sync = datetime.datetime.now() - __last.start_time       
+    except:
+        time_since_sync = datetime.timedelta(seconds=1)
         
-        sync_frequency_days = int(config.get('sync', 'full_sync_frequency', default=1))
+    delta = datetime.timedelta(days=sync_frequency_days) - datetime.timedelta(minutes=5)
+
+    if force or __last is None or (time_since_sync  >= delta):
+        logger.info(">>>>>>>>>>>> Begin full sync")
+        __start_schema = schemas.sync_schema.SyncCreateSchema(sync_type=SyncType.full)
+        __current = crud.sync.create(db, __start_schema)
 
         try:
-            __last = crud.sync.get_latest_completion(db)
+            rims_sync_batch_lists(db)
+
+            if True:
+                rims_sync_individual(db)
+            calc_states(db)
+
+            __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type)
+            __updated = crud.sync.update(db, __current, __complete_schema)
+            logger.info(">>>>>>>>>>>> Completed full sync")
         except:
-            __last = None
-
-                #FUTURE update the time delta here to allow sync at -5 min
-
-        try:
-            time_since_sync = datetime.datetime.now() - __last.start_time       
-        except:
-            time_since_sync = datetime.timedelta(seconds=1)
-            
-        delta = datetime.timedelta(days=sync_frequency_days) - datetime.timedelta(minutes=5)
-
-        if force or __last is None or (time_since_sync  >= delta):
-            logger.info(">>>>>>>>>>>> Begin full sync")
-            __start_schema = schemas.sync_schema.SyncCreateSchema(sync_type=SyncType.full)
-            __current = crud.sync.create(db, __start_schema)
-
-            try:
-                rims_sync_batch_lists(db)
-
-                if True:
-                    rims_sync_individual(db)
-                calc_states(db)
-
-                __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type)
-                __updated = crud.sync.update(db, __current, __complete_schema)
-                logger.info(">>>>>>>>>>>> Completed full sync")
-            except:
-                logger.error("!!!!! ERROR: Sync not completed")
-                __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type, complete=False)
-                __updated = crud.sync.update(db, __current, __complete_schema)
-        else:
-            logger.warn(">>>>>>>>>>>> Sync not attempted, time difference less than sync frequency")
+            logger.error("!!!!! ERROR: Sync not completed")
+            __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type, complete=False)
+            __updated = crud.sync.update(db, __current, __complete_schema)
+    else:
+        logger.warn(">>>>>>>>>>>> Sync not attempted, time difference less than sync frequency")
 
 
 """

@@ -72,11 +72,13 @@ logging.getLogger("uvicorn").addHandler(sh)
 db = rdb.get_session()
 
 #drop and restart
-if True:
+if False:
     rdb.drop_db(force=True)
     rdb.init_db()    
 
     db = rdb.get_session()
+
+import service.access as access
 
 print("STARTING")
 

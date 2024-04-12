@@ -25,3 +25,12 @@ class SyncCompleteSchema(SyncBaseSchema):
     sync_type: SyncType
     end_time: datetime = Field(default_factory=datetime.now)
     complete: bool = True
+
+
+class SyncOutSchema(SyncBaseSchema):
+    ...
+    id: int
+    sync_type: SyncType
+    start_time: datetime
+    end_time: Optional[datetime]
+    complete: bool = False

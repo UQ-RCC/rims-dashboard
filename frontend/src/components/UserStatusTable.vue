@@ -41,10 +41,7 @@
                         </td>
                         <td>
                             <StatusIndicatorLocal :status="item.user_state.ok_user" :pulse="false"/>
-                        </td>                                                                                                         
-                        <td class="col_lh-divider">
-                            <StatusIndicatorLocal :status="item.user_state.ok_project" :pulse="false"/>
-                        </td>                                 
+                        </td>                                                                                                                                        
                     </tr>
                 </template>
         </v-data-table>
@@ -78,8 +75,7 @@ export default {
                         { text: 'Chem', value: 'chem', width: '8%', sortable: false },
                         { text: 'QBP', value: 'qbp', width: '8%', sortable: false },
                         { text: 'Pitschi', value: 'pitschi', width: '8%', sortable: false },
-                        { text: 'User', value: 'project', width: '8%', sortable: false },
-                        { text: 'Project', value: 'ok', width: '8%', sortable: false },                    
+                        { text: 'User', value: 'project', width: '8%', sortable: false },                   
                     ],
         }
     },

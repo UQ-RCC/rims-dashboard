@@ -15,16 +15,10 @@ logger = logging.getLogger('rimsdash')
 @repeat_every(seconds=60 * 60 * 24, wait_first=False, logger=logger)
 def sync_daily() -> None:
 
-    #if not rdb.exists():
     if True:        
         logger.info(">>>>>>>>>>>>Initialising DB")
         rdb.init_db()
-    else:
-        logger.info(">>>>>>>>>>>>DB already initialised")
 
-    logger.info(">>>>>>>>>>>>Sync event triggered")
     with rdb.sessionmaker.context_session() as db:
-            sync.master.primary_sync(db, force=False)
-
-
+            sync.control.run_sync(db, force=False)
 
