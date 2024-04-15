@@ -6,9 +6,9 @@ services:
 
   frontend:
   #----------------------     
-    build: 
-      context: ./frontend
-      dockerfile: Dockerfile.dev
+  #  build: 
+  #    context: ./frontend
+  #    dockerfile: Dockerfile.dev
 
     volumes:
     - './frontend:/app'
