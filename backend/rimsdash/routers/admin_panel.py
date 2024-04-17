@@ -21,7 +21,7 @@ router = APIRouter()
 logger = logging.getLogger('rimsdash')
 
 MESSAGE_DENIED = "access denied"
-
+MESSAGE_SERVER_ERROR = "Internal Server Error: The function did not complete as expected."
 
 @router.get("/getlastsync", response_model=list[schemas.sync_schema.SyncOutSchema])
 async def api_getlastsync(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
@@ -61,6 +61,29 @@ async def api_getlastfullsync(db: Session = Depends(rdb.get_db), keycloak_user: 
         return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})    
 
 
+@router.get("/allsyncs", response_model=list[schemas.sync_schema.SyncOutSchema])
+async def api_allsyncs(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
+    try:
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
+    except Exception as e:
+        logger.exception("Access denied by keycloak")
+        return JSONResponse(status_code=401, content={"message": str(e)})
+
+    if has_access:
+        __syncs = access.sync.get_all_recent_syncs(db)
+
+        result = []
+
+        for sync in __syncs:
+            result.append(schemas.sync_schema.SyncOutSchema.from_orm(sync))
+
+        return result
+    else:
+        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
+        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})    
+
+
+
 @router.post("/manualsyncupdate")
 async def api_manualsyncupdate(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)): 
     try:
@@ -70,7 +93,13 @@ async def api_manualsyncupdate(db: Session = Depends(rdb.get_db), keycloak_user:
         return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
-        service.sync.control.run_sync(db, sync_type = SyncType.update, force=True)
+        try:
+            service.sync.control.run_sync(db, sync_type = SyncType.update, force=True)
+
+            return JSONResponse(status_code=204)
+           
+        except:
+            return JSONResponse(status_code=500, content={"message": MESSAGE_SERVER_ERROR})
 
     else:
         logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
@@ -86,7 +115,13 @@ async def api_manualsyncfull(db: Session = Depends(rdb.get_db), keycloak_user: d
         return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
-        service.sync.control.run_sync(db, sync_type = SyncType.full, force=True)
+        try:
+            service.sync.control.run_sync(db, sync_type = SyncType.full, force=True)
+
+            return JSONResponse(status_code=204)
+        
+        except:
+            return JSONResponse(status_code=500, content={"message": MESSAGE_SERVER_ERROR})
 
     else:
         logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
@@ -102,8 +137,13 @@ async def api_manualsyncfullrebuild(db: Session = Depends(rdb.get_db), keycloak_
         return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
-        service.sync.control.run_sync(db, sync_type = SyncType.full, force=True, rebuild=True)
+        try:
+            service.sync.control.run_sync(db, sync_type = SyncType.full, force=True, rebuild=True)
 
+            return JSONResponse(status_code=204)
+        
+        except:
+            return JSONResponse(status_code=500, content={"message": MESSAGE_SERVER_ERROR})
     else:
         logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
         return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})  

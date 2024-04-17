@@ -10,7 +10,7 @@ import rimsdash.config as config
 import rimsdash.utils.keycloak as keycloak
 
 #from rimsdash.routers import general
-from rimsdash.routers import unsecured, navbar, projects, sync, training_requests
+from rimsdash.routers import unsecured, navbar, projects, sync, training_requests, admin_panel
 
 
 #logging setup
@@ -99,6 +99,15 @@ app.include_router(
     dependencies=[Depends(keycloak.decode)],
     responses={404: {"description": "Not found"}},
 )
+
+app.include_router(
+    admin_panel.router,
+    prefix="/rims/api/v1",
+    tags=['adminpanel'],
+    dependencies=[Depends(keycloak.decode)],
+    responses={404: {"description": "Not found"}},
+)
+
 
 #IMPORANT: unsecured, use for ready ping only
 app.include_router(

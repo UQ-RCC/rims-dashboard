@@ -124,4 +124,27 @@ class SyncAccess():
         return return_list        
 
 
+    def get_all_syncs(self, db: Session = Depends(rdb.get_db), match_status: SyncStatus = None) -> list[SyncModel]:  
+        """
+        return list of sync events by timedelta, with status if specified
+        """
+        try:
+
+            accepted_types = [ SyncType.update, SyncType.full, SyncType.rebuild ]
+            return_list = []
+
+            sync_rows = crud.sync.get_all(db)
+
+            for sync in sync_rows:
+                if ( sync.status == match_status or match_status == None ):
+                        return_list.append(sync)
+            
+        except Exception as e:
+            return []
+        
+        finally:
+            return return_list
+
+
+
 sync = SyncAccess()

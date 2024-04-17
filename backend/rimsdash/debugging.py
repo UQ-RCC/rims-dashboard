@@ -79,7 +79,7 @@ if False:
 
     db = rdb.get_session()
 
-syncs = crud.sync.get_latest_completion(db)
+syncs = access.sync.get_all_recent_syncs(db)
 
 #sync.control.run_sync(db, sync_type = SyncType.update)
 
