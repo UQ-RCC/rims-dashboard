@@ -6,7 +6,28 @@ RIMS-dashboard is an internal tool providing up-to-date status information on us
 
 The application is designed and developed by the Centre for Microscopy and Microanalysis (CMM) and the Research Computing Centre (RCC).
 
+# Architecture
+
+<p align="left">
+  <img src="./docs/images/cloudcraft_diagram.png" alt="Architecture diagram" width="1024">
+  <br />
+</p>
+
+The app uses a Vue.JS frontend served via nginx, a PostgreSQL DB, and a Python/FastAPI backend  communicating with both the 3p SaaS Stratocore (RIMS) system, and a UQ RCC auth server. The app is designed to be deployed on AWS/Nectar via Docker and Kubernetes.
+
 # Features
+
+<p align="left">
+  <img src="./docs/images/projects_demo.png" alt="Projects page" width="1024">
+  <br />
+</p>
+
+The application presents an at-a-glance summary of the status of a facility's projects in RIMS, using data populated via the Statocore API. Projects and users can be expanded to display further details, user lists, request forms etc. 
+
+Related functionality is also provided for training requests, linking to the request details. 
+
+User authentication is provided via keycloak and UQ's established 2FA system, and an extended control panel is displayed to facility superusers.
+
 
 # Installation
 
