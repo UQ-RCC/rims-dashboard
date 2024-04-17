@@ -153,7 +153,6 @@
 <script>
     import Vue from 'vue'
     import VueLogger from 'vuejs-logger'
-    //import RimsdashAPI from "@/api/RimsdashAPI"
     import TrainingRequestsAPI from "@/api/TrainingRequestsAPI"
     import StatusIndicatorLocal from '../components/StatusIndicatorLocal.vue'    
     import UserStatusTable from '../components/UserStatusTable.vue'   

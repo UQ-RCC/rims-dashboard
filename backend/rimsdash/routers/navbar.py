@@ -30,36 +30,6 @@ async def get_token(token: str = Depends(keycloak.oauth2_scheme)):
     return token
 
 
-@router.get("/adminfromtoken", response_model=schemas.user_schema.UserAdminOutSchema)
-async def api_adminfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
-    """
-    return the admin status corresponding to the keycloak token
-    """
-    try:
-        logger.info(f"Admin request for {keycloak_user.email}")
-    except:
-        pass
-
-    try:
-        has_access = service.security.lookup_user(db, keycloak_user)
-    except Exception as e:
-        logger.exception("Keycloak data not valid")
-        return JSONResponse(status_code=401, content={"message": str(e)})
-
-    if has_access:
-        try:
-            __user = crud.user.get_by_email(db, email=keycloak_user.get('email')) 
-
-            result = schemas.user_schema.UserAdminOutSchema.from_orm(__user)
-        except:
-            return JSONResponse(status_code=400, content={"message": str(e)})
-        
-        finally:
-            return result
-    else:
-        logger.error(f"Access=false passed without exception for keycloak {keycloak_user.get('email')}")
-        return JSONResponse(status_code=401, content={"message": MESSAGE_DENIED})
-
 @router.get("/userfromtoken", response_model=schemas.user_schema.UserSelfOutSchema)
 async def api_userfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
     """
@@ -85,6 +55,58 @@ async def api_userfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: di
     
     finally:
         return result
+
+@router.get("/adminfromtoken", response_model=schemas.ReturnSimpleBoolSchema)
+async def api_adminfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
+    """
+    return the admin status corresponding to the keycloak token
+    """
+    try:
+        logger.info(f"Admin request for {keycloak_user.email}")
+    except:
+        pass
+
+    try:
+        has_access = service.security.lookup_admin_rights(db, keycloak_user)
+
+    except Exception as e:
+        has_access = False
+
+    try:
+
+        result = schemas.ReturnSimpleBoolSchema(ok = has_access)
+    except:
+        return JSONResponse(status_code=400, content={"message": str(e)})
+    
+    finally:
+        return result
+
+
+@router.get("/superadminfromtoken", response_model=schemas.ReturnSimpleBoolSchema)
+async def api_superadminfromtoken(db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):
+    """
+    return superadmin status based on the keycloak token realms
+    """
+    try:
+        logger.info(f"Superadmin request for {keycloak_user.email}")
+    except:
+        pass
+
+    try:
+        has_access = service.security.lookup_realm_rights(db, keycloak_user)
+
+    except Exception as e:
+        has_access = False
+
+    try:
+        result = schemas.ReturnSimpleBoolSchema(ok = has_access)      
+    except:
+        return JSONResponse(status_code=400, content={"message": str(e)})
+    
+    finally:
+        return result
+
+
 
 @router.get("/userfromemail", response_model=schemas.user_schema.UserOutSchema)
 async def api_userbyemail(email: str, db: Session = Depends(rdb.get_db), keycloak_user: dict = Depends(keycloak.decode)):

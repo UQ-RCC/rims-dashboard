@@ -14,3 +14,5 @@ from .projectaccount_schema import *
 from .sync_schema import *
 from .trequest_schema import *
 from .util_schema import *
+
+from .base_schema import ReturnSimpleBoolSchema

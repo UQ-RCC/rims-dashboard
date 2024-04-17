@@ -96,6 +96,7 @@ def run_sync(db: Session = Depends(rdb.get_db), sync_type: SyncType = SyncType.u
             current_event = crud.sync.create(db, sync_start_schema)
 
             try:
+                print("DUMMY SYNC")
                 master.rims_sync_batch_lists(db)
 
                 master.rims_sync_individual(db, skip_existing = (sync_type == SyncType.update))

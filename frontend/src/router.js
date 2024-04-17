@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Projects from './views/Projects.vue'
 import TrainingRequests from './views/TrainingRequests.vue'
+import ControlPanel from './views/ControlPanel.vue'
 //import User from './views/User.vue'
 //import Projects from './views/Projects.vue'
 
@@ -26,7 +27,12 @@ export default new Router({
             path: '/trainingrequests',
             name: 'Training Requests',
             component: TrainingRequests
-        },         
+        },
+        {
+            path: '/administration',
+            name: 'Administration',
+            component: ControlPanel
+        },                
         { path: '*', redirect: '/home' }  
     ]
 })

@@ -122,7 +122,7 @@ def lookup_realm_rights(db: Session, keycloak_user: dict) -> bool:
     """
     extracts user from decoded keycloak token and checks their access
 
-    returns True if user has admin/realm access, otherwise raises exception
+    returns True if user has realm access, otherwise raises exception
 
     """
 
@@ -139,4 +139,4 @@ def lookup_realm_rights(db: Session, keycloak_user: dict) -> bool:
         logger.debug(f"Keycloak accepted by realm for {email}, {realm_access}")
         return True
     else:
-        raise Exception(f"Superuser access denied for user {email}, realms {realm_access.get('roles')} not accepted" )
+        raise Exception(f"Superadmin access denied for user {email}, realms {realm_access.get('roles')} not accepted" )

@@ -132,7 +132,6 @@
 <script>
     import Vue from 'vue'
     import VueLogger from 'vuejs-logger'
-    //import RimsdashAPI from "@/api/RimsdashAPI"
     import ProjectsAPI from "@/api/ProjectsAPI"
     import StatusIndicatorLocal from '../components/StatusIndicatorLocal.vue'    
     import FeeForServiceIcon from '../components/FeeForServiceIcon.vue'   

@@ -12,15 +12,22 @@ export default {
         return data
     },
 
-    async getAdminByToken() {
-        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/adminfromtoken` )
-        return data
-    },      
-
     async getUserByToken() {
         const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/userfromtoken` )
         return data
-    },     
+    },        
+
+    async getAdminByToken() {
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/adminfromtoken` )      
+        return data
+    },
+
+    async getSuperAdminByToken() {
+        const { data } = await request.get(`${Vue.prototype.$Config.backend}/v1/superadminfromtoken` )
+        return data
+    },
+    
+ 
 
     async getUserByEmail(email) {
         let payload = {

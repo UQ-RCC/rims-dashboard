@@ -29,7 +29,7 @@ async def api_connected(db: Session = Depends(rdb.get_db)):
 
     db_has_cursor: bool = access.sync.has_cursor(db)
 
-    result = { 'connected': db_has_cursor }
+    result = { 'ok': db_has_cursor }
 
     return result
 
@@ -39,6 +39,6 @@ async def api_populated(db: Session = Depends(rdb.get_db)):
 
     db_has_synced: bool = access.sync.has_synced(db)
 
-    result = { 'populated': db_has_synced }
+    result = { 'ok': db_has_synced }
 
     return result

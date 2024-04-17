@@ -23,3 +23,9 @@ class BaseSchema(BaseModel):
 
             result[key] = __value
         return result
+
+
+# return schema
+
+class ReturnSimpleBoolSchema(BaseSchema):
+    ok: bool = False

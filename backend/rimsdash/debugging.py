@@ -73,17 +73,15 @@ logging.getLogger("uvicorn").addHandler(sh)
 db = rdb.get_session()
 
 #drop and restart
-if True:
+if False:
     rdb.drop_db(force=True)
     rdb.init_db()    
 
     db = rdb.get_session()
 
-#syncs = crud.sync.get_all(db)
+syncs = crud.sync.get_latest_completion(db)
 
-#sync.control.run_sync(db, sync_type = SyncType.rebuild)
-
-print("STARTING")
+#sync.control.run_sync(db, sync_type = SyncType.update)
 
 #if True:        
 #    logger.info(">>>>>>>>>>>>Initialising DB")
@@ -108,6 +106,6 @@ print("STARTING")
 #    for right in result.user_rights:
 #        print(f"{right.user.username}, {right.user.user_state.ok_all}")
 
-#    print("COMPLETE")
+print("COMPLETE")
 
 
