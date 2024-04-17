@@ -79,7 +79,7 @@ if True:
 
     db = rdb.get_session()
 
-syncs = crud.sync.get_all(db)
+#syncs = crud.sync.get_all(db)
 
 #sync.control.run_sync(db, sync_type = SyncType.rebuild)
 

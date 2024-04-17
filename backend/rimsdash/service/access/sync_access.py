@@ -103,11 +103,11 @@ class SyncAccess():
             sync_rows = crud.sync.get_sorted_completions(db)
 
             for sync in sync_rows:
-                if ( match_status == None or sync.status == match_status ) and sync.sync_type in accepted_types:
+                if ( sync.status == match_status or match_status == None ) and sync.sync_type in accepted_types:
                     if ( (datetime.datetime.now() - sync.start_time ) <= delta):
                         return_list.append(sync)
                     else:
-                        logger.warn(f"found old incomplete sync {sync.id} at time {sync.start_time} with type {sync.sync_type}, status {sync.status}")
+                        logger.warn(f"found old incomplete sync {sync.id}, at time {sync.start_time} with type {sync.sync_type}, status {sync.status}")
             
         except Exception as e:
             return []
