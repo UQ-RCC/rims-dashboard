@@ -15,10 +15,10 @@ COPY ./pyproject.toml /app
 
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
-RUN pip install debugpy
+#RUN pip install debugpy
 
 #debugpy port
-EXPOSE 5678
+#EXPOSE 5678
 
 RUN pip install -e /app[dev]
 

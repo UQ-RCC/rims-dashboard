@@ -70,7 +70,7 @@ async def api_allsyncs(db: Session = Depends(rdb.get_db), keycloak_user: dict = 
         return JSONResponse(status_code=401, content={"message": str(e)})
 
     if has_access:
-        __syncs = access.sync.get_all_recent_syncs(db)
+        __syncs = access.sync.get_all_syncs(db)
 
         result = []
 
@@ -94,6 +94,7 @@ async def api_manualsyncupdate(db: Session = Depends(rdb.get_db), keycloak_user:
 
     if has_access:
         try:
+            logger.exception("Manual sync requested via API")
             service.sync.control.run_sync(db, sync_type = SyncType.update, force=True)
 
             return JSONResponse(status_code=204)
