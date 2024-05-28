@@ -38,24 +38,42 @@
                     Options
                 </v-card-title>
                 <v-card-text>
+                    <v-list-item>                        
+                        <v-list-item-icon>
+                            <v-icon :style="[is_syncing == true ? {'color': 'green !important'} : {'color' : 'grey'}]">mdi-sync</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title class="ml-n5">Refresh event list</v-list-item-title>
+                        <v-list-item-action>
+                            <v-btn color="primary" name="offbtn" @click="refreshTable()">Update</v-btn>
+                        </v-list-item-action>                        
+                    </v-list-item>                      
                     <v-list-item>
                         <v-list-item-icon>
                             <v-icon :style="[is_syncing == true ? {'color': 'green !important'} : {'color' : 'grey'}]">mdi-sync</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title class="ml-n5" > Start manual sync </v-list-item-title>
+                        <v-list-item-title class="ml-n5" > Start sync: update (~15 min) </v-list-item-title>
                         <v-list-item-action>
-                            <v-btn color="primary" name="offbtn" :disabled="is_syncing" @click="startManualSync()"> Begin </v-btn>
+                            <v-btn color="primary" name="offbtn" :disabled="is_syncing" @click="confirmManualSync()"> Start </v-btn>
                         </v-list-item-action>
-                    </v-list-item>   
+                    </v-list-item> 
                     <v-list-item>
                         <v-list-item-icon>
                             <v-icon :style="[is_syncing == true ? {'color': 'green !important'} : {'color' : 'grey'}]">mdi-sync</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title class="ml-n5" v-text="is_syncing == true ?'Sync is currently active' :'Sync is currently idle'"> </v-list-item-title>
+                        <v-list-item-title class="ml-n5" > Start sync: full (~1h) </v-list-item-title>
                         <v-list-item-action>
-                            <v-btn color="primary" name="offbtn" :disabled="!is_syncing" @click="turnOffSync()"> Reset</v-btn>
+                            <v-btn color="primary" name="offbtn" :disabled="is_syncing" @click="confirmManualSyncFull()"> Start </v-btn>
                         </v-list-item-action>
-                    </v-list-item>                     
+                    </v-list-item>                       
+                    <v-list-item>
+                        <v-list-item-icon>
+                            <v-icon :style="[is_syncing == true ? {'color': 'green !important'} : {'color' : 'grey'}]">mdi-sync</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title class="ml-n5" v-text="is_syncing == true ?'A sync event is ongoing' :'Sync is currently idle'"> </v-list-item-title>
+                        <v-list-item-action>
+                            <v-btn color="primary" name="offbtn" :disabled="!is_syncing" @click="turnOffSync()"> Override</v-btn>
+                        </v-list-item-action>
+                    </v-list-item>                                             
                 </v-card-text>
             </v-card>
         </v-row>
@@ -118,6 +136,7 @@
                 //this.trequests = await TrainingRequestAPI.getTrainingRequests()
                 this.loading = false       
                 this.syncEvents = this.syncEventsFull
+                this.is_syncing = this.syncEvents.some(item => item.status == 'in_progress')
                 Vue.$log.debug("CP refresh complete...")
             },            
 
@@ -145,8 +164,8 @@
             turnOffSync() { // set the sync option to false
                 console.log("Turn off sync")
                 this.$fire({
-                    title: "Reset RIMS sync status to idle",
-                    text: 'Are you sure?',
+                    title: "Override RIMS sync status",
+                    text: 'This will allow a new manual sync to be triggered even if the DB is already syncing. Are you sure?',
                     showConfirmButton: true,
                     showCancelButton: true,
                     cancelButtonText: 'No',
@@ -163,6 +182,22 @@
                 
             },
 
+           confirmManualSync() {
+                console.log("Manual sync press")
+                this.$fire({
+                    title: "Manual update",
+                    text: 'This will start an update sync to the RIMS DB, which updates the project data but does not check the admin users. During this time, data may cease to display, please wait for at least 30 minutes before attempting further sync events. Are you sure you want to sync at this time?',
+                    showConfirmButton: true,
+                    showCancelButton: true,
+                    cancelButtonText: 'No',
+                    confirmButtonText: 'Yes',
+                }).then(r => {
+                    if (r.value == true) {
+                        this.startManualSync()
+                    }
+                });               
+            },            
+
             startManualSync() {
                 Vue.$log.info("initiating manual sync: ")     
                 let response = ControlAPI.startManualSyncUpdate()
@@ -174,9 +209,44 @@
                 }
 
                 this.refresh()
-            }
+                this.is_syncing = true                
+            },
 
             
+            confirmManualSyncFull() {
+                console.log("Manual sync press")
+                this.$fire({
+                    title: "Manual full sync",
+                    text: 'This will start a full sync to the RIMS DB, which updates all data including admin users. During this time, data may cease to display, please wait at least 2 hours before attempting further sync events. Are you sure you want to perform a full sync now?',
+                    showConfirmButton: true,
+                    showCancelButton: true,
+                    cancelButtonText: 'No',
+                    confirmButtonText: 'Yes',
+                }).then(r => {
+                    if (r.value == true) {
+                        this.startManualSync()
+                    }
+                });               
+            },            
+
+            startManualSyncFull() {
+                Vue.$log.info("initiating manual full sync: ")     
+                let response = ControlAPI.startManualSyncFull()
+
+                if (response.status === 204) {
+                    Vue.$log.debug('Sync request successful');
+                } else {
+                    Vue.$log.error('Sync request unsuccessful');
+                }
+
+                this.refresh()
+                this.is_syncing = true
+            },            
+
+            refreshTable() {
+                Vue.$log.info("manual refresh")     
+                this.refresh()
+            },
 
         },
         mounted: async function() { // reading initial sync status

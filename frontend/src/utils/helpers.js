@@ -16,7 +16,7 @@ export function convertDatetime(datetime_str) {
     minutes = minutes < 10 ? '0' + minutes : minutes;
     
     // Format the date in the 'YYYY/MM/DD' format
-    let readableDate = `${year}/${month}/${day} ${hours}:${minutes}`;
+    let readableDate = `${day}/${month}/${year} ${hours}:${minutes}`;
 
     return readableDate;
 }

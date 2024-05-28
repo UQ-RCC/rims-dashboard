@@ -6,9 +6,12 @@ FROM node:16.20.2 AS builder
 WORKDIR /app
 
 # Bundle app sources
-COPY package.json vue.config.js babel.config.js /app/
+COPY package.json vue.config.js babel.config.js yarn.lock /app/
 
 COPY ./nginx ./public ./src /app/
+
+RUN echo "Listing /" && ls /
+RUN echo "Listing /app/" && ls /app/
 
 RUN yarn install && yarn run build
 
