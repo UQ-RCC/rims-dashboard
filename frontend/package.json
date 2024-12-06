@@ -12,7 +12,7 @@
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "http-server": "^14.1.1",
-    "keycloak-js": "^15.0.2",
+    "keycloak-js": "^20.0.5",
     "roboto-fontface": "*",
     "v-autocomplete": "^1.8.2",
     "vue": "^2.6.11",

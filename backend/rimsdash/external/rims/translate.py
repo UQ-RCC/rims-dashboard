@@ -430,7 +430,7 @@ def trequest_extract_fields_by_column(request_data: dict, form_id: int) -> dict:
         try:
             result[key] = request_data[key]
         except:
-            logger.error(f"key {key} not found in request {request_data['Request ID']}")
+            logger.error(f"key {key} not found in request {request_data['Request ID']}", exc_info=True)
     
     return result
 

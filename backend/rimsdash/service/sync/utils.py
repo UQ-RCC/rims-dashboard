@@ -14,7 +14,7 @@ def log_sync_error(label, id):
     try:
         logger.error(f"Failure syncing {label} at id: {id}")
     except:
-        logger.error(f"Failure syncing item, id/label missing")
+        logger.error(f"Failure syncing item, id/label missing", exc_info=True)
 
 def log_processing_error(label, id):
     """
@@ -24,7 +24,7 @@ def log_processing_error(label, id):
     try:
         logger.error(f"Failure processing {label} at id: {id}")
     except:
-        logger.error(f"Failure processing item, id/label missing")
+        logger.error(f"Failure processing item, id/label missing", exc_info=True)
 
 
 def match_project_account_pair(projectaccount_list: list[dict], bcode: str, project_id: int) -> dict:

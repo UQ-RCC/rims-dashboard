@@ -114,7 +114,7 @@ def process_user(user: UserForStateCheckSchema) -> UserStateInitSchema:
         else:
             state.ok_user = IStatus.incomplete
     except:
-        logger.error(f"error generating user state for {user.username}")
+        logger.error(f"error generating user state for {user.username}", exc_info=True)
 
     finally:
         return state
@@ -185,7 +185,7 @@ def process_project(project: ProjectForStateCheckSchema) -> ProjectStateInitSche
         else:
             state.ok_project = IStatus.incomplete
     except:
-        logger.error(f"error generating project state for {project.id}")
+        logger.error(f"error generating project state for {project.id}", exc_info=True)
 
     finally:
         return state
@@ -227,7 +227,7 @@ def postprocess_project(project: ProjectOutRefsSchema) -> ProjectStatePostProces
             project_state.ok_all = IStatus.ready
 
     except:
-        logger.error(f"error post-processing project state {project.id}")
+        logger.error(f"error post-processing project state {project.id}", exc_info=True)
     
     finally:
         return project_state
@@ -258,7 +258,7 @@ def postprocess_user(user: UserOutRefsSchema) -> UserStatePostProcessUpdateSchem
             user_state.ok_all = IStatus.ready
 
     except:
-        logger.error(f"error post-processing user state {user.username}")
+        logger.error(f"error post-processing user state {user.username}", exc_info=True)
 
     finally:
         return user_state
@@ -276,7 +276,7 @@ def process_trequest(trequest: schemas.TrainingRequestForProcessingSchema) -> sc
             return_trequest.state = IStatus.ready
 
     except:
-        logger.error(f"error generating trequest state for {trequest.id}")
+        logger.error(f"error generating trequest state for {trequest.id}", exc_info=True)
 
     finally:
         return return_trequest

@@ -144,7 +144,7 @@ def primary_sync(db: Session = Depends(rdb.get_db), force=False):
             __updated = crud.sync.update(db, __current, __complete_schema)
             logger.info(">>>>>>>>>>>> Completed full sync")
         except:
-            logger.error("!!!!! ERROR: Sync not completed")
+            logger.error("!!!!! ERROR: Sync not completed", exc_info=True)
             __complete_schema = schemas.sync_schema.SyncCompleteSchema(id=__current.id, sync_type=__current.sync_type, complete=False)
             __updated = crud.sync.update(db, __current, __complete_schema)
     else:

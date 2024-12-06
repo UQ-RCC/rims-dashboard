@@ -108,7 +108,7 @@ def run_sync(db: Session = Depends(rdb.get_db), sync_type: SyncType = SyncType.u
                 logger.info(f">>>>>>>>>>>> Completed sync, type {sync_type}")
             
             except:
-                logger.error(f"!!!!! ERROR: Sync failed, type: {sync_type}")
+                logger.error(f"!!!!! ERROR: Sync failed, type: {sync_type}", exc_info=True)
                 sync_complete_schema = schemas.sync_schema.SyncCompleteSchema(id=current_event.id, sync_type=current_event.sync_type, status=SyncStatus.failed)
                 current_event = crud.sync.update(db, current_event, sync_complete_schema)
 
@@ -124,5 +124,4 @@ def run_sync(db: Session = Depends(rdb.get_db), sync_type: SyncType = SyncType.u
             logger.warn(">>>>>>>>>>>> sync event skipped, time difference less than sync frequency")
 
     except Exception as e:
-        logger.error(f"!!!!! ERROR: Sync trigger unsuccessful, type: {sync_type}")        
-        logger.error(f"exception content: {str(e)}")
+        logger.error(f"!!!!! ERROR: Sync trigger unsuccessful, type: {sync_type}", exc_info=True)
