@@ -4,10 +4,12 @@ import uvicorn
 
 from fastapi import FastAPI, Depends    #, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from logging.handlers import TimedRotatingFileHandler
 
 import rimsdash.config as config
 import rimsdash.utils.keycloak as keycloak
+import rimsdash.utils.utils as utils
 
 #from rimsdash.routers import general
 from rimsdash.routers import unsecured, navbar, projects, sync, training_requests, admin_panel
@@ -117,15 +119,18 @@ app.include_router(
     responses={404: {"description": "Not found"}},
 )
 
-
 # automatic tasks
-if (bool(config.get('sync', 'automatic_sync', default = False)) == True):
+if utils.str2bool(config.get('sync', 'automatic_sync', default = 'False')):
     logger.info("Automatic syncing on")
     app.include_router(
         sync.router
     )
 else:
     logger.info("Automatic syncing off")
+
+if os.environ.get('RIMSDASH_WEBCONTENT'):
+    # allow running in vscode with backend app serving frontend content
+    app.mount('/rims/', StaticFiles(directory=os.environ['RIMSDASH_WEBCONTENT'], html=True, check_dir=False))
 
 #Dev mode
 def entry_dev():

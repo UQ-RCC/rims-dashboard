@@ -13,6 +13,40 @@
                     "remoteRoot": "/code"
                 }
             ]
+        },
+        {
+            "name": "Python Debugger: FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/backend",
+            "module": "uvicorn",
+            "env": {
+                "rimsdash_CONFIG": "${workspaceFolder}/run/conf/rimsdash.conf",
+                "RIMSDASH_WEBCONTENT": "${workspaceFolder}/frontend/dist",
+                "POSTGRES_DB": "",
+                "POSTGRES_USER": "",
+                "POSTGRES_PASSWORD": "",
+                "SQL_HOST": "",
+                "SQL_PORT": "5432",
+                "RIMSDASH_PPMS_URL": "",
+                "RIMSDASH_PPMS_API2_KEY": "",
+                "RIMSDASH_UNLISTED_STAFF": "",
+                "RIMSDASH_KEYCLOAK_SERVER_URL": "",
+                "RIMSDASH_KEYCLOAK_REALM_NAME": "",
+                "RIMSDASH_KEYCLOAK_CLIENTID": "",
+                "RIMSDASH_KEYCLOAK_CLIENT_SECRET": "",
+                "RIMSDASH_KEYCLOAK_AUTHORIZATION_URL": "",
+                "RIMSDASH_KEYCLOAK_TOKEN_URL": "",
+                "RIMSDASH_KEYCLOAK_PUBLIC_KEY": ""
+             },
+            "args": [ "rimsdash.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload" ]
+        },
+        {
+            "name": "npm build",
+            "type": "node-terminal",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/frontend",
+            "command": "npm run build"
         }
     ]
 }

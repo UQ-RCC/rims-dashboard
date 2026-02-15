@@ -480,4 +480,4 @@ def get_trequest_content(form_id: int) -> list[dict]:
         else:
             return response.json(strict=False)
     else:
-        raise Exception('Not found')    
+        raise Exception('Not found')

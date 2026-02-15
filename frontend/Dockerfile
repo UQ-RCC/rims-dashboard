@@ -2,16 +2,16 @@
 #1) build with node 16
 #2) serve with nginx
 #builder
-FROM node:16 AS builder
+FROM node:18 AS builder
 WORKDIR /app
 
 # Bundle app sources
-COPY package.json vue.config.js babel.config.js yarn.lock .
+COPY package.json vue.config.js babel.config.js package-lock.json .
 COPY nginx nginx
 COPY public public
 COPY src src
 
-RUN yarn install && yarn run build
+RUN npm install && npm run build
 
 #-----------------------------------------------
 #server
